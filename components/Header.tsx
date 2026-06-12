@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
-import { captainToSlug } from "@/data/quinielas";
+import { getQuinielasByCaptain, quinielaToSlug } from "@/data/quinielas";
 import PlayerAvatar from "./PlayerAvatar";
 
 const navLinks = [
@@ -38,9 +38,12 @@ export default function Header() {
           ))}
         </nav>
 
-        {activePlayer && (
+        {activePlayer && (() => {
+          const top = getQuinielasByCaptain(activePlayer)[0];
+          if (!top) return null;
+          return (
           <Link
-            href={`/jugador/${captainToSlug(activePlayer)}`}
+            href={`/jugador/${quinielaToSlug(top.name)}`}
             className="flex items-center gap-2 rounded-full border border-white/10 bg-stadium-card px-2 py-1 light:border-slate-200 light:bg-white"
           >
             <PlayerAvatar captain={activePlayer} size={32} />
@@ -48,7 +51,8 @@ export default function Header() {
               {activePlayer.split(" ")[0]}
             </span>
           </Link>
-        )}
+          );
+        })()}
       </div>
     </header>
   );

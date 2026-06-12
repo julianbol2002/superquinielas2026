@@ -67,5 +67,11 @@
   "podium_title": "Podium",
   "accuracy": "Correct picks",
   "highest_score": "Best entry",
-  "view_profile": "View profile"
+  "view_profile": "View profile",
+  "live_scores": "Live Scores",
+  "last_updated": "Last updated",
+  "no_live_matches": "No matches live right now",
+  "recent_results": "Recent results",
+  "view_all_matches": "View all matches",
+  "live_sync": "Automatic ESPN sync"
 }

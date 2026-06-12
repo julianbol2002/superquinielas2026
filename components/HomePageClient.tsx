@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  aggregatePlayers,
-  filterPlayersByBet,
+  getRankedQuinielas,
+  filterQuinielasByBet,
 } from "@/data/quinielas";
 import Hero from "@/components/Hero";
+import LiveScoresPanel from "@/components/LiveScoresPanel";
 import PlayerPodium from "@/components/PlayerPodium";
 import StatCards from "@/components/StatCards";
 import Leaderboard from "@/components/Leaderboard";
@@ -18,10 +19,10 @@ export default function HomePageClient() {
   const t = useTranslations();
   const [betFilter, setBetFilter] = useState<"all" | 25 | 50 | 100>("all");
 
-  const allPlayers = useMemo(() => aggregatePlayers(), []);
-  const players = useMemo(
-    () => filterPlayersByBet(allPlayers, betFilter),
-    [allPlayers, betFilter]
+  const allEntries = useMemo(() => getRankedQuinielas(), []);
+  const entries = useMemo(
+    () => filterQuinielasByBet(allEntries, betFilter),
+    [allEntries, betFilter]
   );
 
   const betTabs: { key: typeof betFilter; label: string }[] = [
@@ -34,8 +35,9 @@ export default function HomePageClient() {
   return (
     <>
       <Hero />
-      <PlayerPodium players={allPlayers} />
-      <StatCards players={allPlayers} />
+      <LiveScoresPanel />
+      <PlayerPodium entries={allEntries} />
+      <StatCards entries={allEntries} />
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-2xl tracking-wide">{t("leaderboard")}</h2>
@@ -57,7 +59,7 @@ export default function HomePageClient() {
         </div>
       </div>
 
-      <Leaderboard players={players} />
+      <Leaderboard entries={entries} />
       <div className="mt-8">
         <CountryPredictionsChart />
       </div>

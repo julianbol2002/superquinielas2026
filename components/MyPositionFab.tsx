@@ -1,7 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { captainToSlug } from "@/data/quinielas";
+import {
+  getQuinielasByCaptain,
+  quinielaToSlug,
+} from "@/data/quinielas";
 import { useAppStore } from "@/lib/store";
 
 export default function MyPositionFab() {
@@ -10,11 +13,15 @@ export default function MyPositionFab() {
 
   if (!activePlayer) return null;
 
-  const slug = captainToSlug(activePlayer);
-
   const scrollToMe = () => {
-    const el = document.getElementById(`player-${slug}`);
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const myQuinielas = getQuinielasByCaptain(activePlayer);
+    for (const q of myQuinielas) {
+      const el = document.getElementById(`quiniela-${quinielaToSlug(q.name)}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
   };
 
   return (

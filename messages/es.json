@@ -67,5 +67,11 @@
   "podium_title": "Podio",
   "accuracy": "Aciertos",
   "highest_score": "Mejor quiniela",
-  "view_profile": "Ver perfil"
+  "view_profile": "Ver perfil",
+  "live_scores": "Marcadores en Vivo",
+  "last_updated": "Última actualización",
+  "no_live_matches": "No hay partidos en vivo ahora mismo",
+  "recent_results": "Resultados recientes",
+  "view_all_matches": "Ver todos los partidos",
+  "live_sync": "Sincronización automática ESPN"
 }

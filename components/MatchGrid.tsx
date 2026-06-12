@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { motion } from "framer-motion";
 import {
   worldCupGroups,
@@ -15,13 +15,20 @@ import {
   isSupabaseConfigured,
   type MatchRow,
 } from "@/lib/supabase";
-import FlagChip from "./FlagChip";
+import {
+  formatLastUpdated,
+  type LiveMatch,
+} from "@/lib/liveScores";
+import { useLiveScores } from "@/hooks/useLiveScores";
+import FlagChip, { TeamFlagCell } from "./FlagChip";
 
 export default function MatchGrid() {
   const t = useTranslations();
+  const locale = useLocale();
   const [adminMode, setAdminMode] = useState(false);
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const { data: liveData } = useLiveScores();
 
   const loadMatches = useCallback(async () => {
     setLoading(true);
@@ -34,13 +41,70 @@ export default function MatchGrid() {
     loadMatches();
   }, [loadMatches]);
 
+  useEffect(() => {
+    if (liveData?.syncedCount) {
+      loadMatches();
+    }
+  }, [liveData?.lastUpdated, liveData?.syncedCount, loadMatches]);
+
+  const liveByFixture = useMemo(() => {
+    const map = new Map<string, LiveMatch>();
+    for (const m of liveData?.matches ?? []) {
+      if (!m.group) continue;
+      const key = `${m.group}|${[m.team1, m.team2].sort().join("|")}`;
+      map.set(key, m);
+    }
+    return map;
+  }, [liveData?.matches]);
+
+  const getLiveMatch = (team1: string, team2: string, group: string) => {
+    const key = `${group}|${[team1, team2].sort().join("|")}`;
+    return liveByFixture.get(key);
+  };
+
   const getMatchResult = (team1: string, team2: string, group: string) => {
-    return matches.find(
+    const live = getLiveMatch(team1, team2, group);
+    if (live && live.status !== "scheduled") {
+      const score1 = live.team1 === team1 ? live.score1 : live.score2;
+      const score2 = live.team1 === team1 ? live.score2 : live.score1;
+      return {
+        team1,
+        team2,
+        score1,
+        score2,
+        isLive: live.isLive,
+        displayClock: live.displayClock,
+      };
+    }
+
+    const db = matches.find(
       (m) =>
         m.group_name === group &&
         ((m.team1 === team1 && m.team2 === team2) ||
           (m.team1 === team2 && m.team2 === team1))
     );
+
+    if (!db) return undefined;
+
+    if (db.team1 === team1) {
+      return {
+        team1,
+        team2,
+        score1: db.score1,
+        score2: db.score2,
+        isLive: false,
+        displayClock: undefined,
+      };
+    }
+
+    return {
+      team1,
+      team2,
+      score1: db.score2,
+      score2: db.score1,
+      isLive: false,
+      displayClock: undefined,
+    };
   };
 
   const saveScore = async (
@@ -50,7 +114,12 @@ export default function MatchGrid() {
     score1: number,
     score2: number
   ) => {
-    const existing = getMatchResult(team1, team2, group);
+    const existing = matches.find(
+      (m) =>
+        m.group_name === group &&
+        ((m.team1 === team1 && m.team2 === team2) ||
+          (m.team1 === team2 && m.team2 === team1))
+    );
     await upsertMatch({
       id: existing?.id,
       stage: "group",
@@ -66,8 +135,16 @@ export default function MatchGrid() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-3xl tracking-wide">{t("matches")}</h1>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl tracking-wide">{t("matches")}</h1>
+          {liveData?.lastUpdated && (
+            <p className="mt-1 text-xs text-slate-400">
+              {t("last_updated")}: {formatLastUpdated(liveData.lastUpdated, locale)}
+              <span className="ml-2 text-pitch">• {t("live_sync")}</span>
+            </p>
+          )}
+        </div>
         <button
           onClick={() => setAdminMode(!adminMode)}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
@@ -129,7 +206,16 @@ function GroupCard({
     t1: string,
     t2: string,
     g: string
-  ) => MatchRow | undefined;
+  ) =>
+    | {
+        team1: string;
+        team2: string;
+        score1: number | null;
+        score2: number | null;
+        isLive?: boolean;
+        displayClock?: string;
+      }
+    | undefined;
   onSave: (
     group: string,
     t1: string,
@@ -164,9 +250,9 @@ function GroupCard({
         {t("group")} {group.name}
       </h2>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 grid grid-cols-2 justify-items-center gap-4 sm:grid-cols-4">
         {group.teams.map((team) => (
-          <FlagChip key={team.name} country={team.name} showLabel size={16} />
+          <TeamFlagCell key={team.name} country={team.name} />
         ))}
       </div>
 
@@ -242,7 +328,14 @@ function FixtureRow({
   team2: string;
   group: string;
   adminMode: boolean;
-  match?: MatchRow;
+  match?: {
+    team1: string;
+    team2: string;
+    score1: number | null;
+    score2: number | null;
+    isLive?: boolean;
+    displayClock?: string;
+  };
   onSave: (
     group: string,
     t1: string,
@@ -252,33 +345,27 @@ function FixtureRow({
   ) => Promise<void>;
 }) {
   const t = useTranslations();
-  const [s1, setS1] = useState(match?.team1 === team1 ? match.score1 ?? 0 : match?.score2 ?? 0);
-  const [s2, setS2] = useState(match?.team1 === team1 ? match.score2 ?? 0 : match?.score1 ?? 0);
+  const [s1, setS1] = useState(match?.score1 ?? 0);
+  const [s2, setS2] = useState(match?.score2 ?? 0);
 
   useEffect(() => {
-    if (!match) {
-      setS1(0);
-      setS2(0);
-      return;
-    }
-    if (match.team1 === team1) {
-      setS1(match.score1 ?? 0);
-      setS2(match.score2 ?? 0);
-    } else {
-      setS1(match.score2 ?? 0);
-      setS2(match.score1 ?? 0);
-    }
-  }, [match, team1]);
+    setS1(match?.score1 ?? 0);
+    setS2(match?.score2 ?? 0);
+  }, [match?.score1, match?.score2]);
 
   const displayScore =
     match?.score1 != null && match?.score2 != null
-      ? match.team1 === team1
-        ? `${match.score1} - ${match.score2}`
-        : `${match.score2} - ${match.score1}`
+      ? `${match.score1} - ${match.score2}`
       : "—";
 
   return (
-    <div className="flex items-center justify-between gap-2 rounded-lg bg-white/5 px-2 py-2 text-sm light:bg-slate-50">
+    <div
+      className={`flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-sm ${
+        match?.isLive
+          ? "border border-pitch/30 bg-pitch/5 light:bg-pitch/10"
+          : "bg-white/5 light:bg-slate-50"
+      }`}
+    >
       <div className="flex min-w-0 flex-1 items-center gap-1">
         <FlagChip country={team1} size={14} />
         <span className="truncate text-xs">{team1.split(" ").pop()}</span>
@@ -311,7 +398,21 @@ function FixtureRow({
           </button>
         </div>
       ) : (
-        <span className="font-accent font-bold">{displayScore}</span>
+        <div className="flex flex-col items-center">
+          {match?.isLive && (
+            <span className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-pitch">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-pitch" />
+              </span>
+              EN VIVO
+            </span>
+          )}
+          <span className="font-accent font-bold tabular-nums">{displayScore}</span>
+          {match?.displayClock && match.isLive && (
+            <span className="text-[10px] text-pitch">{match.displayClock}</span>
+          )}
+        </div>
       )}
 
       <div className="flex min-w-0 flex-1 items-center justify-end gap-1">

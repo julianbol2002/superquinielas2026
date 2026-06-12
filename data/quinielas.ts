@@ -41,26 +41,17 @@ export const quinielas: Quiniela[] = [
 /** Actual tournament winner for accuracy checks (update as tournament progresses) */
 export const ACTUAL_WINNER = "Spain";
 
-export interface PlayerAggregate {
-  captain: string;
+export interface RankedQuiniela extends Quiniela {
   slug: string;
-  totalPoints: number;
-  quinielaCount: number;
-  totalBet: number;
-  betBreakdown: { bet25: number; bet50: number; bet100: number };
-  highestSingleScore: number;
-  correctWinners: number;
-  predictedFinalists: string[];
-  quinielas: Quiniela[];
   rank: number;
   previousRank: number;
   rankChange: number;
   onFire: boolean;
-  perfectStreak: boolean;
+  correctWinner: boolean;
 }
 
-export function captainToSlug(captain: string): string {
-  return captain
+export function toSlug(value: string): string {
+  return value
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -68,9 +59,17 @@ export function captainToSlug(captain: string): string {
     .replace(/^-|-$/g, "");
 }
 
-export function slugToCaptain(slug: string): string | undefined {
-  const captains = [...new Set(quinielas.map((q) => q.captain))];
-  return captains.find((c) => captainToSlug(c) === slug);
+export function quinielaToSlug(name: string): string {
+  return toSlug(name);
+}
+
+export function slugToQuiniela(slug: string): Quiniela | undefined {
+  return quinielas.find((q) => quinielaToSlug(q.name) === slug);
+}
+
+/** Captain slug — used for avatar storage only */
+export function captainToSlug(captain: string): string {
+  return toSlug(captain);
 }
 
 export function getCaptains(): string[] {
@@ -79,97 +78,83 @@ export function getCaptains(): string[] {
   );
 }
 
-/** Simulated previous ranks for rank change indicators */
-const PREVIOUS_RANKS: Record<string, number> = {
-  "Isabella Bolanos": 2,
-  Oly: 1,
-  Camilo: 4,
-  "Spongebob Squarepants": 5,
-  "Alex Bolanos": 3,
-  "Andres Martino": 6,
+export function getQuinielasByCaptain(captain: string): Quiniela[] {
+  return quinielas.filter((q) => q.captain === captain);
+}
+
+export function formatQuinielaLabel(
+  entry: Pick<Quiniela, "name" | "captain">
+): string {
+  return `${entry.name} (${entry.captain})`;
+}
+
+/** Simulated previous ranks per quiniela entry (not per captain) */
+const PREVIOUS_QUINIELA_RANKS: Record<string, number> = {
+  "Barquito de papel": 2,
+  Oly54: 1,
+  Camb: 4,
+  "The Krusty Krab": 3,
+  Panoramix: 5,
+  Martino: 6,
   "Jeb Corliss": 8,
-  Juanillo: 7,
-  "Mario Van Severen": 9,
-  "Mauricio 1": 10,
-  Anita: 12,
-  "Federico Bolanos Jr": 11,
-  Gerardo: 13,
-  "Gloria Panamá": 14,
-  "Rodrigo Bolanos": 15,
-  Adriano: 16,
-  "Ana Luz": 17,
-  "Cam Bolanos": 18,
-  "Federico Bolanos": 19,
-  "Francesca Panko": 20,
-  Alex: 21,
-  "Carlos Panama Diaz": 22,
-  "Daniella Bolanos": 23,
-  "Julian Bolanos": 24,
+  "Que Finta": 7,
+  Panzer: 9,
+  "It's coming Home": 10,
+  "Ana X": 12,
+  Fede: 11,
+  G1: 13,
+  "Gloria Gana": 14,
+  "Quiniela Pupusera": 15,
+  "Marco Bolanos": 16,
+  MARADRIANO: 17,
+  Abuela: 18,
+  "Cam Bolanos": 19,
+  "Lico BP": 20,
+  "Francesca Panko": 21,
+  "MISTER SHIT": 22,
+  C2: 23,
+  "Duo Dinamico Iron Beagle": 24,
+  "Dani Bolanos": 25,
+  Tessa: 26,
+  juliquini: 27,
 };
 
-export function aggregatePlayers(
-  previousRanks: Record<string, number> = PREVIOUS_RANKS
-): PlayerAggregate[] {
-  const map = new Map<string, PlayerAggregate>();
-
-  for (const q of quinielas) {
-    const existing = map.get(q.captain);
-    const finalists = new Set(existing?.predictedFinalists ?? []);
-
-    if (!existing) {
-      map.set(q.captain, {
-        captain: q.captain,
-        slug: captainToSlug(q.captain),
-        totalPoints: q.points,
-        quinielaCount: 1,
-        totalBet: q.bet,
-        betBreakdown: {
-          bet25: q.bet === 25 ? 1 : 0,
-          bet50: q.bet === 50 ? 1 : 0,
-          bet100: q.bet === 100 ? 1 : 0,
-        },
-        highestSingleScore: q.points,
-        correctWinners: q.winner === ACTUAL_WINNER ? 1 : 0,
-        predictedFinalists: [q.finalist1, q.finalist2, q.winner],
-        quinielas: [q],
-        rank: 0,
-        previousRank: previousRanks[q.captain] ?? 99,
-        rankChange: 0,
-        onFire: q.points >= 4,
-        perfectStreak: q.points >= 5,
-      });
-    } else {
-      existing.totalPoints += q.points;
-      existing.quinielaCount += 1;
-      existing.totalBet += q.bet;
-      if (q.bet === 25) existing.betBreakdown.bet25 += 1;
-      if (q.bet === 50) existing.betBreakdown.bet50 += 1;
-      if (q.bet === 100) existing.betBreakdown.bet100 += 1;
-      existing.highestSingleScore = Math.max(existing.highestSingleScore, q.points);
-      if (q.winner === ACTUAL_WINNER) existing.correctWinners += 1;
-      existing.predictedFinalists.push(q.finalist1, q.finalist2, q.winner);
-      existing.quinielas.push(q);
-      existing.onFire = existing.quinielas.some((x) => x.points >= 4);
-      existing.perfectStreak = existing.quinielas.some((x) => x.points >= 5);
-    }
-
-    finalists.add(q.finalist1);
-    finalists.add(q.finalist2);
-    finalists.add(q.winner);
-  }
-
-  const players = [...map.values()].sort((a, b) => {
-    if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
-    return b.totalBet - a.totalBet;
+function sortQuinielas(entries: Quiniela[]): Quiniela[] {
+  return [...entries].sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.bet !== a.bet) return b.bet - a.bet;
+    return a.name.localeCompare(b.name, "es");
   });
+}
 
-  players.forEach((p, i) => {
-    p.rank = i + 1;
-    p.rankChange = p.previousRank - p.rank;
-    p.predictedFinalists = [...new Set(p.predictedFinalists)];
+export function getRankedQuinielas(
+  previousRanks: Record<string, number> = PREVIOUS_QUINIELA_RANKS
+): RankedQuiniela[] {
+  const sorted = sortQuinielas(quinielas);
+
+  return sorted.map((q, i) => {
+    const rank = i + 1;
+    const previousRank = previousRanks[q.name] ?? 99;
+    return {
+      ...q,
+      slug: quinielaToSlug(q.name),
+      rank,
+      previousRank,
+      rankChange: previousRank - rank,
+      onFire: q.points >= 4,
+      correctWinner: q.winner === ACTUAL_WINNER,
+    };
   });
+}
 
-  return players;
+export function filterQuinielasByBet(
+  entries: RankedQuiniela[],
+  tier: "all" | 25 | 50 | 100
+): RankedQuiniela[] {
+  const filtered =
+    tier === "all" ? entries : entries.filter((q) => q.bet === tier);
+
+  return filtered.map((q, i) => ({ ...q, rank: i + 1 }));
 }
 
 export function getWinnerPredictions(): { country: string; count: number }[] {
@@ -182,44 +167,31 @@ export function getWinnerPredictions(): { country: string; count: number }[] {
     .sort((a, b) => b.count - a.count);
 }
 
-export function getGroupAveragePoints(): number {
-  const players = aggregatePlayers();
-  if (players.length === 0) return 0;
-  return players.reduce((sum, p) => sum + p.totalPoints, 0) / players.length;
+export function getQuinielaAveragePoints(): number {
+  if (quinielas.length === 0) return 0;
+  return quinielas.reduce((sum, q) => sum + q.points, 0) / quinielas.length;
 }
 
-export function getStatHighlights(players: PlayerAggregate[]) {
-  const leader = players[0];
-  const biggestClimber = [...players].sort((a, b) => b.rankChange - a.rankChange)[0];
-  const biggestFaller = [...players].sort((a, b) => a.rankChange - b.rankChange)[0];
-  const mostAccurate = [...players].sort(
-    (a, b) => b.correctWinners - a.correctWinners
+export function getStatHighlights(entries: RankedQuiniela[]) {
+  const leader = entries[0];
+  const biggestClimber = [...entries].sort(
+    (a, b) => b.rankChange - a.rankChange
   )[0];
-  const biggestBet = [...players].sort((a, b) => b.totalBet - a.totalBet)[0];
-  const perfectStreak = players.filter((p) =>
-    p.quinielas.some((q) => q.points >= 5)
-  );
+  const biggestFaller = [...entries].sort(
+    (a, b) => a.rankChange - b.rankChange
+  )[0];
+  const mostAccurate = [...entries]
+    .filter((q) => q.correctWinner)
+    .sort((a, b) => b.points - a.points)[0];
+  const biggestBet = [...entries].sort((a, b) => b.bet - a.bet)[0];
+  const perfectStreak = entries.filter((q) => q.points >= 5);
 
-  return { leader, biggestClimber, biggestFaller, mostAccurate, biggestBet, perfectStreak };
-}
-
-export function filterPlayersByBet(
-  players: PlayerAggregate[],
-  tier: "all" | 25 | 50 | 100
-): PlayerAggregate[] {
-  if (tier === "all") return players;
-  return players
-    .map((p) => ({
-      ...p,
-      quinielas: p.quinielas.filter((q) => q.bet === tier),
-    }))
-    .filter((p) => p.quinielas.length > 0)
-    .map((p) => ({
-      ...p,
-      totalPoints: p.quinielas.reduce((s, q) => s + q.points, 0),
-      totalBet: p.quinielas.reduce((s, q) => s + q.bet, 0),
-      quinielaCount: p.quinielas.length,
-    }))
-    .sort((a, b) => b.totalPoints - a.totalPoints)
-    .map((p, i) => ({ ...p, rank: i + 1 }));
+  return {
+    leader,
+    biggestClimber,
+    biggestFaller,
+    mostAccurate,
+    biggestBet,
+    perfectStreak,
+  };
 }

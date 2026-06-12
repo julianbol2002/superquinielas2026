@@ -3,15 +3,15 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import html2canvas from "html2canvas";
-import type { PlayerAggregate } from "@/data/quinielas";
+import type { RankedQuiniela } from "@/data/quinielas";
+import { formatQuinielaLabel } from "@/data/quinielas";
 import FlagChip from "./FlagChip";
 
 interface ShareCardProps {
-  player: PlayerAggregate;
-  topWinner: string;
+  entry: RankedQuiniela;
 }
 
-export default function ShareCard({ player, topWinner }: ShareCardProps) {
+export default function ShareCard({ entry }: ShareCardProps) {
   const t = useTranslations();
   const cardRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ export default function ShareCard({ player, topWinner }: ShareCardProps) {
         scale: 2,
       });
       const link = document.createElement("a");
-      link.download = `super-quinielas-${player.slug}.png`;
+      link.download = `super-quinielas-${entry.slug}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } finally {
@@ -45,14 +45,18 @@ export default function ShareCard({ player, topWinner }: ShareCardProps) {
         </p>
         <p className="text-xs text-slate-400">Mundial 2026</p>
         <div className="my-6 text-center">
-          <p className="font-accent text-sm text-gold">#{player.rank}</p>
-          <p className="font-display text-2xl">{player.captain}</p>
-          <p className="font-display text-5xl text-pitch">{player.totalPoints}</p>
+          <p className="font-accent text-sm text-gold">#{entry.rank}</p>
+          <p className="font-display text-2xl">{entry.name}</p>
+          <p className="text-sm text-slate-400">{entry.captain}</p>
+          <p className="font-display text-5xl text-pitch">{entry.points}</p>
           <p className="text-sm text-slate-400">{t("points")}</p>
         </div>
         <div className="flex justify-center">
-          <FlagChip country={topWinner} showLabel size={24} />
+          <FlagChip country={entry.winner} showLabel size={24} />
         </div>
+        <p className="mt-4 text-center text-xs text-slate-500">
+          {formatQuinielaLabel(entry)}
+        </p>
       </div>
       <button
         onClick={download}

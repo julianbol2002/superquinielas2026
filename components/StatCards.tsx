@@ -3,30 +3,34 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { useTranslations } from "next-intl";
-import type { PlayerAggregate } from "@/data/quinielas";
-import { getStatHighlights } from "@/data/quinielas";
+import type { RankedQuiniela } from "@/data/quinielas";
+import { formatQuinielaLabel, getStatHighlights } from "@/data/quinielas";
 
 interface StatCardsProps {
-  players: PlayerAggregate[];
+  entries: RankedQuiniela[];
 }
 
-export default function StatCards({ players }: StatCardsProps) {
+export default function StatCards({ entries }: StatCardsProps) {
   const t = useTranslations();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
-  const stats = getStatHighlights(players);
+  const stats = getStatHighlights(entries);
 
   const cards = [
     {
       icon: "🏆",
       label: t("leader"),
-      value: stats.leader?.captain.split(" ")[0] ?? "—",
-      sub: `${stats.leader?.totalPoints ?? 0} ${t("points").toLowerCase()}`,
+      value: stats.leader
+        ? formatQuinielaLabel(stats.leader)
+        : "—",
+      sub: `${stats.leader?.points ?? 0} ${t("points").toLowerCase()}`,
     },
     {
       icon: "🚀",
       label: t("biggest_climber"),
-      value: stats.biggestClimber?.captain.split(" ")[0] ?? "—",
+      value: stats.biggestClimber
+        ? formatQuinielaLabel(stats.biggestClimber)
+        : "—",
       sub:
         stats.biggestClimber && stats.biggestClimber.rankChange > 0
           ? `↑ ${stats.biggestClimber.rankChange}`
@@ -35,7 +39,9 @@ export default function StatCards({ players }: StatCardsProps) {
     {
       icon: "💀",
       label: t("biggest_faller"),
-      value: stats.biggestFaller?.captain.split(" ")[0] ?? "—",
+      value: stats.biggestFaller
+        ? formatQuinielaLabel(stats.biggestFaller)
+        : "—",
       sub:
         stats.biggestFaller && stats.biggestFaller.rankChange < 0
           ? `↓ ${Math.abs(stats.biggestFaller.rankChange)}`
@@ -44,14 +50,20 @@ export default function StatCards({ players }: StatCardsProps) {
     {
       icon: "🎯",
       label: t("most_accurate"),
-      value: stats.mostAccurate?.captain.split(" ")[0] ?? "—",
-      sub: `${stats.mostAccurate?.correctWinners ?? 0} ${t("accuracy").toLowerCase()}`,
+      value: stats.mostAccurate
+        ? formatQuinielaLabel(stats.mostAccurate)
+        : "—",
+      sub: stats.mostAccurate?.correctWinner
+        ? t("accuracy").toLowerCase()
+        : "—",
     },
     {
       icon: "💰",
       label: t("biggest_bet"),
-      value: stats.biggestBet?.captain.split(" ")[0] ?? "—",
-      sub: `$${stats.biggestBet?.totalBet ?? 0}`,
+      value: stats.biggestBet
+        ? formatQuinielaLabel(stats.biggestBet)
+        : "—",
+      sub: `$${stats.biggestBet?.bet ?? 0}`,
     },
     {
       icon: "⚡",
@@ -60,7 +72,7 @@ export default function StatCards({ players }: StatCardsProps) {
         stats.perfectStreak.length > 0
           ? stats.perfectStreak
               .slice(0, 2)
-              .map((p) => p.captain.split(" ")[0])
+              .map((q) => q.name)
               .join(", ")
           : "—",
       sub: "5+ pts",
@@ -78,13 +90,13 @@ export default function StatCards({ players }: StatCardsProps) {
           initial={{ opacity: 0, x: 20 }}
           animate={inView ? { opacity: 1, x: 0 } : {}}
           transition={{ delay: i * 0.08 }}
-          className="min-w-[160px] flex-shrink-0 snap-start rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white light:shadow-sm"
+          className="min-w-[200px] flex-shrink-0 snap-start rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white light:shadow-sm"
         >
           <span className="text-2xl">{card.icon}</span>
           <p className="mt-2 text-xs uppercase tracking-wide text-slate-400 light:text-slate-500">
             {card.label}
           </p>
-          <p className="mt-1 truncate font-semibold">{card.value}</p>
+          <p className="mt-1 line-clamp-2 text-sm font-semibold">{card.value}</p>
           <p className="text-sm text-pitch">{card.sub}</p>
         </motion.div>
       ))}

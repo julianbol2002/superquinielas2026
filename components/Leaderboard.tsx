@@ -3,22 +3,27 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import type { PlayerAggregate } from "@/data/quinielas";
+import type { RankedQuiniela } from "@/data/quinielas";
 import { Link } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import PlayerAvatar from "./PlayerAvatar";
 import CountUp from "./CountUp";
 import RankChange from "./RankChange";
 import FlagChip from "./FlagChip";
 
 interface LeaderboardProps {
-  players: PlayerAggregate[];
+  entries: RankedQuiniela[];
   highlightSlug?: string;
 }
 
+function betBadgeClass(bet: number) {
+  if (bet >= 100) return "bg-gold/20 text-gold";
+  if (bet >= 50) return "bg-pitch/20 text-pitch";
+  return "bg-blue-500/20 text-blue-300 light:text-blue-600";
+}
+
 export default function Leaderboard({
-  players,
+  entries,
   highlightSlug,
 }: LeaderboardProps) {
   const t = useTranslations();
@@ -26,11 +31,11 @@ export default function Leaderboard({
   const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
 
   useEffect(() => {
-    if (players.length === 0) return;
+    if (entries.length === 0) return;
     let cancelled = false;
     import("canvas-confetti").then(({ default: confetti }) => {
       if (cancelled) return;
-      const firstRow = rowRefs.current.get(players[0].slug);
+      const firstRow = rowRefs.current.get(entries[0].slug);
       if (!firstRow) return;
       const rect = firstRow.getBoundingClientRect();
       confetti({
@@ -48,7 +53,7 @@ export default function Leaderboard({
     return () => {
       cancelled = true;
     };
-  }, [players]);
+  }, [entries]);
 
   const getRowClass = (rank: number) => {
     if (rank === 1) return "row-gold";
@@ -60,87 +65,95 @@ export default function Leaderboard({
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 light:border-slate-200">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[340px] text-left text-sm">
+        <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
             <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase tracking-wide text-slate-400 light:border-slate-200 light:bg-slate-50">
-              <th className="px-3 py-3 font-accent">{t("rank")}</th>
-              <th className="px-3 py-3">{t("player")}</th>
-              <th className="px-3 py-3 text-right">{t("points")}</th>
-              <th className="hidden px-3 py-3 sm:table-cell">{t("winner")}</th>
-              <th className="hidden px-3 py-3 md:table-cell">{t("bet")}</th>
+              <th className="px-2 py-3 font-accent">{t("rank")}</th>
+              <th className="px-2 py-3">{t("quiniela_name")}</th>
+              <th className="hidden px-2 py-3 sm:table-cell">{t("captain")}</th>
+              <th className="px-2 py-3">{t("bet")}</th>
+              <th className="hidden px-2 py-3 md:table-cell">{t("finalist")} 1</th>
+              <th className="hidden px-2 py-3 md:table-cell">{t("finalist")} 2</th>
+              <th className="hidden px-2 py-3 lg:table-cell">{t("winner")}</th>
+              <th className="px-2 py-3 text-right">{t("points")}</th>
             </tr>
           </thead>
           <tbody>
-            {players.map((player, i) => {
+            {entries.map((entry, i) => {
               const isHighlighted =
-                highlightSlug === player.slug ||
-                (activePlayer === player.captain && !highlightSlug);
-              const topFinalists = Array.from(
-                new Set(
-                  player.quinielas.flatMap((q) => [q.finalist1, q.finalist2])
-                )
-              ).slice(0, 3);
+                highlightSlug === entry.slug ||
+                (activePlayer === entry.captain && !highlightSlug);
 
               return (
                 <motion.tr
-                  key={player.slug}
+                  key={entry.slug}
                   ref={(el) => {
-                    if (el) rowRefs.current.set(player.slug, el);
+                    if (el) rowRefs.current.set(entry.slug, el);
                   }}
-                  id={`player-${player.slug}`}
+                  id={`quiniela-${entry.slug}`}
+                  data-captain={entry.captain}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
+                  transition={{ delay: i * 0.03 }}
                   className={cn(
                     "border-b border-white/5 transition light:border-slate-100",
-                    getRowClass(player.rank),
+                    getRowClass(entry.rank),
                     isHighlighted && "highlight-row ring-2 ring-inset ring-pitch/50"
                   )}
                 >
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2">
+                  <td className="px-2 py-3">
+                    <div className="flex items-center gap-1">
                       <span className="font-accent text-lg font-bold text-gold">
-                        <CountUp value={player.rank} />
+                        <CountUp value={entry.rank} />
                       </span>
-                      <RankChange change={player.rankChange} />
+                      <RankChange change={entry.rankChange} />
                     </div>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-2 py-3">
                     <Link
-                      href={`/jugador/${player.slug}`}
-                      className="flex items-center gap-3 hover:text-pitch"
+                      href={`/jugador/${entry.slug}`}
+                      className="block min-w-0 hover:text-pitch"
                     >
-                      <PlayerAvatar captain={player.captain} size={40} />
-                      <div className="min-w-0">
-                        <p className="truncate font-semibold">
-                          {player.captain}
-                          {player.onFire && (
-                            <span className="ml-1" title={t("on_fire")}>
-                              🔥
-                            </span>
-                          )}
-                        </p>
-                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-slate-400 light:bg-slate-100">
-                          {player.quinielaCount} {t("quiniela_count").toLowerCase()}
-                        </span>
-                      </div>
+                      <p className="truncate font-semibold">
+                        {entry.name}
+                        {entry.onFire && (
+                          <span className="ml-1" title={t("on_fire")}>
+                            🔥
+                          </span>
+                        )}
+                      </p>
+                      <p className="truncate text-xs text-slate-400 sm:hidden">
+                        {entry.captain}
+                      </p>
                     </Link>
                   </td>
-                  <td className="px-3 py-3 text-right">
-                    <span className="font-display text-2xl text-pitch">
-                      <CountUp value={player.totalPoints} />
+                  <td className="hidden px-2 py-3 sm:table-cell">
+                    <span className="text-slate-300 light:text-slate-600">
+                      {entry.captain}
                     </span>
                   </td>
-                  <td className="hidden px-3 py-3 sm:table-cell">
-                    <div className="flex flex-wrap gap-1">
-                      {topFinalists.map((c) => (
-                        <FlagChip key={c} country={c} size={16} />
-                      ))}
-                    </div>
+                  <td className="px-2 py-3">
+                    <span
+                      className={cn(
+                        "inline-block rounded-full px-2 py-0.5 font-accent text-xs font-bold",
+                        betBadgeClass(entry.bet)
+                      )}
+                    >
+                      ${entry.bet}
+                    </span>
                   </td>
-                  <td className="hidden px-3 py-3 md:table-cell">
-                    <span className="font-accent text-slate-300 light:text-slate-600">
-                      ${player.totalBet}
+                  <td className="hidden px-2 py-3 md:table-cell">
+                    <FlagChip country={entry.finalist1} size={16} />
+                  </td>
+                  <td className="hidden px-2 py-3 md:table-cell">
+                    <FlagChip country={entry.finalist2} size={16} />
+                  </td>
+                  <td className="hidden px-2 py-3 lg:table-cell">
+                    <FlagChip country={entry.winner} size={16} />
+                  </td>
+                  <td className="px-2 py-3 text-right">
+                    <span className="font-display text-2xl text-pitch">
+                      <CountUp value={entry.points} />
                     </span>
                   </td>
                 </motion.tr>

@@ -5,33 +5,38 @@ import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/routing";
 import {
-  aggregatePlayers,
-  slugToCaptain,
-  getGroupAveragePoints,
+  getRankedQuinielas,
+  slugToQuiniela,
+  getQuinielaAveragePoints,
 } from "@/data/quinielas";
+import { getPrizeForQuiniela } from "@/lib/prizes";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import QuinielaCard from "@/components/QuinielaCard";
 import ShareCard from "@/components/ShareCard";
 import AvatarUpload from "@/components/AvatarUpload";
 import CountUp from "@/components/CountUp";
+import FlagChip from "@/components/FlagChip";
 
 export default function PlayerProfileClient({ slug }: { slug: string }) {
   const t = useTranslations();
-  const captain = slugToCaptain(slug);
+  const quiniela = slugToQuiniela(slug);
 
-  const player = useMemo(() => {
-    if (!captain) return null;
-    return aggregatePlayers().find((p) => p.slug === slug) ?? null;
-  }, [captain, slug]);
+  const entry = useMemo(() => {
+    if (!quiniela) return null;
+    return getRankedQuinielas().find((q) => q.slug === slug) ?? null;
+  }, [quiniela, slug]);
 
-  if (!captain || !player) {
+  const prize = useMemo(
+    () => (entry ? getPrizeForQuiniela(entry.slug) : undefined),
+    [entry]
+  );
+
+  if (!quiniela || !entry) {
     notFound();
   }
 
-  const avg = getGroupAveragePoints();
-  const topWinner =
-    player.quinielas.sort((a, b) => b.points - a.points)[0]?.winner ?? "Spain";
-  const pct = avg > 0 ? Math.min(100, (player.totalPoints / avg) * 50) : 50;
+  const avg = getQuinielaAveragePoints();
+  const pct = avg > 0 ? Math.min(100, (entry.points / avg) * 50) : 50;
 
   return (
     <div className="pb-8">
@@ -43,26 +48,34 @@ export default function PlayerProfileClient({ slug }: { slug: string }) {
       </Link>
 
       <div className="mb-8 flex flex-col items-center text-center">
-        <PlayerAvatar captain={captain} size={120} />
-        <h1 className="mt-4 font-display text-3xl">{captain}</h1>
-        <div className="mt-2 flex items-center gap-4">
+        <PlayerAvatar captain={entry.captain} size={120} />
+        <h1 className="mt-4 font-display text-3xl">{entry.name}</h1>
+        <p className="mt-1 text-slate-400">
+          {t("captain")}: {entry.captain}
+        </p>
+        <div className="mt-4 flex items-center gap-4">
           <div>
-            <p className="font-accent text-sm text-gold">#{player.rank}</p>
+            <p className="font-accent text-sm text-gold">#{entry.rank}</p>
             <p className="text-xs text-slate-400">{t("rank")}</p>
           </div>
           <div>
             <p className="font-display text-3xl text-pitch">
-              <CountUp value={player.totalPoints} />
+              <CountUp value={entry.points} />
             </p>
             <p className="text-xs text-slate-400">{t("points")}</p>
           </div>
           <div>
-            <p className="font-accent text-lg">${player.totalBet}</p>
-            <p className="text-xs text-slate-400">{t("total_bet")}</p>
+            <p className="font-accent text-lg">${entry.bet}</p>
+            <p className="text-xs text-slate-400">{t("bet")}</p>
           </div>
         </div>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <FlagChip country={entry.finalist1} showLabel size={14} />
+          <FlagChip country={entry.finalist2} showLabel size={14} />
+          <FlagChip country={entry.winner} showLabel size={14} />
+        </div>
         <div className="mt-4">
-          <AvatarUpload captain={captain} />
+          <AvatarUpload captain={entry.captain} />
         </div>
       </div>
 
@@ -76,7 +89,7 @@ export default function PlayerProfileClient({ slug }: { slug: string }) {
                 style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }}
               />
             </div>
-            <p className="mt-1 text-center text-sm font-bold">{player.totalPoints}</p>
+            <p className="mt-1 text-center text-sm font-bold">{entry.points}</p>
           </div>
           <div className="flex-1 opacity-50">
             <div className="h-24 overflow-hidden rounded-lg bg-white/5 light:bg-slate-100">
@@ -90,28 +103,27 @@ export default function PlayerProfileClient({ slug }: { slug: string }) {
         </div>
         <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
           <div>
-            <p className="font-bold text-pitch">{player.highestSingleScore}</p>
-            <p className="text-slate-400">{t("highest_score")}</p>
+            <p className="font-bold text-pitch">{entry.points}</p>
+            <p className="text-slate-400">{t("points")}</p>
           </div>
           <div>
-            <p className="font-bold">{player.correctWinners}</p>
+            <p className="font-bold">{entry.correctWinner ? "✓" : "—"}</p>
             <p className="text-slate-400">{t("accuracy")}</p>
           </div>
           <div>
-            <p className="font-bold">{player.quinielaCount}</p>
-            <p className="text-slate-400">{t("quiniela_count")}</p>
+            <p className="font-bold">
+              {prize ? `$${prize.estimatedPayout}` : "—"}
+            </p>
+            <p className="text-slate-400">{t("bet")} tier</p>
           </div>
         </div>
       </div>
 
-      <h2 className="mb-4 font-display text-xl">{t("my_quinielas")}</h2>
-      <div className="mb-8 grid gap-4 sm:grid-cols-2">
-        {player.quinielas.map((q) => (
-          <QuinielaCard key={q.name} quiniela={q} />
-        ))}
+      <div className="mb-8">
+        <QuinielaCard quiniela={entry} />
       </div>
 
-      <ShareCard player={player} topWinner={topWinner} />
+      <ShareCard entry={entry} />
     </div>
   );
 }
