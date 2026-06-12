@@ -1,0 +1,50 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  darkMode: "class",
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        pitch: "#00D084",
+        gold: "#FFD700",
+        stadium: {
+          dark: "#0a0e17",
+          navy: "#111827",
+          card: "#1a2234",
+        },
+      },
+      fontFamily: {
+        display: ['"Bebas Neue"', "sans-serif"],
+        body: ['"Inter"', "sans-serif"],
+        accent: ['"Oswald"', "sans-serif"],
+      },
+      animation: {
+        float: "float 3s ease-in-out infinite",
+        shimmer: "shimmer 2s linear infinite",
+        pulseHighlight: "pulseHighlight 2s ease-in-out infinite",
+      },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        pulseHighlight: {
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(0, 208, 132, 0.4)" },
+          "50%": { boxShadow: "0 0 0 12px rgba(0, 208, 132, 0)" },
+        },
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;

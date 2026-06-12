@@ -1,0 +1,132 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pitch: #00d084;
+  --gold: #ffd700;
+  --bg-primary: #0a0e17;
+  --bg-card: #1a2234;
+  --text-primary: #ffffff;
+  --text-muted: #94a3b8;
+}
+
+.light {
+  --bg-primary: #f1f5f9;
+  --bg-card: #ffffff;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-body antialiased;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+}
+
+.dark body {
+  background: linear-gradient(180deg, #0a0e17 0%, #111827 50%, #0a0e17 100%);
+}
+
+.light body {
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gold-shimmer {
+    background: linear-gradient(
+      90deg,
+      #ffd700 0%,
+      #fff8dc 50%,
+      #ffd700 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .row-gold {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 215, 0, 0.15) 0%,
+      rgba(255, 215, 0, 0.05) 100%
+    );
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+  }
+
+  .row-silver {
+    background: linear-gradient(
+      90deg,
+      rgba(192, 192, 192, 0.15) 0%,
+      rgba(192, 192, 192, 0.05) 100%
+    );
+  }
+
+  .row-bronze {
+    background: linear-gradient(
+      90deg,
+      rgba(205, 127, 50, 0.15) 0%,
+      rgba(205, 127, 50, 0.05) 100%
+    );
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.point-badge-6 {
+  @apply bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold;
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+.point-badge-5 {
+  @apply bg-pitch text-black font-bold;
+}
+
+.point-badge-4 {
+  @apply bg-teal-500 text-white font-semibold;
+}
+
+.point-badge-3 {
+  @apply bg-blue-500 text-white;
+}
+
+.point-badge-2 {
+  @apply bg-slate-500 text-white;
+}
+
+.point-badge-1 {
+  @apply bg-red-900/60 text-red-200;
+}
+
+.trophy-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.highlight-row {
+  animation: pulseHighlight 2s ease-in-out infinite;
+}
