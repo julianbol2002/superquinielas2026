@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import CountUp from "./CountUp";
@@ -27,6 +27,7 @@ export default function Leaderboard({
   highlightSlug,
 }: LeaderboardProps) {
   const t = useTranslations();
+  const router = useRouter();
   const activePlayer = useAppStore((s) => s.activePlayer);
   const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
 
@@ -76,6 +77,7 @@ export default function Leaderboard({
               <th className="hidden px-2 py-3 md:table-cell">{t("finalist")} 2</th>
               <th className="hidden px-2 py-3 lg:table-cell">{t("winner")}</th>
               <th className="px-2 py-3 text-right">{t("points")}</th>
+              <th className="w-8 px-1 py-3" aria-hidden />
             </tr>
           </thead>
           <tbody>
@@ -92,11 +94,20 @@ export default function Leaderboard({
                   }}
                   id={`quiniela-${entry.slug}`}
                   data-captain={entry.captain}
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => router.push(`/quiniela/${entry.slug}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(`/quiniela/${entry.slug}`);
+                    }
+                  }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.03 }}
                   className={cn(
-                    "border-b border-white/5 transition light:border-slate-100",
+                    "cursor-pointer border-b border-white/5 transition hover:bg-white/5 light:border-slate-100 light:hover:bg-slate-50",
                     getRowClass(entry.rank),
                     isHighlighted && "highlight-row ring-2 ring-inset ring-pitch/50"
                   )}
@@ -111,8 +122,9 @@ export default function Leaderboard({
                   </td>
                   <td className="px-2 py-3">
                     <Link
-                      href={`/jugador/${entry.slug}`}
+                      href={`/quiniela/${entry.slug}`}
                       className="block min-w-0 hover:text-pitch"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <p className="truncate font-semibold">
                         {entry.name}
@@ -154,6 +166,11 @@ export default function Leaderboard({
                   <td className="px-2 py-3 text-right">
                     <span className="font-display text-2xl text-pitch">
                       <CountUp value={entry.points} />
+                    </span>
+                  </td>
+                  <td className="px-1 py-3 text-right text-slate-500">
+                    <span aria-hidden className="text-lg">
+                      ›
                     </span>
                   </td>
                 </motion.tr>

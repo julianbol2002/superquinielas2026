@@ -8,6 +8,7 @@ const tabs = [
   { href: "/", icon: "🏆", labelKey: "nav_home" as const },
   { href: "/partidos", icon: "⚽", labelKey: "nav_matches" as const },
   { href: "/quinielas", icon: "🃏", labelKey: "nav_quinielas" as const },
+  { href: "/estadisticas", icon: "📊", labelKey: "nav_stats" as const },
   { href: "/ajustes", icon: "⚙️", labelKey: "nav_settings" as const },
 ];
 
@@ -28,11 +29,11 @@ export default function BottomNav() {
               key={tab.href}
               href={tab.href}
               className={cn(
-                "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition",
+                "flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px] transition",
                 active ? "text-pitch" : "text-slate-400 light:text-slate-500"
               )}
             >
-              <span className="text-lg">{tab.icon}</span>
+              <span className="text-base">{tab.icon}</span>
               <span className="font-medium">{t(tab.labelKey)}</span>
             </Link>
           );

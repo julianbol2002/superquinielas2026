@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/", labelKey: "nav_home" as const },
   { href: "/partidos", labelKey: "nav_matches" as const },
   { href: "/quinielas", labelKey: "nav_quinielas" as const },
+  { href: "/estadisticas", labelKey: "nav_stats" as const },
   { href: "/ajustes", labelKey: "nav_settings" as const },
 ];
 
@@ -43,7 +44,7 @@ export default function Header() {
           if (!top) return null;
           return (
           <Link
-            href={`/jugador/${quinielaToSlug(top.name)}`}
+            href={`/quiniela/${quinielaToSlug(top.name)}`}
             className="flex items-center gap-2 rounded-full border border-white/10 bg-stadium-card px-2 py-1 light:border-slate-200 light:bg-white"
           >
             <PlayerAvatar captain={activePlayer} size={32} />

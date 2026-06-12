@@ -42,7 +42,7 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
               className="flex max-w-[110px] flex-col items-center md:max-w-[140px]"
             >
               <Link
-                href={`/jugador/${entry.slug}`}
+                href={`/quiniela/${entry.slug}`}
                 className="group flex flex-col items-center"
               >
                 <span className="mb-1 text-2xl">{medals[visualIdx]}</span>

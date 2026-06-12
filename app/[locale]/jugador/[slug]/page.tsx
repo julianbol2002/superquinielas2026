@@ -1,9 +1,8 @@
-import { setRequestLocale } from "next-intl/server";
-import PlayerProfileClient from "@/components/PlayerProfileClient";
+import { redirect } from "@/i18n/routing";
 
 type Props = { params: { locale: string; slug: string } };
 
+/** Legacy route — redirects to /quiniela/[slug] */
 export default function JugadorPage({ params }: Props) {
-  setRequestLocale(params.locale);
-  return <PlayerProfileClient slug={params.slug} />;
+  redirect({ href: `/quiniela/${params.slug}`, locale: params.locale });
 }
