@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { getCountryCode } from "@/data/countries";
+import { getCountryCode, getCountryDisplayName } from "@/data/countries";
 import { cn } from "@/lib/utils";
 
 const Flag = dynamic(() => import("react-world-flags"), {
@@ -53,11 +53,14 @@ export default function FlagChip({
 export function TeamFlagCell({
   country,
   className,
+  compact = false,
 }: {
   country: string;
   className?: string;
+  compact?: boolean;
 }) {
   const code = getCountryCode(country);
+  const label = compact ? getCountryDisplayName(country, true) : country;
 
   return (
     <div
@@ -75,7 +78,7 @@ export function TeamFlagCell({
         />
       </div>
       <span className="w-full text-center text-[10px] font-medium leading-tight text-slate-300 light:text-slate-600 sm:text-xs">
-        {country}
+        {label}
       </span>
     </div>
   );

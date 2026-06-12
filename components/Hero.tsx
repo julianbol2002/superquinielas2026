@@ -30,13 +30,13 @@ export default function Hero() {
     import("canvas-confetti").then(({ default: confetti }) => {
       if (cancelled) return;
       confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.3, x: 0.5 },
+        particleCount: 40,
+        spread: 60,
+        origin: { y: 0.2, x: 0.5 },
         colors: ["#00D084", "#FFD700", "#ffffff"],
-        ticks: 120,
+        ticks: 80,
         gravity: 1.2,
-        scalar: 0.8,
+        scalar: 0.65,
       });
     });
     return () => {
@@ -45,26 +45,29 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative mb-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-stadium-card via-stadium-navy to-stadium-dark p-6 light:border-slate-200 light:from-white light:via-slate-50 light:to-slate-100">
-      <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-pitch/10 blur-3xl" />
-      <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-gold/10 blur-2xl" />
+    <section className="relative mb-4 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-r from-stadium-card via-stadium-navy to-stadium-dark px-3 py-2.5 light:border-slate-200 light:from-white light:via-slate-50 light:to-slate-100 sm:px-4 sm:py-3">
+      <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-pitch/10 blur-2xl" />
 
-      <div className="relative flex flex-col items-center text-center">
-        <motion.span
-          className="trophy-float mb-2 text-5xl"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 12 }}
-        >
-          🏆
-        </motion.span>
-        <h1 className="font-display text-5xl tracking-widest text-white light:text-slate-900 md:text-7xl">
-          {t("site_name")}
-        </h1>
-        <p className="mt-2 text-sm text-slate-400 light:text-slate-600 md:text-base">
-          {t("tagline")}
-        </p>
-        <p className="mt-3 font-accent text-xs uppercase tracking-widest text-pitch">
+      <div className="relative flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <motion.span
+            className="trophy-float shrink-0 text-2xl sm:text-3xl"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 14 }}
+          >
+            🏆
+          </motion.span>
+          <div className="min-w-0 text-left">
+            <h1 className="font-display text-2xl leading-none tracking-wide text-white light:text-slate-900 sm:text-3xl">
+              {t("site_name")}
+            </h1>
+            <p className="mt-0.5 truncate text-xs text-slate-400 light:text-slate-600 sm:text-sm">
+              {t("tagline")}
+            </p>
+          </div>
+        </div>
+        <p className="shrink-0 text-left text-[10px] font-accent uppercase tracking-wider text-pitch sm:text-right sm:text-xs">
           {t("live_time")}: {time}
         </p>
       </div>

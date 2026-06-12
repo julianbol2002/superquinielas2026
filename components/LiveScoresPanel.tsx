@@ -9,6 +9,7 @@ import {
 } from "@/lib/liveScores";
 import { useLiveScores } from "@/hooks/useLiveScores";
 import FlagChip from "./FlagChip";
+import { getCountryDisplayName } from "@/data/countries";
 import { cn } from "@/lib/utils";
 
 function LiveBadge() {
@@ -40,9 +41,9 @@ export default function LiveScoresPanel() {
   if (error && !data) return null;
 
   return (
-    <section className="mb-6 rounded-xl border border-pitch/30 bg-gradient-to-br from-stadium-card to-stadium-navy/80 p-4 light:border-pitch/40 light:from-white light:to-slate-50">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-xl tracking-wide text-pitch">
+    <section className="mb-4 rounded-xl border border-pitch/30 bg-gradient-to-br from-stadium-card to-stadium-navy/80 p-3 light:border-pitch/40 light:from-white light:to-slate-50">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-display text-lg tracking-wide text-pitch">
           {t("live_scores")}
         </h2>
         {data?.lastUpdated && (
@@ -81,8 +82,8 @@ export default function LiveScoresPanel() {
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <FlagChip country={match.team1} size={18} />
-                  <span className="truncate text-sm font-semibold">
-                    {match.team1.split(" ").pop()}
+                  <span className="text-sm font-semibold leading-tight">
+                    {getCountryDisplayName(match.team1, true)}
                   </span>
                 </div>
 
@@ -99,8 +100,8 @@ export default function LiveScoresPanel() {
                 </div>
 
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <span className="truncate text-sm font-semibold">
-                    {match.team2.split(" ").pop()}
+                  <span className="text-right text-sm font-semibold leading-tight">
+                    {getCountryDisplayName(match.team2, true)}
                   </span>
                   <FlagChip country={match.team2} size={18} />
                 </div>

@@ -12,7 +12,7 @@ interface PlayerPodiumProps {
 }
 
 const podiumOrder = [1, 0, 2];
-const heights = ["h-24", "h-32", "h-20"];
+const heights = ["h-16", "h-20", "h-14"];
 const colors = [
   "from-slate-300 to-slate-500",
   "from-gold to-amber-600",
@@ -26,8 +26,8 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
   if (top3.length < 3) return null;
 
   return (
-    <section className="mb-8">
-      <h2 className="mb-4 text-center font-display text-2xl tracking-wide text-gold">
+    <section className="mb-5">
+      <h2 className="mb-2 text-center font-display text-xl tracking-wide text-gold">
         {t("podium_title")}
       </h2>
       <div className="flex items-end justify-center gap-2 px-2 md:gap-6">
@@ -45,15 +45,15 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
                 href={`/quiniela/${entry.slug}`}
                 className="group flex flex-col items-center"
               >
-                <span className="mb-1 text-2xl">{medals[visualIdx]}</span>
-                <PlayerAvatar captain={entry.captain} size={visualIdx === 1 ? 64 : 52} />
-                <p className="mt-2 line-clamp-2 text-center text-sm font-semibold group-hover:text-pitch">
+                <span className="mb-0.5 text-lg">{medals[visualIdx]}</span>
+                <PlayerAvatar captain={entry.captain} size={visualIdx === 1 ? 52 : 44} />
+                <p className="mt-1 line-clamp-2 text-center text-xs font-semibold group-hover:text-pitch sm:text-sm">
                   {entry.name}
                 </p>
                 <p className="truncate text-center text-xs text-slate-400">
                   {entry.captain}
                 </p>
-                <p className="font-display text-2xl text-pitch">
+                <p className="font-display text-xl text-pitch sm:text-2xl">
                   <CountUp value={entry.points} />
                 </p>
               </Link>

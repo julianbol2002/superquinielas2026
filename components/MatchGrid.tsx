@@ -7,14 +7,11 @@ import {
   worldCupGroups,
   computeStandings,
   getGroupFixtures,
+  getCountryDisplayName,
   type WorldCupGroup,
 } from "@/data/countries";
-import {
-  fetchMatches,
-  upsertMatch,
-  isSupabaseConfigured,
-  type MatchRow,
-} from "@/lib/supabase";
+import { fetchAllMatchRows, saveMatchResult } from "@/lib/matchData";
+import { isSupabaseConfigured, type MatchRow } from "@/lib/supabase";
 import {
   formatLastUpdated,
   type LiveMatch,
@@ -32,7 +29,7 @@ export default function MatchGrid() {
 
   const loadMatches = useCallback(async () => {
     setLoading(true);
-    const data = await fetchMatches();
+    const data = await fetchAllMatchRows();
     setMatches(data);
     setLoading(false);
   }, []);
@@ -42,7 +39,7 @@ export default function MatchGrid() {
   }, [loadMatches]);
 
   useEffect(() => {
-    if (liveData?.syncedCount) {
+    if (liveData?.lastUpdated) {
       loadMatches();
     }
   }, [liveData?.lastUpdated, liveData?.syncedCount, loadMatches]);
@@ -52,7 +49,14 @@ export default function MatchGrid() {
     for (const m of liveData?.matches ?? []) {
       if (!m.group) continue;
       const key = `${m.group}|${[m.team1, m.team2].sort().join("|")}`;
-      map.set(key, m);
+      const existing = map.get(key);
+      if (
+        !existing ||
+        m.isLive ||
+        (m.status === "final" && existing.status === "scheduled")
+      ) {
+        map.set(key, m);
+      }
     }
     return map;
   }, [liveData?.matches]);
@@ -120,7 +124,7 @@ export default function MatchGrid() {
         ((m.team1 === team1 && m.team2 === team2) ||
           (m.team1 === team2 && m.team2 === team1))
     );
-    await upsertMatch({
+    await saveMatchResult({
       id: existing?.id,
       stage: "group",
       group_name: group,
@@ -157,8 +161,8 @@ export default function MatchGrid() {
         </button>
       </div>
 
-      {!isSupabaseConfigured() && (
-        <p className="mb-4 rounded-lg bg-amber-500/10 px-4 py-2 text-sm text-amber-400">
+      {adminMode && !isSupabaseConfigured() && (
+        <p className="mb-4 text-xs text-slate-500 light:text-slate-400">
           {t("supabase_not_configured")}
         </p>
       )}
@@ -179,7 +183,6 @@ export default function MatchGrid() {
               key={group.name}
               group={group}
               adminMode={adminMode}
-              matches={matches}
               getMatchResult={getMatchResult}
               onSave={saveScore}
               index={gi}
@@ -194,14 +197,12 @@ export default function MatchGrid() {
 function GroupCard({
   group,
   adminMode,
-  matches,
   getMatchResult,
   onSave,
   index,
 }: {
   group: WorldCupGroup;
   adminMode: boolean;
-  matches: MatchRow[];
   getMatchResult: (
     t1: string,
     t2: string,
@@ -250,9 +251,9 @@ function GroupCard({
         {t("group")} {group.name}
       </h2>
 
-      <div className="mb-4 grid grid-cols-2 justify-items-center gap-4 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 justify-items-center gap-3 sm:grid-cols-4">
         {group.teams.map((team) => (
-          <TeamFlagCell key={team.name} country={team.name} />
+          <TeamFlagCell key={team.name} country={team.name} compact />
         ))}
       </div>
 
@@ -264,30 +265,35 @@ function GroupCard({
           <thead>
             <tr className="text-slate-500">
               <th className="py-1 text-left">#</th>
-              <th className="py-1 text-left">{t("player")}</th>
-              <th className="px-1 py-1">P</th>
-              <th className="px-1 py-1">W</th>
-              <th className="px-1 py-1">D</th>
-              <th className="px-1 py-1">L</th>
-              <th className="px-1 py-1">GF</th>
-              <th className="px-1 py-1">GA</th>
-              <th className="px-1 py-1 font-bold">{t("points")}</th>
+              <th className="py-1 text-left">{t("standings_team")}</th>
+              <th className="px-1 py-1">{t("standings_played")}</th>
+              <th className="px-1 py-1">{t("standings_won")}</th>
+              <th className="px-1 py-1">{t("standings_drawn")}</th>
+              <th className="px-1 py-1">{t("standings_lost")}</th>
+              <th className="px-1 py-1">{t("standings_gf")}</th>
+              <th className="px-1 py-1">{t("standings_ga")}</th>
+              <th className="px-1 py-1 font-bold">{t("standings_pts")}</th>
             </tr>
           </thead>
           <tbody>
             {standings.map((row, i) => (
               <tr key={row.team} className="border-t border-white/5 light:border-slate-100">
-                <td className="py-1">{i + 1}</td>
-                <td className="py-1">
-                  <FlagChip country={row.team} size={12} />
+                <td className="py-1.5 pr-1">{i + 1}</td>
+                <td className="py-1.5">
+                  <div className="flex min-w-[88px] items-center gap-1.5">
+                    <FlagChip country={row.team} size={14} className="shrink-0" />
+                    <span className="text-[11px] font-medium leading-tight text-slate-200 light:text-slate-700 sm:text-xs">
+                      {getCountryDisplayName(row.team, true)}
+                    </span>
+                  </div>
                 </td>
-                <td className="px-1 py-1 text-center">{row.played}</td>
-                <td className="px-1 py-1 text-center">{row.won}</td>
-                <td className="px-1 py-1 text-center">{row.drawn}</td>
-                <td className="px-1 py-1 text-center">{row.lost}</td>
-                <td className="px-1 py-1 text-center">{row.gf}</td>
-                <td className="px-1 py-1 text-center">{row.ga}</td>
-                <td className="px-1 py-1 text-center font-bold text-pitch">
+                <td className="px-1 py-1.5 text-center">{row.played}</td>
+                <td className="px-1 py-1.5 text-center">{row.won}</td>
+                <td className="px-1 py-1.5 text-center">{row.drawn}</td>
+                <td className="px-1 py-1.5 text-center">{row.lost}</td>
+                <td className="px-1 py-1.5 text-center">{row.gf}</td>
+                <td className="px-1 py-1.5 text-center">{row.ga}</td>
+                <td className="px-1 py-1.5 text-center font-bold text-pitch">
                   {row.pts}
                 </td>
               </tr>
@@ -360,26 +366,28 @@ function FixtureRow({
 
   return (
     <div
-      className={`flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-sm ${
+      className={`flex items-center gap-1 rounded-lg px-2 py-2 text-sm sm:gap-2 ${
         match?.isLive
           ? "border border-pitch/30 bg-pitch/5 light:bg-pitch/10"
           : "bg-white/5 light:bg-slate-50"
       }`}
     >
       <div className="flex min-w-0 flex-1 items-center gap-1">
-        <FlagChip country={team1} size={14} />
-        <span className="truncate text-xs">{team1.split(" ").pop()}</span>
+        <FlagChip country={team1} size={14} className="shrink-0" />
+        <span className="text-[11px] font-medium leading-tight text-slate-200 light:text-slate-700 sm:text-xs">
+          {getCountryDisplayName(team1, true)}
+        </span>
       </div>
 
       {adminMode ? (
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
           <input
             type="number"
             min={0}
             max={20}
             value={s1}
             onChange={(e) => setS1(Number(e.target.value))}
-            className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:bg-white light:border light:border-slate-200"
+            className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
           />
           <span>-</span>
           <input
@@ -388,7 +396,7 @@ function FixtureRow({
             max={20}
             value={s2}
             onChange={(e) => setS2(Number(e.target.value))}
-            className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:bg-white light:border light:border-slate-200"
+            className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
           />
           <button
             onClick={() => onSave(group, team1, team2, s1, s2)}
@@ -398,7 +406,7 @@ function FixtureRow({
           </button>
         </div>
       ) : (
-        <div className="flex flex-col items-center">
+        <div className="flex shrink-0 flex-col items-center px-1">
           {match?.isLive && (
             <span className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-pitch">
               <span className="relative flex h-1.5 w-1.5">
@@ -408,7 +416,9 @@ function FixtureRow({
               EN VIVO
             </span>
           )}
-          <span className="font-accent font-bold tabular-nums">{displayScore}</span>
+          <span className="font-accent text-base font-bold tabular-nums sm:text-lg">
+            {displayScore}
+          </span>
           {match?.displayClock && match.isLive && (
             <span className="text-[10px] text-pitch">{match.displayClock}</span>
           )}
@@ -416,8 +426,10 @@ function FixtureRow({
       )}
 
       <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
-        <span className="truncate text-xs">{team2.split(" ").pop()}</span>
-        <FlagChip country={team2} size={14} />
+        <span className="text-right text-[11px] font-medium leading-tight text-slate-200 light:text-slate-700 sm:text-xs">
+          {getCountryDisplayName(team2, true)}
+        </span>
+        <FlagChip country={team2} size={14} className="shrink-0" />
       </div>
     </div>
   );

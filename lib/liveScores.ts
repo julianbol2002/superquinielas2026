@@ -4,7 +4,10 @@ import { worldCupGroups } from "@/data/countries";
 export const ESPN_SCOREBOARD_URL =
   "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
 
-export const LIVE_POLL_MS = 60_000;
+export const TOURNAMENT_START = "20260601";
+export const TOURNAMENT_END = "20261231";
+
+export const LIVE_POLL_MS = 30_000;
 export const IDLE_POLL_MS = 5 * 60_000;
 
 export type MatchStatus = "scheduled" | "live" | "final";
@@ -120,6 +123,16 @@ function parseGroup(note?: string): string | null {
   return match ? match[1].toUpperCase() : null;
 }
 
+export function inferGroupFromTeams(team1: string, team2: string): string | null {
+  for (const group of worldCupGroups) {
+    const names = group.teams.map((t) => t.name);
+    if (names.includes(team1) && names.includes(team2)) {
+      return group.name;
+    }
+  }
+  return null;
+}
+
 function parseStage(slug?: string, note?: string): string {
   if (slug?.includes("group")) return "group";
   if (note?.toLowerCase().includes("final") && !note.includes("Round")) return "final";
@@ -166,6 +179,35 @@ interface EspnScoreboard {
   events?: EspnEvent[];
 }
 
+function formatYmd(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}${m}${d}`;
+}
+
+function getMonthChunks(): Array<{ start: string; end: string }> {
+  const chunks: Array<{ start: string; end: string }> = [];
+  const start = new Date(2026, 5, 1);
+  const end = new Date(2026, 11, 31);
+  const today = new Date();
+  const effectiveEnd = today < end ? today : end;
+
+  let cursor = new Date(start);
+  while (cursor <= effectiveEnd) {
+    const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    const monthEnd = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0);
+    const chunkEnd = monthEnd > effectiveEnd ? effectiveEnd : monthEnd;
+    chunks.push({
+      start: formatYmd(monthStart),
+      end: formatYmd(chunkEnd),
+    });
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+  }
+
+  return chunks;
+}
+
 export function parseEspnScoreboard(data: EspnScoreboard): LiveMatch[] {
   const events = data.events ?? [];
   const results: LiveMatch[] = [];
@@ -182,7 +224,8 @@ export function parseEspnScoreboard(data: EspnScoreboard): LiveMatch[] {
     const team2 = mapEspnTeamName(away.team.displayName);
     const score1 = parseScore(home.score);
     const score2 = parseScore(away.score);
-    const group = parseGroup(comp.altGameNote);
+    const group =
+      parseGroup(comp.altGameNote) ?? inferGroupFromTeams(team1, team2);
     const stage = parseStage(event.season?.slug, comp.altGameNote);
     const state = comp.status.type.state;
 
@@ -211,6 +254,71 @@ export function parseEspnScoreboard(data: EspnScoreboard): LiveMatch[] {
   return results;
 }
 
+async function fetchEspnScoreboardForDates(
+  start: string,
+  end: string
+): Promise<LiveMatch[]> {
+  const url = `${ESPN_SCOREBOARD_URL}?dates=${start}-${end}`;
+  const res = await fetch(url, {
+    next: { revalidate: 0 },
+    headers: { Accept: "application/json" },
+  });
+
+  if (!res.ok) {
+    throw new Error(`ESPN API error (${start}-${end}): ${res.status}`);
+  }
+
+  const data = (await res.json()) as EspnScoreboard;
+  return parseEspnScoreboard(data);
+}
+
+function mergeLiveMatches(all: LiveMatch[]): LiveMatch[] {
+  const byId = new Map<string, LiveMatch>();
+  const byFixture = new Map<string, LiveMatch>();
+
+  const fixtureKey = (m: LiveMatch) =>
+    `${m.group ?? "?"}|${[m.team1, m.team2].sort().join("|")}`;
+
+  const statusRank = (m: LiveMatch) => {
+    if (m.isLive || m.status === "live") return 3;
+    if (m.status === "final") return 2;
+    return 1;
+  };
+
+  for (const match of all) {
+    const existingById = byId.get(match.espnId);
+    if (
+      !existingById ||
+      statusRank(match) > statusRank(existingById) ||
+      (statusRank(match) === statusRank(existingById) &&
+        match.isLive &&
+        !existingById.isLive)
+    ) {
+      byId.set(match.espnId, match);
+    }
+
+    const fKey = fixtureKey(match);
+    const existingFixture = byFixture.get(fKey);
+    if (
+      !existingFixture ||
+      statusRank(match) > statusRank(existingFixture) ||
+      (match.isLive && !existingFixture.isLive)
+    ) {
+      byFixture.set(fKey, match);
+    }
+  }
+
+  const merged = new Map<string, LiveMatch>();
+  for (const m of byFixture.values()) {
+    merged.set(m.espnId, m);
+  }
+  for (const m of byId.values()) {
+    merged.set(m.espnId, m);
+  }
+
+  return [...merged.values()];
+}
+
 export async function fetchEspnScoreboard(): Promise<LiveMatch[]> {
   const res = await fetch(ESPN_SCOREBOARD_URL, {
     next: { revalidate: 0 },
@@ -223,6 +331,44 @@ export async function fetchEspnScoreboard(): Promise<LiveMatch[]> {
 
   const data = (await res.json()) as EspnScoreboard;
   return parseEspnScoreboard(data);
+}
+
+/** Historical backfill + today's live scoreboard merged */
+export async function fetchAllEspnMatches(): Promise<LiveMatch[]> {
+  const [rangeResult, todayResult] = await Promise.allSettled([
+    fetchEspnScoreboardForDates(TOURNAMENT_START, TOURNAMENT_END),
+    fetchEspnScoreboard(),
+  ]);
+
+  const all: LiveMatch[] = [];
+  if (rangeResult.status === "fulfilled") {
+    all.push(...rangeResult.value);
+  }
+  if (todayResult.status === "fulfilled") {
+    all.push(...todayResult.value);
+  }
+
+  if (
+    rangeResult.status === "rejected" ||
+    (rangeResult.status === "fulfilled" && rangeResult.value.length === 0)
+  ) {
+    const chunkResults = await Promise.allSettled(
+      getMonthChunks().map((chunk) =>
+        fetchEspnScoreboardForDates(chunk.start, chunk.end)
+      )
+    );
+    for (const result of chunkResults) {
+      if (result.status === "fulfilled") {
+        all.push(...result.value);
+      }
+    }
+  }
+
+  if (all.length === 0) {
+    throw new Error("ESPN API returned no match data");
+  }
+
+  return mergeLiveMatches(all);
 }
 
 function findExistingMatch(
@@ -275,7 +421,7 @@ export async function syncLiveMatchesToSupabase(
 }
 
 export async function getScoresWithSync(): Promise<ScoresResponse> {
-  const matches = await fetchEspnScoreboard();
+  const matches = await fetchAllEspnMatches();
   const hasLiveMatches = matches.some((m) => m.isLive);
   const syncedCount = await syncLiveMatchesToSupabase(matches);
 

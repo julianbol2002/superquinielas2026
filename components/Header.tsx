@@ -20,9 +20,9 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-stadium-dark/90 backdrop-blur-md dark:border-white/10 light:border-slate-200 light:bg-white/90">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 md:px-6 md:py-2.5">
         <Link href="/" className="flex flex-col">
-          <span className="font-display text-2xl tracking-wider text-pitch md:text-3xl">
+          <span className="font-display text-xl tracking-wider text-pitch md:text-2xl">
             {t("site_name")}
           </span>
         </Link>
@@ -47,7 +47,7 @@ export default function Header() {
             href={`/quiniela/${quinielaToSlug(top.name)}`}
             className="flex items-center gap-2 rounded-full border border-white/10 bg-stadium-card px-2 py-1 light:border-slate-200 light:bg-white"
           >
-            <PlayerAvatar captain={activePlayer} size={32} />
+            <PlayerAvatar captain={activePlayer} size={28} />
             <span className="hidden max-w-[100px] truncate text-sm font-medium sm:inline">
               {activePlayer.split(" ")[0]}
             </span>

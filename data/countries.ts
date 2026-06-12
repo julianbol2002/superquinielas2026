@@ -55,6 +55,24 @@ export function getCountryCode(country: string): string {
   return countryToCode[country] ?? "UN";
 }
 
+/** Compact labels for tight fixture rows (~390px mobile) */
+export const countryShortNames: Record<string, string> = {
+  "Bosnia and Herzegovina": "Bosnia & Herz.",
+  "Ivory Coast": "Ivory Coast",
+  "United States": "USA",
+  "South Korea": "S. Korea",
+  "South Africa": "S. Africa",
+  "New Zealand": "New Zealand",
+  "Saudi Arabia": "Saudi Arabia",
+  "DR Congo": "DR Congo",
+  "Curaçao": "Curaçao",
+};
+
+export function getCountryDisplayName(country: string, compact = false): string {
+  if (!compact) return country;
+  return countryShortNames[country] ?? country;
+}
+
 export interface GroupTeam {
   name: string;
   code: string;

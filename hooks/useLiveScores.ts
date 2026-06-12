@@ -6,6 +6,7 @@ import {
   getPollInterval,
   type ScoresResponse,
 } from "@/lib/liveScores";
+import { syncEspnToLocalStore } from "@/lib/matchData";
 
 export function useLiveScores() {
   const [data, setData] = useState<ScoresResponse | null>(null);
@@ -16,6 +17,9 @@ export function useLiveScores() {
   const refresh = useCallback(async () => {
     try {
       const result = await fetchScoresFromApi();
+      if (result && !result.supabaseConfigured) {
+        syncEspnToLocalStore(result.matches);
+      }
       setData(result);
       setError(null);
       return result;
