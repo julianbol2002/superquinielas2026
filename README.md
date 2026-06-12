@@ -23,6 +23,33 @@ Without Supabase, the app runs with static quiniela data; match scores and avata
 
 ## Deploy
 
+### Vercel
+
+1. Run `vercel link` to connect the local project to my Vercel account
+2. Run `vercel env add` for each variable in `.env.local.example`
+3. Run `vercel --prod` to deploy
+
+### GitHub
+
+The repo is initialized locally on `main` with an initial commit. To publish to GitHub (one-time auth required):
+
+```bash
+gh auth login
+gh repo create super-quinielas --public --source=. --remote=origin --push --description "SUPER QUINIELAS — World Cup 2026 family bracket challenge leaderboard"
+```
+
+### GitHub Actions (auto-deploy on push to `main`)
+
+Add these secrets in your GitHub repo (**Settings → Secrets and variables → Actions**):
+
+| Secret | Description |
+|--------|-------------|
+| `VERCEL_TOKEN` | Vercel personal access token |
+| `VERCEL_ORG_ID` | Team/user ID from Vercel project settings |
+| `VERCEL_PROJECT_ID` | Project ID from Vercel project settings |
+
+Every push to `main` runs `.github/workflows/deploy.yml` and deploys to Vercel production.
+
 ### Environment variables
 
 Copy the example file and fill in your Supabase credentials locally:
@@ -38,27 +65,7 @@ Required variables (see `.env.local.example` for placeholders):
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
 
-Never commit `.env.local` — it is gitignored.
-
-### Vercel (manual)
-
-From the project root, with the [Vercel CLI](https://vercel.com/docs/cli) installed:
-
-1. Run `vercel link` to connect the local project to my Vercel account
-2. Run `vercel env add` for each variable in `.env.local.example`
-3. Run `vercel --prod` to deploy
-
-### GitHub Actions (auto-deploy on push to `main`)
-
-Add these secrets in your GitHub repo (**Settings → Secrets and variables → Actions**):
-
-| Secret | Description |
-|--------|-------------|
-| `VERCEL_TOKEN` | Vercel personal access token |
-| `VERCEL_ORG_ID` | Team/user ID from Vercel project settings |
-| `VERCEL_PROJECT_ID` | Project ID from Vercel project settings |
-
-Every push to `main` runs `.github/workflows/deploy.yml` and deploys to Vercel production.
+Never commit `.env.local` — it is gitignored. Add the same variables in Vercel via `vercel env add` or the Vercel dashboard.
 
 ## Features
 
