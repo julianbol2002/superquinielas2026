@@ -126,6 +126,6 @@
   "exact_badge": "Exact",
   "goleada_short": "Goleada",
   "score_breakdown": "Score breakdown",
-  "score_bonus_note": "Finalist/champion bonuses are included in the tooltip total.",
+  "score_bonus_note": "The column shows match points. The tooltip total includes bonuses (+10/+5) when applicable.",
   "score_tiebreaker_note": "Ties are broken by captain name (A–Z)."
 }

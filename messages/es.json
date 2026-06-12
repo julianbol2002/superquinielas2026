@@ -126,6 +126,6 @@
   "exact_badge": "Exacto",
   "goleada_short": "Goleada",
   "score_breakdown": "Desglose de puntos",
-  "score_bonus_note": "Bonos de finalistas/campeón se suman al total del tooltip.",
+  "score_bonus_note": "La columna muestra puntos de partidos. El total del tooltip incluye bonos (+10/+5) cuando aplican.",
   "score_tiebreaker_note": "Empates se desempatan por nombre del capitán (A–Z)."
 }

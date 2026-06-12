@@ -34,7 +34,9 @@ export function mergeLiveResults(
   liveResults: Map<string, MatchResult>
 ): Map<string, MatchResult> {
   const merged = getPlayedResultsMap();
+  const sealed = new Set(merged.keys());
   for (const [key, value] of liveResults) {
+    if (sealed.has(key)) continue;
     merged.set(key, value);
   }
   return merged;

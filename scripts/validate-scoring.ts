@@ -10,22 +10,27 @@ import {
 const scores = computeAllQuinielaScores();
 let mismatches = 0;
 
-console.log("\n=== Scoring validation vs original site ===\n");
+console.log("\n=== Scoring validation vs original site (Puntos Efectivos) ===\n");
 console.log(
   "Quiniela".padEnd(28),
-  "Computed".padStart(8),
+  "Match".padStart(6),
+  "Bonus".padStart(6),
+  "Total".padStart(6),
   "Expected".padStart(8),
   "Status".padStart(8)
 );
-console.log("-".repeat(54));
+console.log("-".repeat(68));
 
 for (const row of scores) {
   const expected = ORIGINAL_SITE_POINTS[row.name];
+  const bonus = row.finalistBonus + row.championBonus;
   const ok = expected !== undefined && row.matchPoints === expected;
   if (!ok) mismatches += 1;
   console.log(
     row.name.padEnd(28),
-    String(row.matchPoints).padStart(8),
+    String(row.matchPoints).padStart(6),
+    String(bonus).padStart(6),
+    String(row.totalPoints).padStart(6),
     String(expected ?? "?").padStart(8),
     (ok ? "OK" : "FAIL").padStart(8)
   );
