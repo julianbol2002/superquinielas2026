@@ -4,9 +4,16 @@ import {
   getRankedQuinielas,
   type Quiniela,
 } from "@/data/quinielas";
+import { getAllGroupFixtures } from "@/data/countries";
+import { getPredictionsForSlug } from "@/data/predictions";
 import {
-  getAllGroupFixtures,
-} from "@/data/countries";
+  mergeLiveResults,
+  resultKeyFromTeams,
+  type MatchResult,
+} from "@/data/tournamentResults";
+import {
+  scoreMatchPrediction,
+} from "@/lib/quinielaScoring";
 import type { LiveMatch } from "@/lib/liveScores";
 
 export type AccuracyCell = "exact" | "result" | "wrong" | "pending";
@@ -112,131 +119,70 @@ const COUNTRY_KIT_COLORS: Record<string, string> = {
   Mexico: "#006847",
 };
 
-function hashStr(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
+function liveResultsFromMatches(liveMatches: LiveMatch[]): Map<string, MatchResult> {
+  const map = new Map<string, MatchResult>();
+  for (const m of liveMatches) {
+    if (m.status === "scheduled") continue;
+    if (m.score1 === null || m.score2 === null) continue;
+    map.set(resultKeyFromTeams(m.team1, m.team2), {
+      score1: m.score1,
+      score2: m.score2,
+    });
+  }
+  return map;
 }
 
-function pickedTeams(q: Quiniela): Set<string> {
-  return new Set([q.finalist1, q.finalist2, q.winner]);
-}
-
-function supportedTeam(q: Quiniela, team1: string, team2: string): string | null {
-  const picked = pickedTeams(q);
-  if (picked.has(team1) && !picked.has(team2)) return team1;
-  if (picked.has(team2) && !picked.has(team1)) return team2;
-  if (picked.has(team1) && picked.has(team2)) return q.winner;
-  if (picked.has(q.winner) && (team1 === q.winner || team2 === q.winner)) return q.winner;
-  return null;
-}
-
-function inferPrediction(
+function scorePredictionFromData(
   q: Quiniela,
   match: AnalyticsMatch
-): { score1: number; score2: number } {
-  const h = hashStr(`${q.name}-${match.id}`);
-  const fav = supportedTeam(q, match.team1, match.team2);
-
-  if (!fav) {
-    const draws = h % 3 === 0;
-    if (draws) return { score1: 1, score2: 1 };
-    return h % 2 === 0 ? { score1: 2, score2: 1 } : { score1: 1, score2: 2 };
-  }
-
-  const isWinner = fav === q.winner;
-  const goleada = isWinner && h % 5 === 0;
-  const conservative = h % 7 === 0;
-
-  if (goleada) {
-    return fav === match.team1
-      ? { score1: 4 + (h % 2), score2: 0 }
-      : { score1: 0, score2: 4 + (h % 2) };
-  }
-  if (conservative) {
-    return fav === match.team1 ? { score1: 1, score2: 1 } : { score1: 1, score2: 1 };
-  }
-
-  const goals = 2 + (h % 2);
-  return fav === match.team1
-    ? { score1: goals, score2: 1 }
-    : { score1: 1, score2: goals };
-}
-
-function resultOf(s1: number, s2: number): "home" | "draw" | "away" {
-  if (s1 > s2) return "home";
-  if (s2 > s1) return "away";
-  return "draw";
-}
-
-function scorePrediction(
-  q: Quiniela,
-  match: AnalyticsMatch,
-  pred: { score1: number; score2: number }
 ): QuinielaMatchPoints {
   const slug = quinielaToSlug(q.name);
+  const predictions = getPredictionsForSlug(slug) ?? {};
+  const pred = predictions[match.id] ?? null;
   const base = {
     slug,
     name: q.name,
     captain: q.captain,
-    predictedScore1: pred.score1,
-    predictedScore2: pred.score2,
+    predictedScore1: pred?.score1 ?? 0,
+    predictedScore2: pred?.score2 ?? 0,
     pointsEarned: 0,
     accuracy: "pending" as AccuracyCell,
     exactScore: false,
     goleadaBonus: false,
   };
 
+  if (!pred) {
+    return { ...base, accuracy: "pending" };
+  }
+
   if (!match.played || match.score1 === null || match.score2 === null) {
     return base;
   }
 
-  const exact =
-    pred.score1 === match.score1 && pred.score2 === match.score2;
-  const predResult = resultOf(pred.score1, pred.score2);
-  const actualResult = resultOf(match.score1, match.score2);
-  const correctResult = predResult === actualResult;
-
-  const predMargin = Math.abs(pred.score1 - pred.score2);
-  const actualMargin = Math.abs(match.score1 - match.score2);
-  const goleadaBonus =
-    actualMargin >= 4 && predMargin >= 4 && correctResult;
-
-  let points = 0;
+  const scored = scoreMatchPrediction(pred, match.score1, match.score2);
   let accuracy: AccuracyCell = "wrong";
-  if (exact) {
-    points = 3;
-    accuracy = "exact";
-  } else if (correctResult) {
-    points = 1;
-    accuracy = "result";
-  }
-  if (goleadaBonus) points += 3;
+  if (scored.exact) accuracy = "exact";
+  else if (scored.correctResult) accuracy = "result";
 
   return {
     ...base,
-    pointsEarned: points,
+    predictedScore1: pred.score1,
+    predictedScore2: pred.score2,
+    pointsEarned: scored.points,
     accuracy,
-    exactScore: exact,
-    goleadaBonus,
+    exactScore: scored.exact,
+    goleadaBonus: scored.goleadaBonus,
   };
 }
 
 function buildMatchList(liveMatches: LiveMatch[]): AnalyticsMatch[] {
+  const results = mergeLiveResults(liveResultsFromMatches(liveMatches));
   const fixtures = getAllGroupFixtures();
-  const liveMap = new Map<string, LiveMatch>();
-
-  for (const m of liveMatches) {
-    if (m.status === "scheduled") continue;
-    const key = [m.team1, m.team2].sort().join("|");
-    liveMap.set(key, m);
-  }
 
   const matches: AnalyticsMatch[] = fixtures.map((f, i) => {
-    const key = [f.team1, f.team2].sort().join("|");
-    const live = liveMap.get(key);
-    const score1 = live?.score1 ?? null;
-    const score2 = live?.score2 ?? null;
+    const result = results.get(resultKeyFromTeams(f.team1, f.team2));
+    const score1 = result?.score1 ?? null;
+    const score2 = result?.score2 ?? null;
     const played = score1 !== null && score2 !== null;
     const margin = played ? Math.abs(score1 - score2) : 0;
 
@@ -285,49 +231,21 @@ function buildMatchList(liveMatches: LiveMatch[]): AnalyticsMatch[] {
   return matches;
 }
 
-function scaleToTargetTotals(
-  rawByMatch: Record<string, number[]>,
-  playedCount: number
-): Record<string, number[]> {
-  const scaled: Record<string, number[]> = {};
-
-  for (const q of quinielas) {
-    const slug = quinielaToSlug(q.name);
-    const raw = rawByMatch[slug] ?? [];
-    const rawTotal = raw.slice(0, playedCount).reduce((a, b) => a + b, 0);
-    const target = q.points;
-
-    if (playedCount === 0) {
-      scaled[slug] = [];
-      continue;
-    }
-
-    if (rawTotal <= 0) {
-      const per = target / playedCount;
-      scaled[slug] = raw.map((_, i) =>
-        i < playedCount ? Math.round(per * 10) / 10 : 0
-      );
-      continue;
-    }
-
-    const factor = target / rawTotal;
-    scaled[slug] = raw.map((v, i) =>
-      i < playedCount ? Math.round(v * factor * 10) / 10 : 0
-    );
-
-    const diff =
-      target -
-      scaled[slug].slice(0, playedCount).reduce((a, b) => a + b, 0);
-    if (Math.abs(diff) > 0.01 && playedCount > 0) {
-      scaled[slug][playedCount - 1] =
-        Math.round((scaled[slug][playedCount - 1] + diff) * 10) / 10;
-    }
-  }
-
-  return scaled;
+function getMatchPrediction(
+  q: Quiniela,
+  matchId: string
+): { score1: number; score2: number } | null {
+  const slug = quinielaToSlug(q.name);
+  const predictions = getPredictionsForSlug(slug) ?? {};
+  return predictions[matchId] ?? null;
 }
 
-function computeRanks(cumulative: Record<string, number[]>, len: number): Record<string, number[]> {
+function computeRanks(
+  cumulative: Record<string, number[]>,
+  len: number,
+  names: Record<string, string>,
+  captains: Record<string, string>
+): Record<string, number[]> {
   const slugs = quinielas.map((q) => quinielaToSlug(q.name));
   const ranks: Record<string, number[]> = {};
   slugs.forEach((s) => {
@@ -338,7 +256,11 @@ function computeRanks(cumulative: Record<string, number[]>, len: number): Record
     const sorted = [...slugs].sort((a, b) => {
       const ca = cumulative[a]?.[i] ?? 0;
       const cb = cumulative[b]?.[i] ?? 0;
-      return cb - ca;
+      if (cb !== ca) return cb - ca;
+      return (captains[a] ?? names[a] ?? a).localeCompare(
+        captains[b] ?? names[b] ?? b,
+        "es"
+      );
     });
     sorted.forEach((slug, idx) => {
       ranks[slug].push(idx + 1);
@@ -367,8 +289,7 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
     const results: QuinielaMatchPoints[] = [];
     for (const q of quinielas) {
       const slug = quinielaToSlug(q.name);
-      const pred = inferPrediction(q, match);
-      const scored = scorePrediction(q, match, pred);
+      const scored = scorePredictionFromData(q, match);
       rawByMatch[slug].push(scored.pointsEarned);
       heatmap[slug].push(scored.accuracy);
       results.push(scored);
@@ -383,24 +304,32 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
     });
   });
 
-  const scaledMatchPoints = scaleToTargetTotals(rawByMatch, playedCount);
+  const matchPointsBySlug = rawByMatch;
 
   const cumulativePoints: Record<string, number[]> = {};
   quinielas.forEach((q) => {
     const slug = quinielaToSlug(q.name);
-    const pts = scaledMatchPoints[slug] ?? [];
+    const pts = matchPointsBySlug[slug] ?? [];
     const cum: number[] = [];
     let total = 0;
     for (let i = 0; i < playedCount; i++) {
       total += pts[i] ?? 0;
-      cum.push(Math.round(total * 10) / 10);
+      cum.push(total);
     }
     cumulativePoints[slug] = cum;
   });
 
-  const ranksOverTime = computeRanks(cumulativePoints, playedCount);
+  const names: Record<string, string> = {};
+  const captains: Record<string, string> = {};
+  quinielas.forEach((q) => {
+    const s = quinielaToSlug(q.name);
+    names[s] = q.name;
+    captains[s] = q.captain;
+  });
 
-  const ranked = getRankedQuinielas();
+  const ranksOverTime = computeRanks(cumulativePoints, playedCount, names, captains);
+
+  const ranked = getRankedQuinielas(undefined, liveMatches);
   const climbers = ranked
     .map((q) => {
       const ranks = ranksOverTime[q.slug] ?? [];
@@ -433,7 +362,7 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
 
   const streaks: StreakInfo[] = quinielas.map((q) => {
     const slug = quinielaToSlug(q.name);
-    const pts = scaledMatchPoints[slug] ?? [];
+    const pts = matchPointsBySlug[slug] ?? [];
     let best = 0;
     let current = 0;
     let run = 0;
@@ -522,7 +451,8 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
   quinielas.forEach((q) => {
     let goals = 0;
     playedMatches.forEach((match) => {
-      const pred = inferPrediction(q, match);
+      const pred = getMatchPrediction(q, match.id);
+      if (!pred) return;
       goals += pred.score1 + pred.score2;
       if (pred.score1 === pred.score2) totalDraws += 1;
       if (Math.abs(pred.score1 - pred.score2) >= 4) totalGoleadasPredicted += 1;
@@ -536,10 +466,10 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
   });
 
   playedMatches.forEach((match) => {
-    const keys = quinielas.map((q) => {
-      const p = inferPrediction(q, match);
-      return `${p.score1}-${p.score2}`;
-    });
+    const keys = quinielas
+      .map((q) => getMatchPrediction(q, match.id))
+      .filter((p): p is { score1: number; score2: number } => p !== null)
+      .map((p) => `${p.score1}-${p.score2}`);
     const freq = new Map<string, number>();
     keys.forEach((k) => freq.set(k, (freq.get(k) ?? 0) + 1));
     let bestKey = "";
@@ -554,8 +484,8 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
     const results = perMatchResults[match.id] ?? [];
     totalExact += results.filter((r) => r.exactScore).length;
     quinielas.forEach((q) => {
-      const p = inferPrediction(q, match);
-      totalGoalsPredicted += p.score1 + p.score2;
+      const p = getMatchPrediction(q, match.id);
+      if (p) totalGoalsPredicted += p.score1 + p.score2;
     });
   });
 
@@ -599,8 +529,8 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
         .map((q) => ({
           name: q.name,
           draws: playedMatches.filter((m) => {
-            const p = inferPrediction(q, m);
-            return p.score1 === p.score2;
+            const p = getMatchPrediction(q, m.id);
+            return p !== null && p.score1 === p.score2;
           }).length,
         }))
         .sort((a, b) => b.draws - a.draws)[0]?.name ?? "—",
@@ -613,8 +543,8 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
         .map((q) => ({
           name: q.name,
           goleadas: playedMatches.filter((m) => {
-            const p = inferPrediction(q, m);
-            return Math.abs(p.score1 - p.score2) >= 4;
+            const p = getMatchPrediction(q, m.id);
+            return p !== null && Math.abs(p.score1 - p.score2) >= 4;
           }).length,
         }))
         .sort((a, b) => b.goleadas - a.goleadas)[0]?.name ?? "—",
@@ -640,14 +570,6 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
     colors[quinielaToSlug(q.name)] = CHART_COLORS[i % CHART_COLORS.length];
   });
 
-  const names: Record<string, string> = {};
-  const captains: Record<string, string> = {};
-  quinielas.forEach((q) => {
-    const s = quinielaToSlug(q.name);
-    names[s] = q.name;
-    captains[s] = q.captain;
-  });
-
   return {
     matches,
     playedCount,
@@ -656,7 +578,7 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
     quinielaCaptains: captains,
     cumulativePoints,
     ranksOverTime,
-    matchPoints: scaledMatchPoints,
+    matchPoints: matchPointsBySlug,
     heatmap,
     climbers,
     fallers,

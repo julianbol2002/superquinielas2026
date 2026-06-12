@@ -93,7 +93,7 @@ export default function StatCards({ entries }: StatCardsProps) {
           className="min-w-[200px] flex-shrink-0 snap-start rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white light:shadow-sm"
         >
           <span className="text-2xl">{card.icon}</span>
-          <p className="mt-2 text-xs uppercase tracking-wide text-slate-400 light:text-slate-500">
+          <p className="mt-2 text-xs uppercase tracking-wide text-muted">
             {card.label}
           </p>
           <p className="mt-1 line-clamp-2 text-sm font-semibold">{card.value}</p>

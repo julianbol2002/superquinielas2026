@@ -30,7 +30,7 @@ export default function BottomNav() {
               href={tab.href}
               className={cn(
                 "flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px] transition",
-                active ? "text-pitch" : "text-slate-400 light:text-slate-500"
+                active ? "text-pitch" : "text-muted"
               )}
             >
               <span className="text-base">{tab.icon}</span>

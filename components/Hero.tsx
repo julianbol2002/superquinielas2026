@@ -1,17 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { motion } from "framer-motion";
 
 export default function Hero() {
   const t = useTranslations();
+  const locale = useLocale();
   const [time, setTime] = useState("");
 
   useEffect(() => {
     const update = () => {
       setTime(
-        new Date().toLocaleString(undefined, {
+        new Date().toLocaleString(locale === "es" ? "es-ES" : "en-US", {
           weekday: "short",
           month: "short",
           day: "numeric",
@@ -23,7 +24,7 @@ export default function Hero() {
     update();
     const id = setInterval(update, 60000);
     return () => clearInterval(id);
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,10 +60,10 @@ export default function Hero() {
             🏆
           </motion.span>
           <div className="min-w-0 text-left">
-            <h1 className="font-display text-2xl leading-none tracking-wide text-white light:text-slate-900 sm:text-3xl">
+            <h1 className="font-display text-2xl leading-none tracking-wide text-primary-theme sm:text-3xl">
               {t("site_name")}
             </h1>
-            <p className="mt-0.5 truncate text-xs text-slate-400 light:text-slate-600 sm:text-sm">
+            <p className="mt-0.5 truncate text-xs text-muted sm:text-sm">
               {t("tagline")}
             </p>
           </div>

@@ -41,7 +41,7 @@ export default function FlagChip({
         className="rounded-sm object-cover"
       />
       {showLabel && (
-        <span className="text-xs font-medium text-slate-300 light:text-slate-600">
+        <span className="text-xs font-medium text-secondary">
           {country}
         </span>
       )}
@@ -77,7 +77,7 @@ export function TeamFlagCell({
           className="h-10 w-10 object-cover"
         />
       </div>
-      <span className="w-full text-center text-[10px] font-medium leading-tight text-slate-300 light:text-slate-600 sm:text-xs">
+      <span className="w-full text-center text-[10px] font-medium leading-tight text-secondary sm:text-xs">
         {label}
       </span>
     </div>

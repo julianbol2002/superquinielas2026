@@ -143,7 +143,7 @@ export default function MatchGrid() {
         <div>
           <h1 className="font-display text-3xl tracking-wide">{t("matches")}</h1>
           {liveData?.lastUpdated && (
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-muted">
               {t("last_updated")}: {formatLastUpdated(liveData.lastUpdated, locale)}
               <span className="ml-2 text-pitch">• {t("live_sync")}</span>
             </p>
@@ -162,7 +162,7 @@ export default function MatchGrid() {
       </div>
 
       {adminMode && !isSupabaseConfigured() && (
-        <p className="mb-4 text-xs text-slate-500 light:text-slate-400">
+        <p className="mb-4 text-xs text-muted">
           {t("supabase_not_configured")}
         </p>
       )}
@@ -257,13 +257,13 @@ function GroupCard({
         ))}
       </div>
 
-      <h3 className="mb-2 text-xs uppercase tracking-wide text-slate-400">
+      <h3 className="mb-2 text-xs uppercase tracking-wide text-muted">
         {t("standings")}
       </h3>
       <div className="mb-4 overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-slate-500">
+            <tr className="text-muted">
               <th className="py-1 text-left">#</th>
               <th className="py-1 text-left">{t("standings_team")}</th>
               <th className="px-1 py-1">{t("standings_played")}</th>
@@ -282,7 +282,7 @@ function GroupCard({
                 <td className="py-1.5">
                   <div className="flex min-w-[88px] items-center gap-1.5">
                     <FlagChip country={row.team} size={14} className="shrink-0" />
-                    <span className="text-[11px] font-medium leading-tight text-slate-200 light:text-slate-700 sm:text-xs">
+                    <span className="text-[11px] font-medium leading-tight text-secondary sm:text-xs">
                       {getCountryDisplayName(row.team, true)}
                     </span>
                   </div>
@@ -302,7 +302,7 @@ function GroupCard({
         </table>
       </div>
 
-      <h3 className="mb-2 text-xs uppercase tracking-wide text-slate-400">
+      <h3 className="mb-2 text-xs uppercase tracking-wide text-muted">
         {t("fixtures")}
       </h3>
       <div className="space-y-2">
@@ -374,7 +374,7 @@ function FixtureRow({
     >
       <div className="flex min-w-0 flex-1 items-center gap-1">
         <FlagChip country={team1} size={14} className="shrink-0" />
-        <span className="text-[11px] font-medium leading-tight text-slate-200 light:text-slate-700 sm:text-xs">
+        <span className="text-[11px] font-medium leading-tight text-secondary sm:text-xs">
           {getCountryDisplayName(team1, true)}
         </span>
       </div>
@@ -413,7 +413,7 @@ function FixtureRow({
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-pitch" />
               </span>
-              EN VIVO
+              {t("live_badge")}
             </span>
           )}
           <span className="font-accent text-base font-bold tabular-nums sm:text-lg">
@@ -426,7 +426,7 @@ function FixtureRow({
       )}
 
       <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
-        <span className="text-right text-[11px] font-medium leading-tight text-slate-200 light:text-slate-700 sm:text-xs">
+        <span className="text-right text-[11px] font-medium leading-tight text-secondary sm:text-xs">
           {getCountryDisplayName(team2, true)}
         </span>
         <FlagChip country={team2} size={14} className="shrink-0" />

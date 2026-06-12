@@ -9,15 +9,19 @@
   --gold: #ffd700;
   --bg-primary: #0a0e17;
   --bg-card: #1a2234;
-  --text-primary: #ffffff;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
+  --border-subtle: rgba(255, 255, 255, 0.1);
 }
 
 .light {
   --bg-primary: #f1f5f9;
   --bg-card: #ffffff;
   --text-primary: #0f172a;
-  --text-muted: #64748b;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  --border-subtle: #e2e8f0;
 }
 
 html {
@@ -42,6 +46,26 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-primary-theme {
+    color: var(--text-primary);
+  }
+
+  .border-theme {
+    border-color: var(--border-subtle);
+  }
+
+  .bg-surface {
+    background-color: var(--bg-card);
   }
 
   .gold-shimmer {

@@ -3,7 +3,13 @@ import {
   getPredictionsForSlug,
   type PredictionScore,
 } from "@/data/predictions";
+import {
+  mergeLiveResults,
+  resultKeyFromTeams,
+  type MatchResult,
+} from "@/data/tournamentResults";
 import type { LiveMatch } from "@/lib/liveScores";
+import { scoreMatchPrediction } from "@/lib/quinielaScoring";
 
 export type RowAccuracy = "exact" | "result" | "wrong" | "pending" | "missing";
 
@@ -34,10 +40,16 @@ export interface QuinielaPredictionStats {
   currentHotStreak: number;
 }
 
-function resultOf(s1: number, s2: number): "home" | "draw" | "away" {
-  if (s1 > s2) return "home";
-  if (s2 > s1) return "away";
-  return "draw";
+function liveResultsMap(liveMatches: LiveMatch[]): Map<string, MatchResult> {
+  const map = new Map<string, MatchResult>();
+  for (const m of liveMatches) {
+    if (m.status === "scheduled") continue;
+    map.set(resultKeyFromTeams(m.team1, m.team2), {
+      score1: m.score1,
+      score2: m.score2,
+    });
+  }
+  return map;
 }
 
 function scoreRow(
@@ -53,39 +65,16 @@ function scoreRow(
     return { pointsEarned: 0, accuracy: "pending", goleadaBonus: false };
   }
 
-  const exact =
-    predicted.score1 === actualScore1 && predicted.score2 === actualScore2;
-  const predResult = resultOf(predicted.score1, predicted.score2);
-  const actualResult = resultOf(actualScore1, actualScore2);
-  const correctResult = predResult === actualResult;
-
-  const predMargin = Math.abs(predicted.score1 - predicted.score2);
-  const actualMargin = Math.abs(actualScore1 - actualScore2);
-  const goleadaBonus =
-    actualMargin >= 4 && predMargin >= 4 && correctResult;
-
-  let points = 0;
+  const scored = scoreMatchPrediction(predicted, actualScore1, actualScore2);
   let accuracy: RowAccuracy = "wrong";
-  if (exact) {
-    points = 3;
-    accuracy = "exact";
-  } else if (correctResult) {
-    points = 1;
-    accuracy = "result";
-  }
-  if (goleadaBonus) points += 3;
+  if (scored.exact) accuracy = "exact";
+  else if (scored.correctResult) accuracy = "result";
 
-  return { pointsEarned: points, accuracy, goleadaBonus };
-}
-
-function liveMapFromMatches(liveMatches: LiveMatch[]): Map<string, LiveMatch> {
-  const map = new Map<string, LiveMatch>();
-  for (const m of liveMatches) {
-    if (m.status === "scheduled") continue;
-    const key = [m.team1, m.team2].sort().join("|");
-    map.set(key, m);
-  }
-  return map;
+  return {
+    pointsEarned: scored.points,
+    accuracy,
+    goleadaBonus: scored.goleadaBonus,
+  };
 }
 
 export function getBetTierLabel(bet: 25 | 50 | 100): "JUGADOR" | "GOLEADOR" | "MVP" {
@@ -99,20 +88,20 @@ export function getScoredPredictions(
   liveMatches: LiveMatch[] = []
 ): ScoredPredictionRow[] {
   const predictions = getPredictionsForSlug(slug) ?? {};
-  const liveMap = liveMapFromMatches(liveMatches);
+  const results = mergeLiveResults(liveResultsMap(liveMatches));
   const fixtures = getAllGroupFixtures();
 
   const groupRows: ScoredPredictionRow[] = fixtures.map((f, i) => {
-    const key = [f.team1, f.team2].sort().join("|");
-    const live = liveMap.get(key);
-    const actualScore1 = live?.score1 ?? null;
-    const actualScore2 = live?.score2 ?? null;
+    const matchId = `${f.group}-${f.team1}-${f.team2}`;
+    const result = results.get(resultKeyFromTeams(f.team1, f.team2));
+    const actualScore1 = result?.score1 ?? null;
+    const actualScore2 = result?.score2 ?? null;
     const played = actualScore1 !== null && actualScore2 !== null;
-    const predicted = predictions[`${f.group}-${f.team1}-${f.team2}`] ?? null;
+    const predicted = predictions[matchId] ?? null;
     const scored = scoreRow(predicted, actualScore1, actualScore2);
 
     return {
-      id: `${f.group}-${f.team1}-${f.team2}`,
+      id: matchId,
       matchNumber: i + 1,
       team1: f.team1,
       team2: f.team2,

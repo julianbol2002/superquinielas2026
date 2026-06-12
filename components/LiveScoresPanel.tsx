@@ -13,13 +13,14 @@ import { getCountryDisplayName } from "@/data/countries";
 import { cn } from "@/lib/utils";
 
 function LiveBadge() {
+  const t = useTranslations();
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-pitch/20 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-pitch">
       <span className="relative flex h-2 w-2">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch opacity-75" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-pitch" />
       </span>
-      EN VIVO
+      {t("live_badge")}
     </span>
   );
 }
@@ -47,9 +48,9 @@ export default function LiveScoresPanel() {
           {t("live_scores")}
         </h2>
         {data?.lastUpdated && (
-          <p className="text-xs text-slate-400 light:text-slate-500">
+          <p className="text-xs text-muted">
             {t("last_updated")}:{" "}
-            <span className="font-medium text-slate-300 light:text-slate-600">
+            <span className="font-medium text-secondary">
               {formatLastUpdated(data.lastUpdated, locale)}
             </span>
           </p>
@@ -62,7 +63,7 @@ export default function LiveScoresPanel() {
             key="empty"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-sm text-slate-400 light:text-slate-500"
+            className="text-sm text-muted"
           >
             {t("no_live_matches")}
           </motion.p>
@@ -82,7 +83,7 @@ export default function LiveScoresPanel() {
               >
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <FlagChip country={match.team1} size={18} />
-                  <span className="text-sm font-semibold leading-tight">
+                  <span className="text-sm font-semibold leading-tight text-primary-theme">
                     {getCountryDisplayName(match.team1, true)}
                   </span>
                 </div>
@@ -100,7 +101,7 @@ export default function LiveScoresPanel() {
                 </div>
 
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <span className="text-right text-sm font-semibold leading-tight">
+                  <span className="text-right text-sm font-semibold leading-tight text-primary-theme">
                     {getCountryDisplayName(match.team2, true)}
                   </span>
                   <FlagChip country={match.team2} size={18} />
@@ -113,7 +114,7 @@ export default function LiveScoresPanel() {
 
       {data && data.matches.some((m) => m.status === "final") && (
         <div className="mt-4 border-t border-white/10 pt-3 light:border-slate-200">
-          <p className="mb-2 text-xs uppercase tracking-wide text-slate-500">
+          <p className="mb-2 text-xs uppercase tracking-wide text-muted">
             {t("recent_results")}
           </p>
           <div className="flex gap-2 overflow-x-auto hide-scrollbar">
@@ -133,7 +134,7 @@ export default function LiveScoresPanel() {
                     {match.score1} - {match.score2}
                   </span>
                   {match.group && (
-                    <p className="text-slate-500">
+                    <p className="text-muted">
                       {t("group")} {match.group}
                     </p>
                   )}

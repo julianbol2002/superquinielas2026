@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { quinielas, type Quiniela } from "@/data/quinielas";
+import { getRankedQuinielas, type RankedQuiniela } from "@/data/quinielas";
+import { useLiveScores } from "@/hooks/useLiveScores";
 import FlagChip from "./FlagChip";
 import { cn } from "@/lib/utils";
 
-type SortKey = keyof Quiniela | "none";
+type SortKey = keyof RankedQuiniela | "none";
 type SortDir = "asc" | "desc";
 
 function pointClass(points: number) {
@@ -21,21 +22,27 @@ function pointClass(points: number) {
 
 export default function QuinielasTable() {
   const t = useTranslations();
+  const { data: liveData } = useLiveScores();
   const [search, setSearch] = useState("");
   const [betFilter, setBetFilter] = useState<"all" | 25 | 50 | 100>("all");
   const [sortKey, setSortKey] = useState<SortKey>("points");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
+  const rows = useMemo(
+    () => getRankedQuinielas(undefined, liveData?.matches ?? []),
+    [liveData?.matches]
+  );
+
   const filtered = useMemo(() => {
-    let rows = [...quinielas];
+    let list = [...rows];
 
     if (betFilter !== "all") {
-      rows = rows.filter((q) => q.bet === betFilter);
+      list = list.filter((q) => q.bet === betFilter);
     }
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      rows = rows.filter(
+      list = list.filter(
         (r) =>
           r.captain.toLowerCase().includes(q) ||
           r.name.toLowerCase().includes(q)
@@ -43,9 +50,9 @@ export default function QuinielasTable() {
     }
 
     if (sortKey !== "none") {
-      rows.sort((a, b) => {
-        const av = a[sortKey as keyof Quiniela];
-        const bv = b[sortKey as keyof Quiniela];
+      list.sort((a, b) => {
+        const av = a[sortKey as keyof RankedQuiniela];
+        const bv = b[sortKey as keyof RankedQuiniela];
         if (typeof av === "number" && typeof bv === "number") {
           return sortDir === "asc" ? av - bv : bv - av;
         }
@@ -55,8 +62,8 @@ export default function QuinielasTable() {
       });
     }
 
-    return rows;
-  }, [search, betFilter, sortKey, sortDir]);
+    return list;
+  }, [rows, search, betFilter, sortKey, sortDir]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {

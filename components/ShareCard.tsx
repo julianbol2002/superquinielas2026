@@ -43,13 +43,13 @@ export default function ShareCard({ entry }: ShareCardProps) {
         <p className="font-display text-3xl tracking-wider text-pitch">
           SUPER QUINIELAS
         </p>
-        <p className="text-xs text-slate-400">Mundial 2026</p>
+        <p className="text-xs text-slate-300">{t("tournament_year")}</p>
         <div className="my-6 text-center">
           <p className="font-accent text-sm text-gold">#{entry.rank}</p>
           <p className="font-display text-2xl">{entry.name}</p>
-          <p className="text-sm text-slate-400">{entry.captain}</p>
+          <p className="text-sm text-slate-300">{entry.captain}</p>
           <p className="font-display text-5xl text-pitch">{entry.points}</p>
-          <p className="text-sm text-slate-400">{t("points")}</p>
+          <p className="text-sm text-slate-300">{t("points")}</p>
         </div>
         <div className="flex justify-center">
           <FlagChip country={entry.winner} showLabel size={24} />

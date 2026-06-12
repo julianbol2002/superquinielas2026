@@ -17,9 +17,10 @@ const CountryPopularityChart = lazy(() => import("./CountryPopularityChart"));
 const GoleadaDetector = lazy(() => import("./GoleadaDetector"));
 
 function ChartSkeleton() {
+  const t = useTranslations();
   return (
     <div className="flex h-[280px] animate-pulse items-center justify-center rounded-xl bg-white/5 light:bg-slate-100">
-      <span className="text-sm text-slate-500">Cargando gráfico…</span>
+      <span className="text-sm text-muted">{t("chart_loading")}</span>
     </div>
   );
 }
@@ -61,7 +62,7 @@ export default function EstadisticasPageClient() {
       <h1 className="mb-2 font-display text-3xl tracking-wide">
         {t("nav_stats")}
       </h1>
-      <p className="mb-6 text-sm text-slate-400">{t("stats_subtitle")}</p>
+      <p className="mb-6 text-sm text-muted">{t("stats_subtitle")}</p>
 
       <FunSummaryCallouts snapshot={snapshot} />
 

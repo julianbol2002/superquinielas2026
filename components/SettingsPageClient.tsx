@@ -51,21 +51,21 @@ export default function SettingsPageClient() {
       </h1>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           {t("language")}
         </h2>
         <LanguageToggle />
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           {t("theme")}
         </h2>
         <ThemeToggle />
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           {t("active_player")}
         </h2>
         <select
@@ -92,7 +92,7 @@ export default function SettingsPageClient() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           {t("notifications")}
         </h2>
         <div className="flex items-center justify-between rounded-xl border border-white/10 bg-stadium-card px-4 py-3 light:border-slate-200 light:bg-white">
@@ -102,10 +102,10 @@ export default function SettingsPageClient() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
           {t("reset")}
         </h2>
-        <p className="mb-3 text-sm text-slate-400">{t("reset_desc")}</p>
+        <p className="mb-3 text-sm text-muted">{t("reset_desc")}</p>
         <button
           onClick={reset}
           className="rounded-lg border border-red-500/50 px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/10"

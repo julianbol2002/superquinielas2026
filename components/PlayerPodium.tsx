@@ -50,7 +50,7 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
                 <p className="mt-1 line-clamp-2 text-center text-xs font-semibold group-hover:text-pitch sm:text-sm">
                   {entry.name}
                 </p>
-                <p className="truncate text-center text-xs text-slate-400">
+                <p className="truncate text-center text-xs text-muted">
                   {entry.captain}
                 </p>
                 <p className="font-display text-xl text-pitch sm:text-2xl">

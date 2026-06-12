@@ -27,7 +27,7 @@ function CompararContent() {
 
   return (
     <div className="pb-8">
-      <Link href="/estadisticas" className="mb-4 inline-block text-sm text-slate-400 hover:text-pitch">
+      <Link href="/estadisticas" className="mb-4 inline-block text-sm text-muted hover:text-pitch">
         ← {t("nav_stats")}
       </Link>
       <h1 className="mb-6 font-display text-3xl">{t("stats_compare")}</h1>
@@ -40,7 +40,7 @@ function CompararContent() {
             router.push(`/comparar?a=${e.target.value}&b=${slugB}`);
           }}
         >
-          <option value="">Quiniela A</option>
+          <option value="">{t("compare_quiniela_a")}</option>
           {all.map((q) => (
             <option key={q.slug} value={q.slug}>
               {q.name} ({q.captain})
@@ -54,7 +54,7 @@ function CompararContent() {
             router.push(`/comparar?a=${slugA}&b=${e.target.value}`);
           }}
         >
-          <option value="">Quiniela B</option>
+          <option value="">{t("compare_quiniela_b")}</option>
           {all.map((q) => (
             <option key={q.slug} value={q.slug}>
               {q.name} ({q.captain})
@@ -68,39 +68,44 @@ function CompararContent() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="text-center">
               <p className="font-display text-xl">{entryA.name}</p>
-              <p className="text-sm text-slate-400">{entryA.captain}</p>
-              <p className="font-display text-3xl text-pitch">{entryA.points} pts</p>
+              <p className="text-sm text-muted">{entryA.captain}</p>
+              <p className="font-display text-3xl text-pitch">
+                {entryA.points} {t("points_abbr")}
+              </p>
             </div>
             <div className="text-center">
               <p className="font-display text-xl">{entryB.name}</p>
-              <p className="text-sm text-slate-400">{entryB.captain}</p>
-              <p className="font-display text-3xl text-pitch">{entryB.points} pts</p>
+              <p className="text-sm text-muted">{entryB.captain}</p>
+              <p className="font-display text-3xl text-pitch">
+                {entryB.points} {t("points_abbr")}
+              </p>
             </div>
           </div>
           <p className="mt-6 text-center text-lg">
-            Head-to-head:{" "}
+            {t("compare_h2h")}:{" "}
             <span className="font-bold text-pitch">
               {h2h > 0
                 ? `${entryA.name} +${h2h}`
                 : h2h < 0
                   ? `${entryB.name} +${Math.abs(h2h)}`
-                  : "Empate"}
+                  : t("compare_tie")}
             </span>
           </p>
-          <p className="mt-2 text-center text-xs text-slate-400">
-            Partidos en los que una quiniela superó a la otra en puntos
+          <p className="mt-2 text-center text-xs text-muted">
+            {t("compare_h2h_desc")}
           </p>
         </div>
       ) : (
-        <p className="text-slate-400">Selecciona dos quinielas para comparar.</p>
+        <p className="text-muted">{t("compare_select_two")}</p>
       )}
     </div>
   );
 }
 
 export default function CompararPageClient() {
+  const t = useTranslations();
   return (
-    <Suspense fallback={<div className="py-12 text-center text-slate-400">Cargando…</div>}>
+    <Suspense fallback={<div className="py-12 text-center text-muted">{t("loading")}</div>}>
       <CompararContent />
     </Suspense>
   );

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import type { Quiniela } from "@/data/quinielas";
+import type { RankedQuiniela } from "@/data/quinielas";
 import FlagChip from "./FlagChip";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +15,7 @@ function pointClass(points: number) {
   return "point-badge-1";
 }
 
-export default function QuinielaCard({ quiniela }: { quiniela: Quiniela }) {
+export default function QuinielaCard({ quiniela }: { quiniela: RankedQuiniela }) {
   const t = useTranslations();
 
   return (

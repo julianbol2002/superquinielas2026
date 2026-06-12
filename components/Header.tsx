@@ -32,7 +32,7 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-slate-300 transition hover:text-pitch light:text-slate-600 light:hover:text-pitch"
+              className="text-sm font-medium text-secondary transition hover:text-pitch light:text-slate-700 light:hover:text-pitch"
             >
               {t(link.labelKey)}
             </Link>
@@ -48,7 +48,7 @@ export default function Header() {
             className="flex items-center gap-2 rounded-full border border-white/10 bg-stadium-card px-2 py-1 light:border-slate-200 light:bg-white"
           >
             <PlayerAvatar captain={activePlayer} size={28} />
-            <span className="hidden max-w-[100px] truncate text-sm font-medium sm:inline">
+            <span className="hidden max-w-[100px] truncate text-sm font-medium text-primary-theme sm:inline">
               {activePlayer.split(" ")[0]}
             </span>
           </Link>

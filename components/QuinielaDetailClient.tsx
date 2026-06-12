@@ -168,7 +168,7 @@ function MatchRow({ row }: { row: ScoredPredictionRow }) {
       <td className="px-3 py-2">
         <div className="flex items-center justify-center gap-1 sm:gap-2">
           <TeamFlagCell country={row.team1} className="!w-auto !py-1" />
-          <span className="text-xs text-slate-500">vs</span>
+          <span className="text-xs text-muted">{t("vs")}</span>
           <TeamFlagCell country={row.team2} className="!w-auto !py-1" />
         </div>
       </td>
@@ -180,7 +180,7 @@ function MatchRow({ row }: { row: ScoredPredictionRow }) {
           )}
         </span>
       </td>
-      <td className="px-3 py-2 text-center text-slate-400">{actualLabel}</td>
+      <td className="px-3 py-2 text-center text-muted">{actualLabel}</td>
       <td className="px-3 py-2 text-right font-display text-xl text-pitch">
         {pointsLabel}
       </td>
@@ -199,10 +199,10 @@ function StatMiniCard({
 }) {
   return (
     <div className="rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white">
-      <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
       <p className="mt-1 font-display text-3xl text-pitch">{value}</p>
       {detail && (
-        <p className="mt-1 text-xs text-slate-500 line-clamp-2">{detail}</p>
+        <p className="mt-1 text-xs text-muted line-clamp-2">{detail}</p>
       )}
     </div>
   );
@@ -236,7 +236,7 @@ export default function QuinielaDetailClient({ slug }: { slug: string }) {
     <div className="pb-10">
       <Link
         href="/"
-        className="mb-4 inline-block text-sm text-slate-400 hover:text-pitch"
+        className="mb-4 inline-block text-sm text-muted hover:text-pitch"
       >
         ← {t("back")}
       </Link>
@@ -247,7 +247,7 @@ export default function QuinielaDetailClient({ slug }: { slug: string }) {
           <h1 className="mt-4 font-display text-4xl tracking-wide md:text-5xl">
             {entry.name}
           </h1>
-          <p className="mt-1 text-slate-400">{entry.captain}</p>
+          <p className="mt-1 text-muted">{entry.captain}</p>
 
           <span
             className={cn(
@@ -263,17 +263,17 @@ export default function QuinielaDetailClient({ slug }: { slug: string }) {
               <p className="font-display text-4xl text-pitch">
                 <CountUp value={entry.points} />
               </p>
-              <p className="text-xs text-slate-400">{t("points")}</p>
+              <p className="text-xs text-muted">{t("points")}</p>
             </div>
             <div>
               <p className="font-accent text-2xl text-gold">
                 #{entry.rank}
-                <span className="text-sm text-slate-400">
+                <span className="text-sm text-muted">
                   {" "}
                   / {totalQuinielas}
                 </span>
               </p>
-              <p className="text-xs text-slate-400">{t("rank")}</p>
+              <p className="text-xs text-muted">{t("rank")}</p>
             </div>
           </div>
 

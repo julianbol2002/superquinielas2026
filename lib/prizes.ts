@@ -34,7 +34,7 @@ function rankWithinTier(entries: RankedQuiniela[], tier: 25 | 50 | 100) {
     .filter((q) => q.bet === tier)
     .sort((a, b) => {
       if (b.points !== a.points) return b.points - a.points;
-      return a.name.localeCompare(b.name, "es");
+      return a.captain.localeCompare(b.captain, "es");
     });
 }
 

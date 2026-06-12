@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import CountUp from "./CountUp";
 import RankChange from "./RankChange";
 import FlagChip from "./FlagChip";
+import ScoreBreakdownTooltip from "./ScoreBreakdownTooltip";
 
 interface LeaderboardProps {
   entries: RankedQuiniela[];
@@ -68,7 +69,7 @@ export default function Leaderboard({
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase tracking-wide text-slate-400 light:border-slate-200 light:bg-slate-50">
+            <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase tracking-wide text-muted light:border-slate-200 light:bg-slate-50">
               <th className="px-2 py-3 font-accent">{t("rank")}</th>
               <th className="px-2 py-3">{t("quiniela_name")}</th>
               <th className="hidden px-2 py-3 sm:table-cell">{t("captain")}</th>
@@ -134,13 +135,13 @@ export default function Leaderboard({
                           </span>
                         )}
                       </p>
-                      <p className="truncate text-xs text-slate-400 sm:hidden">
+                      <p className="truncate text-xs text-muted sm:hidden">
                         {entry.captain}
                       </p>
                     </Link>
                   </td>
                   <td className="hidden px-2 py-3 sm:table-cell">
-                    <span className="text-slate-300 light:text-slate-600">
+                    <span className="text-secondary light:text-slate-600">
                       {entry.captain}
                     </span>
                   </td>
@@ -164,9 +165,7 @@ export default function Leaderboard({
                     <FlagChip country={entry.winner} size={16} />
                   </td>
                   <td className="px-2 py-3 text-right">
-                    <span className="font-display text-2xl text-pitch">
-                      <CountUp value={entry.points} />
-                    </span>
+                    <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} />
                   </td>
                   <td className="px-1 py-3 text-right text-slate-500">
                     <span aria-hidden className="text-lg">
