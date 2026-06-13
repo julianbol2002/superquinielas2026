@@ -4,9 +4,11 @@ import { useEffect } from "react";
 import { useAppStore } from "@/lib/store";
 import {
   getThemeFromCookie,
+  getColorwayFromCookie,
   getLanguageFromCookie,
   getActivePlayerFromCookie,
 } from "@/lib/cookies";
+import { applyAppearance } from "@/lib/theme";
 import Header from "./Header";
 import BottomNav from "./BottomNav";
 import PageTransition from "./PageTransition";
@@ -18,28 +20,34 @@ export default function AppShell({
   children: React.ReactNode;
   locale: string;
 }) {
-  const { setTheme, setLanguage, setActivePlayer, setHydrated, theme } =
-    useAppStore();
+  const {
+    setTheme,
+    setColorway,
+    setLanguage,
+    setActivePlayer,
+    setHydrated,
+    theme,
+    colorway,
+  } = useAppStore();
 
   useEffect(() => {
     const savedTheme = getThemeFromCookie();
+    const savedColorway = getColorwayFromCookie();
     const savedLang = getLanguageFromCookie();
     const savedPlayer = getActivePlayerFromCookie();
 
     setTheme(savedTheme);
+    setColorway(savedColorway);
     setLanguage((locale as "es" | "en") || savedLang);
     setActivePlayer(savedPlayer ?? null);
     setHydrated(true);
 
-    document.documentElement.classList.remove("dark", "light");
-    document.documentElement.classList.add(savedTheme);
-  }, [locale, setTheme, setLanguage, setActivePlayer, setHydrated]);
+    applyAppearance(savedTheme, savedColorway);
+  }, [locale, setTheme, setColorway, setLanguage, setActivePlayer, setHydrated]);
 
   useEffect(() => {
-    if (!theme) return;
-    document.documentElement.classList.remove("dark", "light");
-    document.documentElement.classList.add(theme);
-  }, [theme]);
+    applyAppearance(theme, colorway);
+  }, [theme, colorway]);
 
   useEffect(() => {
     document.documentElement.lang = locale;

@@ -11,12 +11,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        pitch: "#00D084",
-        gold: "#FFD700",
+        pitch: "var(--pitch, #00D084)",
+        gold: "var(--gold, #FFD700)",
         stadium: {
-          dark: "#0a0e17",
-          navy: "#111827",
-          card: "#1a2234",
+          dark: "var(--bg-primary, #0a0e17)",
+          navy: "var(--bg-navy, #111827)",
+          card: "var(--bg-card, #1a2234)",
         },
       },
       fontFamily: {
@@ -39,8 +39,12 @@ const config: Config = {
           "100%": { backgroundPosition: "200% 0" },
         },
         pulseHighlight: {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(0, 208, 132, 0.4)" },
-          "50%": { boxShadow: "0 0 0 12px rgba(0, 208, 132, 0)" },
+          "0%, 100%": {
+            boxShadow: "0 0 0 0 color-mix(in srgb, var(--pitch) 40%, transparent)",
+          },
+          "50%": {
+            boxShadow: "0 0 0 12px color-mix(in srgb, var(--pitch) 0%, transparent)",
+          },
         },
       },
     },

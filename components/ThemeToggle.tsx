@@ -3,16 +3,16 @@
 import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store";
 import { COOKIE_KEYS, setCookie, type Theme } from "@/lib/cookies";
+import { applyAppearance } from "@/lib/theme";
 
 export default function ThemeToggle() {
   const t = useTranslations();
-  const { theme, setTheme } = useAppStore();
+  const { theme, colorway, setTheme } = useAppStore();
 
   const toggle = (next: Theme) => {
     setTheme(next);
     setCookie(COOKIE_KEYS.theme, next);
-    document.documentElement.classList.remove("dark", "light");
-    document.documentElement.classList.add(next);
+    applyAppearance(next, colorway);
   };
 
   return (
@@ -20,6 +20,7 @@ export default function ThemeToggle() {
       {(["dark", "light"] as Theme[]).map((opt) => (
         <button
           key={opt}
+          type="button"
           onClick={() => toggle(opt)}
           className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition ${
             theme === opt

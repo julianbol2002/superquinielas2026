@@ -2,11 +2,21 @@ import Cookies from "js-cookie";
 
 export type Theme = "dark" | "light";
 export type Language = "es" | "en";
+export type Colorway = "classic" | "ocean" | "sunset" | "royal" | "rojo";
+
+export const COLORWAYS: Colorway[] = [
+  "classic",
+  "ocean",
+  "sunset",
+  "royal",
+  "rojo",
+];
 
 export const COOKIE_KEYS = {
   activePlayer: "active_player",
   theme: "theme",
   language: "language",
+  colorway: "colorway",
 } as const;
 
 export function getCookie(name: string): string | undefined {
@@ -25,6 +35,11 @@ export function removeCookie(name: string): void {
 export function getThemeFromCookie(): Theme {
   const v = getCookie(COOKIE_KEYS.theme);
   return v === "light" ? "light" : "dark";
+}
+
+export function getColorwayFromCookie(): Colorway {
+  const v = getCookie(COOKIE_KEYS.colorway);
+  return COLORWAYS.includes(v as Colorway) ? (v as Colorway) : "classic";
 }
 
 export function getLanguageFromCookie(): Language {

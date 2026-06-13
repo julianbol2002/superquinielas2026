@@ -4,10 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+.colorway-classic {
   --pitch: #00d084;
   --gold: #ffd700;
+}
+
+.colorway-ocean {
+  --pitch: #06b6d4;
+  --gold: #38bdf8;
+}
+
+.colorway-sunset {
+  --pitch: #f97316;
+  --gold: #fbbf24;
+}
+
+.colorway-royal {
+  --pitch: #a855f7;
+  --gold: #eab308;
+}
+
+.colorway-rojo {
+  --pitch: #ef4444;
+  --gold: #facc15;
+}
+
+.dark.colorway-classic {
   --bg-primary: #0a0e17;
+  --bg-navy: #111827;
   --bg-card: #1a2234;
   --text-primary: #f8fafc;
   --text-secondary: #cbd5e1;
@@ -15,13 +40,94 @@
   --border-subtle: rgba(255, 255, 255, 0.1);
 }
 
-.light {
+.dark.colorway-ocean {
+  --bg-primary: #041018;
+  --bg-navy: #0a1929;
+  --bg-card: #0f2438;
+  --text-primary: #ecfeff;
+  --text-secondary: #bae6fd;
+  --text-muted: #7dd3fc;
+  --border-subtle: rgba(56, 189, 248, 0.15);
+}
+
+.dark.colorway-sunset {
+  --bg-primary: #140a06;
+  --bg-navy: #1f1108;
+  --bg-card: #2a1810;
+  --text-primary: #fff7ed;
+  --text-secondary: #fed7aa;
+  --text-muted: #fdba74;
+  --border-subtle: rgba(249, 115, 22, 0.15);
+}
+
+.dark.colorway-royal {
+  --bg-primary: #0c0618;
+  --bg-navy: #150a28;
+  --bg-card: #1e1035;
+  --text-primary: #faf5ff;
+  --text-secondary: #e9d5ff;
+  --text-muted: #c4b5fd;
+  --border-subtle: rgba(168, 85, 247, 0.15);
+}
+
+.dark.colorway-rojo {
+  --bg-primary: #120606;
+  --bg-navy: #1c0a0a;
+  --bg-card: #2a1010;
+  --text-primary: #fef2f2;
+  --text-secondary: #fecaca;
+  --text-muted: #fca5a5;
+  --border-subtle: rgba(239, 68, 68, 0.15);
+}
+
+.light.colorway-classic {
   --bg-primary: #f1f5f9;
+  --bg-navy: #e2e8f0;
   --bg-card: #ffffff;
   --text-primary: #0f172a;
   --text-secondary: #334155;
   --text-muted: #475569;
   --border-subtle: #e2e8f0;
+}
+
+.light.colorway-ocean {
+  --bg-primary: #ecfeff;
+  --bg-navy: #cffafe;
+  --bg-card: #ffffff;
+  --text-primary: #083344;
+  --text-secondary: #155e75;
+  --text-muted: #0e7490;
+  --border-subtle: #a5f3fc;
+}
+
+.light.colorway-sunset {
+  --bg-primary: #fff7ed;
+  --bg-navy: #ffedd5;
+  --bg-card: #ffffff;
+  --text-primary: #431407;
+  --text-secondary: #9a3412;
+  --text-muted: #c2410c;
+  --border-subtle: #fed7aa;
+}
+
+.light.colorway-royal {
+  --bg-primary: #faf5ff;
+  --bg-navy: #f3e8ff;
+  --bg-card: #ffffff;
+  --text-primary: #3b0764;
+  --text-secondary: #6b21a8;
+  --text-muted: #7e22ce;
+  --border-subtle: #e9d5ff;
+}
+
+.light.colorway-rojo {
+  --bg-primary: #fef2f2;
+  --bg-navy: #fee2e2;
+  --bg-card: #ffffff;
+  --text-primary: #450a0a;
+  --text-secondary: #991b1b;
+  --text-muted: #b91c1c;
+  --border-subtle: #fecaca;
 }
 
 html {
@@ -35,12 +141,44 @@ body {
   overflow-x: hidden;
 }
 
-.dark body {
+.dark.colorway-classic body {
   background: linear-gradient(180deg, #0a0e17 0%, #111827 50%, #0a0e17 100%);
 }
 
-.light body {
+.dark.colorway-ocean body {
+  background: linear-gradient(180deg, #041018 0%, #0a1929 50%, #041018 100%);
+}
+
+.dark.colorway-sunset body {
+  background: linear-gradient(180deg, #140a06 0%, #1f1108 50%, #140a06 100%);
+}
+
+.dark.colorway-royal body {
+  background: linear-gradient(180deg, #0c0618 0%, #150a28 50%, #0c0618 100%);
+}
+
+.dark.colorway-rojo body {
+  background: linear-gradient(180deg, #120606 0%, #1c0a0a 50%, #120606 100%);
+}
+
+.light.colorway-classic body {
   background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.light.colorway-ocean body {
+  background: linear-gradient(180deg, #ecfeff 0%, #cffafe 100%);
+}
+
+.light.colorway-sunset body {
+  background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+}
+
+.light.colorway-royal body {
+  background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+}
+
+.light.colorway-rojo body {
+  background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
 }
 
 @layer utilities {

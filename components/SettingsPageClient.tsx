@@ -11,7 +11,9 @@ import {
   clearAllCookies,
   type Language,
 } from "@/lib/cookies";
+import { applyAppearance } from "@/lib/theme";
 import ThemeToggle from "@/components/ThemeToggle";
+import ColorwayPicker from "@/components/ColorwayPicker";
 import LanguageToggle from "@/components/LanguageToggle";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import AvatarUpload from "@/components/AvatarUpload";
@@ -19,7 +21,8 @@ import AvatarUpload from "@/components/AvatarUpload";
 export default function SettingsPageClient() {
   const t = useTranslations();
   const captains = getCaptains();
-  const { activePlayer, setActivePlayer, setTheme, setLanguage } = useAppStore();
+  const { activePlayer, setActivePlayer, setTheme, setColorway, setLanguage } =
+    useAppStore();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -37,9 +40,9 @@ export default function SettingsPageClient() {
     clearAllCookies();
     setActivePlayer(null);
     setTheme("dark");
+    setColorway("classic");
     setLanguage("es");
-    document.documentElement.classList.remove("light");
-    document.documentElement.classList.add("dark");
+    applyAppearance("dark", "classic");
     router.replace(pathname, { locale: "es" as Language });
     window.location.reload();
   };
@@ -62,6 +65,14 @@ export default function SettingsPageClient() {
           {t("theme")}
         </h2>
         <ThemeToggle />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+          {t("colorway")}
+        </h2>
+        <p className="mb-3 text-sm text-muted">{t("colorway_desc")}</p>
+        <ColorwayPicker />
       </section>
 
       <section className="mb-8">
