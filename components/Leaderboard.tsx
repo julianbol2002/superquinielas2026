@@ -128,7 +128,7 @@ export default function Leaderboard({
                 <div className="min-w-0 flex-1">
                   <p className="max-w-[120px] truncate font-semibold leading-tight">
                     {entry.name}
-                    {entry.onFire && (
+                    {entry.points >= 4 && (
                       <span className="ml-0.5" title={t("on_fire")}>
                         🔥
                       </span>
@@ -228,7 +228,7 @@ export default function Leaderboard({
                       >
                         <p className="truncate font-semibold">
                           {entry.name}
-                          {entry.onFire && (
+                          {entry.points >= 4 && (
                             <span className="ml-1" title={t("on_fire")}>
                               🔥
                             </span>
@@ -252,7 +252,7 @@ export default function Leaderboard({
                       {tier}
                     </span>
                   </td>
-                  <td className="px-2 py-3 text-right">
+                  <td className="px-2 py-3 text-right align-middle">
                     <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} />
                   </td>
                   <td className="px-1 py-3 text-right text-slate-500">

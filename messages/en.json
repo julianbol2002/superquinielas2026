@@ -142,8 +142,12 @@
   "live_predictors_no_result": "Nobody has the correct result 💀",
   "live_predictors_more": "+{count} more",
   "live_predictors_less": "Show less",
-  "live_predictors_trophy": "Also picked both finalists correctly",
+  "live_predictors_trophy": "Also picked both teams from this match as finalists",
   "score_breakdown": "Score breakdown",
   "score_bonus_note": "The column shows match points. The tooltip total includes bonuses (+10/+5) when applicable.",
+  "stat_most_exact": "Most exact scores",
+  "stat_longest_streak": "Longest streak",
+  "stat_exact_label": "exact",
+  "stat_streak_label": "matches in a row",
   "score_tiebreaker_note": "Ties are broken by captain name (A–Z)."
 }

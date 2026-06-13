@@ -39,9 +39,7 @@ function PredictorList({
   const visible = showAll ? entries : entries.slice(0, VISIBLE_LIMIT);
   const hidden = entries.length - VISIBLE_LIMIT;
 
-  if (!expanded) return null;
-
-  if (entries.length === 0) {
+  if (!expanded || entries.length === 0) {
     return null;
   }
 
@@ -58,7 +56,7 @@ function PredictorList({
               <span className="font-semibold">{entry.name}</span>
               <span className="text-muted"> · {entry.captain}</span>
             </span>
-            {entry.bothFinalistsCorrect && (
+            {entry.bothMatchTeamsAsFinalists && (
               <span className="flex-shrink-0" title={t("live_predictors_trophy")}>
                 🏆
               </span>
@@ -103,14 +101,26 @@ export default function LivePredictorsPanel({
 }: LivePredictorsPanelProps) {
   const t = useTranslations();
   const [panelOpen, setPanelOpen] = useState(isLive);
-  const [exactOpen, setExactOpen] = useState(true);
-  const [resultOpen, setResultOpen] = useState(true);
+  const [exactOpen, setExactOpen] = useState(isLive);
+  const [resultOpen, setResultOpen] = useState(isLive);
   const [showAllExact, setShowAllExact] = useState(false);
   const [showAllResult, setShowAllResult] = useState(false);
 
   useEffect(() => {
-    if (isLive) setPanelOpen(true);
+    if (isLive) {
+      setPanelOpen(true);
+      setExactOpen(true);
+      setResultOpen(true);
+    } else {
+      setExactOpen(false);
+      setResultOpen(false);
+    }
   }, [isLive]);
+
+  useEffect(() => {
+    setShowAllExact(false);
+    setShowAllResult(false);
+  }, [lastUpdated, score1, score2]);
 
   const { exact, correctResult } = useMemo(
     () => getLivePredictorsForMatch(group, team1, team2, score1, score2),
@@ -119,7 +129,7 @@ export default function LivePredictorsPanel({
 
   if (!isLive && !panelOpen) {
     return (
-      <div className="border-t border-white/10 px-2 py-2 light:border-slate-200">
+      <div className="border-t border-white/10 px-2 py-2 sm:px-2 light:border-slate-200">
         <button
           type="button"
           onClick={() => setPanelOpen(true)}
@@ -132,7 +142,7 @@ export default function LivePredictorsPanel({
   }
 
   return (
-    <div className="border-t border-white/10 px-2 py-2 light:border-slate-200">
+    <div className="border-t border-white/10 px-2 py-2 sm:px-2 light:border-slate-200">
       <div className="mb-2 flex items-center justify-between gap-2">
         <h4 className="text-xs font-bold uppercase tracking-wide text-secondary">
           {isLive ? t("live_predictors_title") : t("live_predictors_historical")}
@@ -150,21 +160,23 @@ export default function LivePredictorsPanel({
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={`${score1}-${score2}-${lastUpdated}`}
-          initial={{ opacity: 0.6 }}
+          key={`${score1}-${score2}-${lastUpdated ?? "static"}`}
+          initial={{ opacity: 0.85 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
         >
           <div
             className={cn(
               "rounded-lg border border-white/5 p-2 light:border-slate-100",
-              isLive && exact.length > 0 && "animate-[pulse_2.5s_ease-in-out_infinite] border-pitch/20 bg-pitch/5"
+              isLive &&
+                "animate-[pulse_2.5s_ease-in-out_infinite] border-pitch/20 bg-pitch/5"
             )}
           >
             <button
               type="button"
               className="flex w-full items-center justify-between text-left"
               onClick={() => setExactOpen((v) => !v)}
+              aria-expanded={exactOpen}
             >
               <span className="text-xs font-semibold">
                 🎯 {t("live_predictors_exact")} ({exact.length})
@@ -187,6 +199,7 @@ export default function LivePredictorsPanel({
               type="button"
               className="flex w-full items-center justify-between text-left"
               onClick={() => setResultOpen((v) => !v)}
+              aria-expanded={resultOpen}
             >
               <span className="text-xs font-semibold">
                 ✅ {t("live_predictors_result")} ({correctResult.length})

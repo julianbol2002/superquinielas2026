@@ -142,8 +142,12 @@
   "live_predictors_no_result": "Nadie acierta el resultado 💀",
   "live_predictors_more": "+{count} más",
   "live_predictors_less": "Ver menos",
-  "live_predictors_trophy": "También acertó ambos finalistas",
+  "live_predictors_trophy": "También eligió a ambos equipos de este partido como finalistas",
   "score_breakdown": "Desglose de puntos",
   "score_bonus_note": "La columna muestra puntos de partidos. El total del tooltip incluye bonos (+10/+5) cuando aplican.",
+  "stat_most_exact": "Más aciertos exactos",
+  "stat_longest_streak": "Mayor racha",
+  "stat_exact_label": "exactos",
+  "stat_streak_label": "partidos seguidos",
   "score_tiebreaker_note": "Empates se desempatan por nombre del capitán (A–Z)."
 }

@@ -329,7 +329,7 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
 
   const ranksOverTime = computeRanks(cumulativePoints, playedCount, names, captains);
 
-  const ranked = getRankedQuinielas(undefined, liveMatches);
+  const ranked = getRankedQuinielas(liveMatches);
   const climbers = ranked
     .map((q) => {
       const ranks = ranksOverTime[q.slug] ?? [];

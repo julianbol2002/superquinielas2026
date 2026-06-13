@@ -197,31 +197,18 @@ export function formatScoreTooltip(
   breakdown: QuinielaScoreBreakdown,
   locale: "es" | "en" = "es"
 ): string {
-  const parts: string[] = [];
   const isEs = locale === "es";
 
-  parts.push(
-    isEs
-      ? `Pronósticos de partidos: ${breakdown.matchPoints} pts`
-      : `Match predictions: ${breakdown.matchPoints} pts`
-  );
-
-  if (breakdown.finalistBonus > 0) {
-    parts.push(
-      isEs
-        ? `Ambos finalistas correctos: ${breakdown.finalistBonus} pts`
-        : `Both finalists correct: ${breakdown.finalistBonus} pts`
-    );
-  }
-
-  if (breakdown.championBonus > 0) {
-    parts.push(
-      isEs
-        ? `Campeón correcto: ${breakdown.championBonus} pts`
-        : `Champion correct: ${breakdown.championBonus} pts`
-    );
-  }
-
+  const matchLabel = isEs
+    ? `Pronósticos de partidos: ${breakdown.matchPoints} pts`
+    : `Match predictions: ${breakdown.matchPoints} pts`;
+  const finalistLabel = isEs
+    ? `Ambos finalistas correctos: ${breakdown.finalistBonus} pts`
+    : `Both finalists correct: ${breakdown.finalistBonus} pts`;
+  const championLabel = isEs
+    ? `Campeón correcto: ${breakdown.championBonus} pts`
+    : `Champion correct: ${breakdown.championBonus} pts`;
   const totalLabel = isEs ? "Total" : "Total";
-  return `${parts.join(" + ")} = ${breakdown.totalPoints} ${totalLabel}`;
+
+  return `${matchLabel} + ${finalistLabel} + ${championLabel} = ${breakdown.totalPoints} ${totalLabel}`;
 }

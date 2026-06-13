@@ -1,5 +1,6 @@
 import { computeQuinielaScore, type QuinielaScoreBreakdown } from "@/lib/quinielaScoring";
 import type { LiveMatch } from "@/lib/liveScores";
+import { getPreviousRanksFromHistory } from "@/lib/rankHistory";
 
 export interface Quiniela {
   captain: string;
@@ -92,37 +93,6 @@ export function formatQuinielaLabel(
   return `${entry.name} (${entry.captain})`;
 }
 
-/** Simulated previous ranks per quiniela entry (not per captain) */
-const PREVIOUS_QUINIELA_RANKS: Record<string, number> = {
-  "Barquito de papel": 2,
-  Oly54: 1,
-  Camb: 4,
-  "The Krusty Krab": 3,
-  Panoramix: 5,
-  Martino: 6,
-  "Jeb Corliss": 8,
-  "Que Finta": 7,
-  Panzer: 9,
-  "It's coming Home": 10,
-  "Ana X": 12,
-  Fede: 11,
-  G1: 13,
-  "Gloria Gana": 14,
-  "Quiniela Pupusera": 15,
-  "Marco Bolanos": 16,
-  MARADRIANO: 17,
-  Abuela: 18,
-  "Cam Bolanos": 19,
-  "Lico BP": 20,
-  "Francesca Panko": 21,
-  "MISTER SHIT": 22,
-  C2: 23,
-  "Duo Dinamico Iron Beagle": 24,
-  "Dani Bolanos": 25,
-  Tessa: 26,
-  juliquini: 27,
-};
-
 function sortQuinielas(entries: RankedQuiniela[]): RankedQuiniela[] {
   return [...entries].sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
@@ -131,20 +101,25 @@ function sortQuinielas(entries: RankedQuiniela[]): RankedQuiniela[] {
 }
 
 export function getRankedQuinielas(
-  previousRanks: Record<string, number> = PREVIOUS_QUINIELA_RANKS,
-  liveMatches: LiveMatch[] = []
+  liveMatches: LiveMatch[] = [],
+  previousRanksOverride?: Record<string, number>
 ): RankedQuiniela[] {
+  const previousRanks =
+    previousRanksOverride ??
+    (typeof window !== "undefined" ? getPreviousRanksFromHistory() : null);
+
   const withScores: RankedQuiniela[] = quinielas.map((q) => {
     const scoreBreakdown = computeQuinielaScore(q, liveMatches);
+    const matchPoints = scoreBreakdown.matchPoints;
     return {
       ...q,
-      points: scoreBreakdown.matchPoints,
+      points: matchPoints,
       scoreBreakdown,
       slug: quinielaToSlug(q.name),
       rank: 0,
-      previousRank: previousRanks[q.name] ?? 99,
+      previousRank: 0,
       rankChange: 0,
-      onFire: scoreBreakdown.matchPoints >= 4,
+      onFire: matchPoints >= 4,
       correctWinner: q.winner === ACTUAL_WINNER,
     };
   });
@@ -153,7 +128,7 @@ export function getRankedQuinielas(
 
   return sorted.map((q, i) => {
     const rank = i + 1;
-    const previousRank = previousRanks[q.name] ?? 99;
+    const previousRank = previousRanks?.[q.name] ?? rank;
     return {
       ...q,
       rank,
@@ -184,24 +159,24 @@ export function getWinnerPredictions(): { country: string; count: number }[] {
 }
 
 export function getQuinielaAveragePoints(liveMatches: LiveMatch[] = []): number {
-  const ranked = getRankedQuinielas(PREVIOUS_QUINIELA_RANKS, liveMatches);
+  const ranked = getRankedQuinielas(liveMatches);
   if (ranked.length === 0) return 0;
   return ranked.reduce((sum, q) => sum + q.points, 0) / ranked.length;
 }
 
 export function getStatHighlights(entries: RankedQuiniela[]) {
   const leader = entries[0];
-  const biggestClimber = [...entries].sort(
-    (a, b) => b.rankChange - a.rankChange
-  )[0];
-  const biggestFaller = [...entries].sort(
-    (a, b) => a.rankChange - b.rankChange
-  )[0];
+  const climberCandidates = entries.filter((q) => q.rankChange > 0);
+  const fallerCandidates = entries.filter((q) => q.rankChange < 0);
+  const biggestClimber =
+    climberCandidates.sort((a, b) => b.rankChange - a.rankChange)[0] ?? null;
+  const biggestFaller =
+    fallerCandidates.sort((a, b) => a.rankChange - b.rankChange)[0] ?? null;
   const mostAccurate = [...entries]
     .filter((q) => q.correctWinner)
     .sort((a, b) => b.points - a.points)[0];
   const biggestBet = [...entries].sort((a, b) => b.bet - a.bet)[0];
-  const perfectStreak = entries.filter((q) => q.points >= 5);
+  const perfectStreak = entries.filter((q) => q.points >= 4);
 
   return {
     leader,

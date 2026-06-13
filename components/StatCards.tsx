@@ -5,48 +5,85 @@ import { motion, useInView } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
 import { formatQuinielaLabel, getStatHighlights } from "@/data/quinielas";
+import { getPredictionHighlights } from "@/lib/predictionHighlights";
+import type { LiveMatch } from "@/lib/liveScores";
 
 interface StatCardsProps {
   entries: RankedQuiniela[];
+  liveMatches?: LiveMatch[];
+  rankHistoryReady?: boolean;
 }
 
-export default function StatCards({ entries }: StatCardsProps) {
+export default function StatCards({
+  entries,
+  liveMatches = [],
+  rankHistoryReady = false,
+}: StatCardsProps) {
   const t = useTranslations();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
   const stats = getStatHighlights(entries);
+  const useRankMovement = rankHistoryReady;
+  const predictionStats = getPredictionHighlights(entries, liveMatches);
+
+  const movementCards = useRankMovement
+    ? [
+        {
+          icon: "🚀",
+          label: t("biggest_climber"),
+          value: stats.biggestClimber
+            ? formatQuinielaLabel(stats.biggestClimber)
+            : "—",
+          sub:
+            stats.biggestClimber && stats.biggestClimber.rankChange > 0
+              ? `↑ ${stats.biggestClimber.rankChange}`
+              : "—",
+        },
+        {
+          icon: "💀",
+          label: t("biggest_faller"),
+          value: stats.biggestFaller
+            ? formatQuinielaLabel(stats.biggestFaller)
+            : "—",
+          sub:
+            stats.biggestFaller && stats.biggestFaller.rankChange < 0
+              ? `↓ ${Math.abs(stats.biggestFaller.rankChange)}`
+              : "—",
+        },
+      ]
+    : [
+        {
+          icon: "🎯",
+          label: t("stat_most_exact"),
+          value: predictionStats.mostExact
+            ? formatQuinielaLabel(predictionStats.mostExact)
+            : "—",
+          sub:
+            predictionStats.mostExactCount > 0
+              ? `${predictionStats.mostExactCount} ${t("stat_exact_label")}`
+              : "—",
+        },
+        {
+          icon: "🔥",
+          label: t("stat_longest_streak"),
+          value: predictionStats.longestStreak
+            ? formatQuinielaLabel(predictionStats.longestStreak)
+            : "—",
+          sub:
+            predictionStats.longestStreakCount > 0
+              ? `${predictionStats.longestStreakCount} ${t("stat_streak_label")}`
+              : "—",
+        },
+      ];
 
   const cards = [
     {
       icon: "🏆",
       label: t("leader"),
-      value: stats.leader
-        ? formatQuinielaLabel(stats.leader)
-        : "—",
+      value: stats.leader ? formatQuinielaLabel(stats.leader) : "—",
       sub: `${stats.leader?.points ?? 0} ${t("points").toLowerCase()}`,
     },
-    {
-      icon: "🚀",
-      label: t("biggest_climber"),
-      value: stats.biggestClimber
-        ? formatQuinielaLabel(stats.biggestClimber)
-        : "—",
-      sub:
-        stats.biggestClimber && stats.biggestClimber.rankChange > 0
-          ? `↑ ${stats.biggestClimber.rankChange}`
-          : "—",
-    },
-    {
-      icon: "💀",
-      label: t("biggest_faller"),
-      value: stats.biggestFaller
-        ? formatQuinielaLabel(stats.biggestFaller)
-        : "—",
-      sub:
-        stats.biggestFaller && stats.biggestFaller.rankChange < 0
-          ? `↓ ${Math.abs(stats.biggestFaller.rankChange)}`
-          : "—",
-    },
+    ...movementCards,
     {
       icon: "🎯",
       label: t("most_accurate"),
@@ -60,9 +97,7 @@ export default function StatCards({ entries }: StatCardsProps) {
     {
       icon: "💰",
       label: t("biggest_bet"),
-      value: stats.biggestBet
-        ? formatQuinielaLabel(stats.biggestBet)
-        : "—",
+      value: stats.biggestBet ? formatQuinielaLabel(stats.biggestBet) : "—",
       sub: `$${stats.biggestBet?.bet ?? 0}`,
     },
     {
@@ -75,7 +110,7 @@ export default function StatCards({ entries }: StatCardsProps) {
               .map((q) => q.name)
               .join(", ")
           : "—",
-      sub: "5+ pts",
+      sub: "4+ pts",
     },
   ];
 

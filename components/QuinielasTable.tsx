@@ -29,7 +29,7 @@ export default function QuinielasTable() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const rows = useMemo(
-    () => getRankedQuinielas(undefined, liveData?.matches ?? []),
+    () => getRankedQuinielas(liveData?.matches ?? []),
     [liveData?.matches]
   );
 

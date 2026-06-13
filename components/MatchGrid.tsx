@@ -7,6 +7,7 @@ import {
   worldCupGroups,
   computeStandings,
   getGroupFixtures,
+  getAllGroupFixtures,
   getCountryDisplayName,
   type WorldCupGroup,
 } from "@/data/countries";
@@ -18,6 +19,7 @@ import {
 } from "@/lib/liveScores";
 import { useLiveScores } from "@/hooks/useLiveScores";
 import { shouldShowLivePredictors } from "@/lib/livePredictors";
+import { PLAYED_MATCH_RESULTS } from "@/data/tournamentResults";
 import { cn } from "@/lib/utils";
 import FlagChip, { TeamFlagCell } from "./FlagChip";
 import LivePredictorsPanel from "./LivePredictorsPanel";
@@ -81,6 +83,8 @@ export default function MatchGrid() {
         score2,
         isLive: live.isLive,
         displayClock: live.displayClock,
+        completedAt: live.finishedAt ?? null,
+        isPlayedSealed: false,
       };
     }
 
@@ -91,27 +95,60 @@ export default function MatchGrid() {
           (m.team1 === team2 && m.team2 === team1))
     );
 
-    if (!db) return undefined;
-
-    if (db.team1 === team1) {
+    if (db && db.score1 != null && db.score2 != null) {
+      const score1 = db.team1 === team1 ? db.score1 : db.score2;
+      const score2 = db.team1 === team1 ? db.score2 : db.score1;
       return {
         team1,
         team2,
-        score1: db.score1,
-        score2: db.score2,
+        score1,
+        score2,
         isLive: false,
         displayClock: undefined,
+        completedAt: db.updated_at,
+        isPlayedSealed: false,
       };
     }
 
-    return {
-      team1,
-      team2,
-      score1: db.score2,
-      score2: db.score1,
-      isLive: false,
-      displayClock: undefined,
-    };
+    const fixture = getAllGroupFixtures().find(
+      (f) =>
+        f.group === group &&
+        ((f.team1 === team1 && f.team2 === team2) ||
+          (f.team1 === team2 && f.team2 === team1))
+    );
+    if (fixture) {
+      const key = `${fixture.group}-${fixture.team1}-${fixture.team2}` as keyof typeof PLAYED_MATCH_RESULTS;
+      const played = PLAYED_MATCH_RESULTS[key];
+      if (played) {
+        const score1 = fixture.team1 === team1 ? played.score1 : played.score2;
+        const score2 = fixture.team1 === team1 ? played.score2 : played.score1;
+        return {
+          team1,
+          team2,
+          score1,
+          score2,
+          isLive: false,
+          displayClock: undefined,
+          completedAt: null,
+          isPlayedSealed: true,
+        };
+      }
+    }
+
+    if (db) {
+      return {
+        team1,
+        team2,
+        score1: db.team1 === team1 ? db.score1 : db.score2,
+        score2: db.team1 === team1 ? db.score2 : db.score1,
+        isLive: false,
+        displayClock: undefined,
+        completedAt: db.updated_at,
+        isPlayedSealed: false,
+      };
+    }
+
+    return undefined;
   };
 
   const saveScore = async (
@@ -222,6 +259,8 @@ function GroupCard({
         score2: number | null;
         isLive?: boolean;
         displayClock?: string;
+        completedAt?: string | null;
+        isPlayedSealed?: boolean;
       }
     | undefined;
   getLiveMatch: (t1: string, t2: string, g: string) => LiveMatch | undefined;
@@ -354,6 +393,8 @@ function FixtureRow({
     score2: number | null;
     isLive?: boolean;
     displayClock?: string;
+    completedAt?: string | null;
+    isPlayedSealed?: boolean;
   };
   liveMatch?: LiveMatch;
   lastUpdated?: string;
@@ -383,13 +424,11 @@ function FixtureRow({
     !adminMode &&
     match?.score1 != null &&
     match?.score2 != null &&
-    shouldShowLivePredictors(
-      !!match.isLive,
-      match.score1,
-      match.score2,
+    shouldShowLivePredictors(!!match.isLive, match.score1, match.score2, {
       liveMatch,
-      lastUpdated
-    );
+      completedAt: match.completedAt,
+      isPlayedSealed: match.isPlayedSealed,
+    });
 
   return (
     <div

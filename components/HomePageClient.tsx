@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import {
   getRankedQuinielas,
   filterQuinielasByBet,
 } from "@/data/quinielas";
 import { useLiveScores } from "@/hooks/useLiveScores";
+import { recordRankSnapshot, hasReliableRankHistory } from "@/lib/rankHistory";
 import Hero from "@/components/Hero";
 import LiveScoresPanel from "@/components/LiveScoresPanel";
 import PlayerPodium from "@/components/PlayerPodium";
@@ -23,9 +24,24 @@ export default function HomePageClient() {
   const { data: liveData } = useLiveScores();
 
   const allEntries = useMemo(
-    () => getRankedQuinielas(undefined, liveData?.matches ?? []),
+    () => getRankedQuinielas(liveData?.matches ?? []),
     [liveData?.matches]
   );
+
+  const [rankHistoryReady, setRankHistoryReady] = useState(false);
+
+  const lastRecordedSync = useRef<string | null>(null);
+  useEffect(() => {
+    setRankHistoryReady(hasReliableRankHistory());
+  }, []);
+
+  useEffect(() => {
+    if (!liveData?.lastUpdated || allEntries.length === 0) return;
+    if (lastRecordedSync.current === liveData.lastUpdated) return;
+    lastRecordedSync.current = liveData.lastUpdated;
+    recordRankSnapshot(allEntries);
+    setRankHistoryReady(hasReliableRankHistory());
+  }, [liveData?.lastUpdated, allEntries]);
   const entries = useMemo(
     () => filterQuinielasByBet(allEntries, betFilter),
     [allEntries, betFilter]
@@ -43,7 +59,11 @@ export default function HomePageClient() {
       <Hero />
       <LiveScoresPanel />
       <PlayerPodium entries={allEntries} />
-      <StatCards entries={allEntries} />
+      <StatCards
+        entries={allEntries}
+        liveMatches={liveData?.matches ?? []}
+        rankHistoryReady={rankHistoryReady}
+      />
 
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-display text-2xl tracking-wide">{t("leaderboard")}</h2>
