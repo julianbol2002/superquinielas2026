@@ -4,13 +4,18 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { QuinielaScoreBreakdown } from "@/lib/quinielaScoring";
 import { formatScoreTooltip } from "@/lib/quinielaScoring";
+import { cn } from "@/lib/utils";
 
 interface ScoreBreakdownTooltipProps {
   breakdown: QuinielaScoreBreakdown;
+  size?: "sm" | "md";
+  badgeClass?: string;
 }
 
 export default function ScoreBreakdownTooltip({
   breakdown,
+  size = "md",
+  badgeClass,
 }: ScoreBreakdownTooltipProps) {
   const t = useTranslations();
   const locale = useLocale() as "es" | "en";
@@ -18,13 +23,22 @@ export default function ScoreBreakdownTooltip({
   const tooltip = formatScoreTooltip(breakdown, locale);
   const hasBonus =
     breakdown.finalistBonus > 0 || breakdown.championBonus > 0;
+  const pointsClass =
+    size === "sm" ? "font-display text-lg" : "font-display text-2xl";
 
   return (
     <span
       className="relative inline-flex items-center gap-1"
       onClick={(e) => e.stopPropagation()}
     >
-      <span className="font-display text-2xl text-pitch">
+      <span
+        className={cn(
+          pointsClass,
+          "text-pitch",
+          badgeClass && "rounded-lg px-2 py-0.5 font-accent",
+          badgeClass
+        )}
+      >
         {breakdown.matchPoints}
       </span>
       <button

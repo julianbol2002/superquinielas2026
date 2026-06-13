@@ -22,8 +22,8 @@ import PlayerAvatar from "@/components/PlayerAvatar";
 import ShareCard from "@/components/ShareCard";
 import AvatarUpload from "@/components/AvatarUpload";
 import CountUp from "@/components/CountUp";
+import MatchTeamsRow from "@/components/MatchTeamsRow";
 import FlagChip from "@/components/FlagChip";
-import { TeamFlagCell } from "@/components/FlagChip";
 import { cn } from "@/lib/utils";
 
 function rowClass(accuracy: RowAccuracy, played: boolean): string {
@@ -90,7 +90,6 @@ function PredictionsTable({ rows }: { rows: ScoredPredictionRow[] }) {
                     <thead>
                       <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase text-slate-400 light:border-slate-200 light:bg-slate-50">
                         <th className="px-3 py-2 text-left">{t("match_teams")}</th>
-                        <th className="px-3 py-2 text-center">{t("prediction")}</th>
                         <th className="px-3 py-2 text-center">{t("actual_result")}</th>
                         <th className="px-3 py-2 text-right">{t("match_points")}</th>
                       </tr>
@@ -165,20 +164,15 @@ function MatchRow({ row }: { row: ScoredPredictionRow }) {
         rowClass(row.accuracy, row.played)
       )}
     >
-      <td className="px-3 py-2">
-        <div className="flex items-center justify-center gap-1 sm:gap-2">
-          <TeamFlagCell country={row.team1} className="!w-auto !py-1" />
-          <span className="text-xs text-muted">{t("vs")}</span>
-          <TeamFlagCell country={row.team2} className="!w-auto !py-1" />
-        </div>
-      </td>
-      <td className="px-3 py-2 text-center font-accent text-lg">
-        <span className="inline-flex items-center gap-1">
-          {predictedLabel}
-          {row.goleadaBonus && (
-            <span title={t("goleada_bonus")}>🔥</span>
-          )}
-        </span>
+      <td className="px-3 py-3">
+        <MatchTeamsRow
+          team1={row.team1}
+          team2={row.team2}
+          scoreLine={predictedLabel !== "—" ? predictedLabel : undefined}
+          showGoleadaBadge={row.goleadaBonus}
+          goleadaLabel={t("goleada_short")}
+          compactNames
+        />
       </td>
       <td className="px-3 py-2 text-center text-muted">{actualLabel}</td>
       <td className="px-3 py-2 text-right font-display text-xl text-pitch">

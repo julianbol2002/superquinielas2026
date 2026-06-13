@@ -69,14 +69,14 @@ export function TeamFlagCell({
         className
       )}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 light:border-slate-200">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border border-white/10 light:border-slate-200">
         <Flag
           code={code}
           height={40}
           width={40}
-          className="h-10 w-10 object-cover"
+          className="h-10 w-10 rounded-sm object-cover"
         />
-      </div>
+      </span>
       <span className="w-full text-center text-[10px] font-medium leading-tight text-secondary sm:text-xs">
         {label}
       </span>
