@@ -10,7 +10,6 @@ import { getBetTierLabel } from "@/lib/predictionScoring";
 import { cn } from "@/lib/utils";
 import CountUp from "./CountUp";
 import RankChange from "./RankChange";
-import FlagChip from "./FlagChip";
 import PlayerAvatar from "./PlayerAvatar";
 import ScoreBreakdownTooltip from "./ScoreBreakdownTooltip";
 
@@ -89,7 +88,7 @@ export default function Leaderboard({
 
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 light:border-slate-200">
-      {/* Mobile card layout — no horizontal scroll */}
+      {/* Mobile card layout */}
       <div className="divide-y divide-white/5 sm:hidden light:divide-slate-100">
         {entries.map((entry, i) => {
           const isHighlighted =
@@ -162,11 +161,6 @@ export default function Leaderboard({
                 >
                   {tier}
                 </span>
-                <div className="ml-auto flex flex-shrink-0 items-center gap-1">
-                  <FlagChip country={entry.finalist1} size={14} />
-                  <FlagChip country={entry.finalist2} size={14} />
-                  <FlagChip country={entry.winner} size={14} />
-                </div>
               </div>
             </motion.div>
           );
@@ -174,17 +168,14 @@ export default function Leaderboard({
       </div>
 
       {/* Desktop table */}
-      <div className="hidden overflow-x-auto sm:block">
-        <table className="w-full min-w-[640px] text-left text-sm">
+      <div className="hidden sm:block">
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase tracking-wide text-muted light:border-slate-200 light:bg-slate-50">
               <th className="px-2 py-3 font-accent">{t("rank")}</th>
               <th className="px-2 py-3">{t("quiniela_name")}</th>
               <th className="px-2 py-3">{t("captain")}</th>
               <th className="px-2 py-3">{t("bet")}</th>
-              <th className="px-2 py-3">{t("finalist")} 1</th>
-              <th className="px-2 py-3">{t("finalist")} 2</th>
-              <th className="px-2 py-3">{t("winner")}</th>
               <th className="px-2 py-3 text-right">{t("points")}</th>
               <th className="w-8 px-1 py-3" aria-hidden />
             </tr>
@@ -195,6 +186,7 @@ export default function Leaderboard({
                 highlightSlug === entry.slug ||
                 (activePlayer === entry.captain && !highlightSlug);
               const nav = getRowNavHandlers(entry.slug, router);
+              const tier = getBetTierLabel(entry.bet);
 
               return (
                 <motion.tr
@@ -221,26 +213,29 @@ export default function Leaderboard({
                       <div className="w-4 flex-shrink-0">
                         <RankChange change={entry.rankChange} />
                       </div>
-                      <span className="font-accent text-lg font-bold text-gold">
+                      <span className="w-5 font-accent text-lg font-bold text-gold">
                         <CountUp value={entry.rank} />
                       </span>
                     </div>
                   </td>
-                  <td className="max-w-[160px] px-2 py-3">
-                    <Link
-                      href={`/quiniela/${entry.slug}`}
-                      className="block min-w-0 hover:text-pitch"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <p className="truncate font-semibold">
-                        {entry.name}
-                        {entry.onFire && (
-                          <span className="ml-1" title={t("on_fire")}>
-                            🔥
-                          </span>
-                        )}
-                      </p>
-                    </Link>
+                  <td className="max-w-[200px] px-2 py-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <PlayerAvatar captain={entry.captain} size={32} className="flex-shrink-0" />
+                      <Link
+                        href={`/quiniela/${entry.slug}`}
+                        className="min-w-0 hover:text-pitch"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <p className="truncate font-semibold">
+                          {entry.name}
+                          {entry.onFire && (
+                            <span className="ml-1" title={t("on_fire")}>
+                              🔥
+                            </span>
+                          )}
+                        </p>
+                      </Link>
+                    </div>
                   </td>
                   <td className="px-2 py-3">
                     <span className="text-secondary light:text-slate-600">
@@ -250,21 +245,12 @@ export default function Leaderboard({
                   <td className="px-2 py-3">
                     <span
                       className={cn(
-                        "inline-block rounded-full border px-2 py-0.5 font-accent text-xs font-bold",
+                        "inline-block rounded-full border px-2 py-0.5 font-accent text-xs font-bold uppercase tracking-wide",
                         betBadgeClass(entry.bet)
                       )}
                     >
-                      ${entry.bet}
+                      {tier}
                     </span>
-                  </td>
-                  <td className="px-2 py-3">
-                    <FlagChip country={entry.finalist1} size={16} />
-                  </td>
-                  <td className="px-2 py-3">
-                    <FlagChip country={entry.finalist2} size={16} />
-                  </td>
-                  <td className="px-2 py-3">
-                    <FlagChip country={entry.winner} size={16} />
                   </td>
                   <td className="px-2 py-3 text-right">
                     <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} />

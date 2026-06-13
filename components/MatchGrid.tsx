@@ -17,7 +17,10 @@ import {
   type LiveMatch,
 } from "@/lib/liveScores";
 import { useLiveScores } from "@/hooks/useLiveScores";
+import { shouldShowLivePredictors } from "@/lib/livePredictors";
+import { cn } from "@/lib/utils";
 import FlagChip, { TeamFlagCell } from "./FlagChip";
+import LivePredictorsPanel from "./LivePredictorsPanel";
 
 export default function MatchGrid() {
   const t = useTranslations();
@@ -184,6 +187,8 @@ export default function MatchGrid() {
               group={group}
               adminMode={adminMode}
               getMatchResult={getMatchResult}
+              getLiveMatch={getLiveMatch}
+              lastUpdated={liveData?.lastUpdated}
               onSave={saveScore}
               index={gi}
             />
@@ -198,6 +203,8 @@ function GroupCard({
   group,
   adminMode,
   getMatchResult,
+  getLiveMatch,
+  lastUpdated,
   onSave,
   index,
 }: {
@@ -217,6 +224,8 @@ function GroupCard({
         displayClock?: string;
       }
     | undefined;
+  getLiveMatch: (t1: string, t2: string, g: string) => LiveMatch | undefined;
+  lastUpdated?: string;
   onSave: (
     group: string,
     t1: string,
@@ -314,6 +323,8 @@ function GroupCard({
             group={f.group}
             adminMode={adminMode}
             match={getMatchResult(f.team1, f.team2, f.group)}
+            liveMatch={getLiveMatch(f.team1, f.team2, f.group)}
+            lastUpdated={lastUpdated}
             onSave={onSave}
           />
         ))}
@@ -328,6 +339,8 @@ function FixtureRow({
   group,
   adminMode,
   match,
+  liveMatch,
+  lastUpdated,
   onSave,
 }: {
   team1: string;
@@ -342,6 +355,8 @@ function FixtureRow({
     isLive?: boolean;
     displayClock?: string;
   };
+  liveMatch?: LiveMatch;
+  lastUpdated?: string;
   onSave: (
     group: string,
     t1: string,
@@ -364,73 +379,100 @@ function FixtureRow({
       ? `${match.score1} - ${match.score2}`
       : "—";
 
+  const showPredictors =
+    !adminMode &&
+    match?.score1 != null &&
+    match?.score2 != null &&
+    shouldShowLivePredictors(
+      !!match.isLive,
+      match.score1,
+      match.score2,
+      liveMatch,
+      lastUpdated
+    );
+
   return (
     <div
-      className={`flex items-center gap-1 rounded-lg px-2 py-2 text-sm sm:gap-2 ${
+      className={cn(
+        "overflow-hidden rounded-lg",
         match?.isLive
           ? "border border-pitch/30 bg-pitch/5 light:bg-pitch/10"
           : "bg-white/5 light:bg-slate-50"
-      }`}
-    >
-      <div className="flex min-w-0 flex-1 items-center gap-1">
-        <FlagChip country={team1} size={14} className="shrink-0" />
-        <span className="text-[11px] font-medium leading-tight text-secondary sm:text-xs">
-          {getCountryDisplayName(team1, true)}
-        </span>
-      </div>
-
-      {adminMode ? (
-        <div className="flex shrink-0 items-center gap-1">
-          <input
-            type="number"
-            min={0}
-            max={20}
-            value={s1}
-            onChange={(e) => setS1(Number(e.target.value))}
-            className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
-          />
-          <span>-</span>
-          <input
-            type="number"
-            min={0}
-            max={20}
-            value={s2}
-            onChange={(e) => setS2(Number(e.target.value))}
-            className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
-          />
-          <button
-            onClick={() => onSave(group, team1, team2, s1, s2)}
-            className="ml-1 rounded bg-pitch px-2 py-0.5 text-xs font-bold text-black"
-          >
-            {t("save_score")}
-          </button>
-        </div>
-      ) : (
-        <div className="flex shrink-0 flex-col items-center px-1">
-          {match?.isLive && (
-            <span className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-pitch">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-pitch" />
-              </span>
-              {t("live_badge")}
-            </span>
-          )}
-          <span className="font-accent text-base font-bold tabular-nums sm:text-lg">
-            {displayScore}
-          </span>
-          {match?.displayClock && match.isLive && (
-            <span className="text-[10px] text-pitch">{match.displayClock}</span>
-          )}
-        </div>
       )}
+    >
+      <div className="flex items-center gap-1 px-2 py-2 text-sm sm:gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1">
+          <FlagChip country={team1} size={14} className="shrink-0" />
+          <span className="text-[11px] font-medium leading-tight text-secondary sm:text-xs">
+            {getCountryDisplayName(team1, true)}
+          </span>
+        </div>
 
-      <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
-        <span className="text-right text-[11px] font-medium leading-tight text-secondary sm:text-xs">
-          {getCountryDisplayName(team2, true)}
-        </span>
-        <FlagChip country={team2} size={14} className="shrink-0" />
+        {adminMode ? (
+          <div className="flex shrink-0 items-center gap-1">
+            <input
+              type="number"
+              min={0}
+              max={20}
+              value={s1}
+              onChange={(e) => setS1(Number(e.target.value))}
+              className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
+            />
+            <span>-</span>
+            <input
+              type="number"
+              min={0}
+              max={20}
+              value={s2}
+              onChange={(e) => setS2(Number(e.target.value))}
+              className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
+            />
+            <button
+              onClick={() => onSave(group, team1, team2, s1, s2)}
+              className="ml-1 rounded bg-pitch px-2 py-0.5 text-xs font-bold text-black"
+            >
+              {t("save_score")}
+            </button>
+          </div>
+        ) : (
+          <div className="flex shrink-0 flex-col items-center px-1">
+            {match?.isLive && (
+              <span className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-pitch">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-pitch" />
+                </span>
+                {t("live_badge")}
+              </span>
+            )}
+            <span className="font-accent text-base font-bold tabular-nums sm:text-lg">
+              {displayScore}
+            </span>
+            {match?.displayClock && match.isLive && (
+              <span className="text-[10px] text-pitch">{match.displayClock}</span>
+            )}
+          </div>
+        )}
+
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
+          <span className="text-right text-[11px] font-medium leading-tight text-secondary sm:text-xs">
+            {getCountryDisplayName(team2, true)}
+          </span>
+          <FlagChip country={team2} size={14} className="shrink-0" />
+        </div>
       </div>
+
+      {showPredictors && (
+        <LivePredictorsPanel
+          group={group}
+          team1={team1}
+          team2={team2}
+          score1={match!.score1!}
+          score2={match!.score2!}
+          isLive={!!match?.isLive}
+          lastUpdated={lastUpdated}
+        />
+      )}
     </div>
   );
 }

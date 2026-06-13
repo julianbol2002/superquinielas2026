@@ -24,6 +24,8 @@ export interface LiveMatch {
   isLive: boolean;
   displayClock?: string;
   matchDate: string;
+  /** ISO timestamp when match ended (final only) */
+  finishedAt?: string;
 }
 
 export interface ScoresResponse {
@@ -248,6 +250,8 @@ export function parseEspnScoreboard(data: EspnScoreboard): LiveMatch[] {
         comp.status.type.shortDetail ||
         comp.status.type.description,
       matchDate: (comp.date || event.date).split("T")[0],
+      finishedAt:
+        status === "final" ? comp.date || event.date : undefined,
     });
   }
 
