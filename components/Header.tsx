@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
@@ -21,8 +22,18 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-page">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 md:px-6">
-        <Link href="/" className="font-display text-xl tracking-wide text-primary-theme md:text-2xl">
-          {t("site_name")}
+        <Link href="/" className="flex min-h-[44px] items-center gap-2">
+          <Image
+            src="/icon.png"
+            alt="Super Quinielas"
+            width={28}
+            height={28}
+            priority
+            className="flex-shrink-0"
+          />
+          <span className="font-display text-xl tracking-wide text-primary-theme md:text-2xl">
+            {t("site_name")}
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">

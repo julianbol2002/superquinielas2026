@@ -2,19 +2,31 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "SUPER QUINIELAS — Mundial 2026",
-  description:
-    "Clasificación familiar del Mundial 2026 — World Cup bracket challenge leaderboard",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://super-quinielas.vercel.app"
+  ),
+  title: "Super Quinielas — Mundial 2026",
+  description: "Quiniela familiar del Mundial 2026",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/icons/icon-152x152.png",
+  },
+  openGraph: {
+    title: "Super Quinielas — Mundial 2026",
+    description: "Quiniela familiar del Mundial 2026",
+    images: ["/opengraph-image"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "SUPER QUINIELAS",
+    title: "Super Quinielas",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0e17",
+  themeColor: "#00ff87",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -30,7 +42,6 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark colorway-classic" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
         <script dangerouslySetInnerHTML={{ __html: appearanceScript }} />
       </head>
       <body className="min-h-screen font-body antialiased">{children}</body>
