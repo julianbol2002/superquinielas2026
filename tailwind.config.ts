@@ -11,41 +11,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        pitch: "var(--pitch, #00D084)",
-        gold: "var(--gold, #FFD700)",
+        pitch: "var(--accent, #00ff87)",
+        accent: "var(--accent, #00ff87)",
+        gold: "var(--gold, #f5c518)",
+        surface: "var(--surface, #141414)",
+        border: "var(--border, #222222)",
+        hover: "var(--hover, #1a1a1a)",
         stadium: {
-          dark: "var(--bg-primary, #0a0e17)",
-          navy: "var(--bg-navy, #111827)",
-          card: "var(--bg-card, #1a2234)",
+          dark: "var(--bg, #0a0a0a)",
+          navy: "var(--surface, #141414)",
+          card: "var(--surface, #141414)",
         },
+      },
+      borderRadius: {
+        DEFAULT: "4px",
+        lg: "4px",
+        xl: "4px",
+        "2xl": "4px",
       },
       fontFamily: {
         display: ['"Bebas Neue"', "sans-serif"],
         body: ['"Inter"', "sans-serif"],
-        accent: ['"Oswald"', "sans-serif"],
+        accent: ['"Inter"', "sans-serif"],
       },
-      animation: {
-        float: "float 3s ease-in-out infinite",
-        shimmer: "shimmer 2s linear infinite",
-        pulseHighlight: "pulseHighlight 2s ease-in-out infinite",
-      },
-      keyframes: {
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-8px)" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
-        pulseHighlight: {
-          "0%, 100%": {
-            boxShadow: "0 0 0 0 color-mix(in srgb, var(--pitch) 40%, transparent)",
-          },
-          "50%": {
-            boxShadow: "0 0 0 12px color-mix(in srgb, var(--pitch) 0%, transparent)",
-          },
-        },
+      fontSize: {
+        label: ["12px", { lineHeight: "1.4" }],
+        body: ["14px", { lineHeight: "1.5" }],
+        emphasis: ["16px", { lineHeight: "1.4" }],
       },
     },
   },

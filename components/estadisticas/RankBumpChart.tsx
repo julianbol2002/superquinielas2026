@@ -15,6 +15,12 @@ import {
   getBumpChartData,
   getTopSlugs,
 } from "@/lib/analytics";
+import {
+  CHART_GRID,
+  chartAxisTick,
+  chartMargin,
+  chartTooltipStyle,
+} from "@/lib/chartTheme";
 
 export default function RankBumpChart({
   snapshot,
@@ -35,7 +41,7 @@ export default function RankBumpChart({
 
   if (snapshot.playedCount < 2) {
     return (
-      <p className="py-8 text-center text-sm text-slate-400">
+      <p className="py-8 text-center text-body text-muted">
         Se necesitan al menos 2 partidos para el gráfico de posiciones.
       </p>
     );
@@ -43,32 +49,28 @@ export default function RankBumpChart({
 
   function lineColor(slug: string): string {
     const ranks = snapshot.ranksOverTime[slug] ?? [];
-    if (ranks.length < 2) return "#94a3b8";
+    if (ranks.length < 2) return "var(--text-muted)";
     const delta = ranks[0] - ranks[ranks.length - 1];
-    if (delta > 0) return "#00D084";
-    if (delta < 0) return "#FF6B6B";
-    return "#94a3b8";
+    if (delta > 0) return "var(--accent)";
+    if (delta < 0) return "var(--red)";
+    return "var(--text-muted)";
   }
 
   return (
-    <div className="h-[340px] w-full">
+    <div className="h-[340px] w-full animate-[fade-in_400ms_ease-out]">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff15" />
-          <XAxis dataKey="match" tick={{ fill: "#94a3b8", fontSize: 10 }} />
+        <LineChart data={data} margin={chartMargin}>
+          <CartesianGrid stroke={CHART_GRID} strokeWidth={0.5} vertical={false} />
+          <XAxis dataKey="match" tick={chartAxisTick} interval={4} />
           <YAxis
             reversed
             domain={[1, snapshot.quinielaSlugs.length]}
-            tick={{ fill: "#94a3b8", fontSize: 10 }}
+            tick={chartAxisTick}
             width={28}
+            interval={4}
           />
           <Tooltip
-            contentStyle={{
-              background: "#1a2234",
-              border: "1px solid #ffffff20",
-              borderRadius: 8,
-              fontSize: 12,
-            }}
+            contentStyle={chartTooltipStyle}
             formatter={(value, name) => [
               `#${value}`,
               snapshot.quinielaNames[String(name)],
@@ -80,9 +82,9 @@ export default function RankBumpChart({
               type="monotone"
               dataKey={slug}
               stroke={lineColor(slug)}
-              strokeWidth={2}
-              dot={{ r: 2 }}
-              animationDuration={1200}
+              strokeWidth={1.5}
+              dot={false}
+              isAnimationActive={false}
             />
           ))}
         </LineChart>

@@ -26,27 +26,25 @@ export default function ColorwayPicker() {
             type="button"
             onClick={() => select(option.id)}
             className={cn(
-              "flex flex-col items-center gap-2 rounded-xl border px-3 py-3 text-sm font-medium transition",
+              "flex min-h-[44px] flex-col items-center justify-center gap-2 border px-3 py-2 text-label font-medium transition-colors duration-150",
               selected
-                ? "border-pitch bg-pitch/10 ring-2 ring-pitch/40"
-                : "border-white/10 bg-white/5 hover:border-white/20 light:border-slate-200 light:bg-slate-50 light:hover:border-slate-300"
+                ? "border-accent bg-accent/10 text-accent"
+                : "border-border bg-surface text-secondary hover:bg-hover"
             )}
           >
             <span className="flex gap-1">
               <span
-                className="h-6 w-6 rounded-full border border-white/20 light:border-slate-300"
+                className="h-4 w-4 border border-border"
                 style={{ backgroundColor: option.swatch }}
                 aria-hidden
               />
               <span
-                className="h-6 w-6 rounded-full border border-white/20 light:border-slate-300"
+                className="h-4 w-4 border border-border"
                 style={{ backgroundColor: option.swatchAlt }}
                 aria-hidden
               />
             </span>
-            <span className={selected ? "text-pitch" : "text-secondary"}>
-              {t(option.labelKey)}
-            </span>
+            <span>{t(option.labelKey)}</span>
           </button>
         );
       })}

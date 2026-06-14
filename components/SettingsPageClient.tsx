@@ -48,41 +48,33 @@ export default function SettingsPageClient() {
   };
 
   return (
-    <div className="pb-8">
-      <h1 className="mb-6 font-display text-3xl tracking-wide">
+    <div className="px-4 pb-8 md:px-0">
+      <h1 className="mb-6 font-display text-2xl tracking-wide text-primary-theme">
         {t("settings")}
       </h1>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          {t("language")}
-        </h2>
+        <h2 className="mb-3 label-caps">{t("language")}</h2>
         <LanguageToggle />
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          {t("theme")}
-        </h2>
+        <h2 className="mb-3 label-caps">{t("theme")}</h2>
         <ThemeToggle />
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          {t("colorway")}
-        </h2>
-        <p className="mb-3 text-sm text-muted">{t("colorway_desc")}</p>
+        <h2 className="mb-3 label-caps">{t("colorway")}</h2>
+        <p className="mb-3 text-body text-muted">{t("colorway_desc")}</p>
         <ColorwayPicker />
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          {t("active_player")}
-        </h2>
+        <h2 className="mb-3 label-caps">{t("active_player")}</h2>
         <select
           value={activePlayer ?? ""}
           onChange={(e) => selectPlayer(e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-stadium-card px-4 py-3 text-base outline-none focus:border-pitch light:border-slate-200 light:bg-white"
+          className="min-h-[44px] w-full border border-border bg-surface px-3 py-2 text-body outline-none transition-colors duration-150 focus:border-accent"
         >
           <option value="">{t("no_player")}</option>
           {captains.map((c) => (
@@ -92,10 +84,10 @@ export default function SettingsPageClient() {
           ))}
         </select>
         {activePlayer && (
-          <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white">
+          <div className="mt-4 flex items-center gap-3 border border-border bg-surface p-4">
             <PlayerAvatar captain={activePlayer} size={48} />
             <div>
-              <p className="font-semibold">{activePlayer}</p>
+              <p className="font-medium text-primary-theme">{activePlayer}</p>
               <AvatarUpload captain={activePlayer} />
             </div>
           </div>
@@ -103,23 +95,19 @@ export default function SettingsPageClient() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          {t("notifications")}
-        </h2>
-        <div className="flex items-center justify-between rounded-xl border border-white/10 bg-stadium-card px-4 py-3 light:border-slate-200 light:bg-white">
-          <span className="text-sm">{t("notifications_soon")}</span>
-          <div className="h-6 w-11 rounded-full bg-white/10 opacity-50" />
+        <h2 className="mb-3 label-caps">{t("notifications")}</h2>
+        <div className="flex min-h-[44px] items-center justify-between border border-border bg-surface px-4 py-3">
+          <span className="text-body">{t("notifications_soon")}</span>
+          <div className="h-6 w-11 border border-border bg-page opacity-50" />
         </div>
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
-          {t("reset")}
-        </h2>
-        <p className="mb-3 text-sm text-muted">{t("reset_desc")}</p>
+        <h2 className="mb-3 label-caps">{t("reset")}</h2>
+        <p className="mb-3 text-body text-muted">{t("reset_desc")}</p>
         <button
           onClick={reset}
-          className="rounded-lg border border-red-500/50 px-4 py-3 text-sm font-medium text-red-400 transition hover:bg-red-500/10"
+          className="min-h-[44px] border border-red-500/40 px-4 py-2.5 text-body text-red-400 transition-colors duration-150 hover:bg-hover"
         >
           {t("reset")}
         </button>

@@ -2,14 +2,22 @@
 
 import { useTranslations } from "next-intl";
 import { usePathname, Link } from "@/i18n/routing";
+import {
+  Trophy,
+  CircleDot,
+  LayoutGrid,
+  BarChart3,
+  Settings,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const tabs = [
-  { href: "/", icon: "🏆", labelKey: "nav_home" as const },
-  { href: "/partidos", icon: "⚽", labelKey: "nav_matches" as const },
-  { href: "/quinielas", icon: "🃏", labelKey: "nav_quinielas" as const },
-  { href: "/estadisticas", icon: "📊", labelKey: "nav_stats" as const },
-  { href: "/ajustes", icon: "⚙️", labelKey: "nav_settings" as const },
+const tabs: { href: string; icon: LucideIcon; labelKey: "nav_home" | "nav_matches" | "nav_quinielas" | "nav_stats" | "nav_settings" }[] = [
+  { href: "/", icon: Trophy, labelKey: "nav_home" },
+  { href: "/partidos", icon: CircleDot, labelKey: "nav_matches" },
+  { href: "/quinielas", icon: LayoutGrid, labelKey: "nav_quinielas" },
+  { href: "/estadisticas", icon: BarChart3, labelKey: "nav_stats" },
+  { href: "/ajustes", icon: Settings, labelKey: "nav_settings" },
 ];
 
 export default function BottomNav() {
@@ -17,24 +25,26 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-stadium-dark/95 backdrop-blur-lg safe-bottom md:hidden dark:border-white/10 light:border-slate-200 light:bg-white/95">
-      <div className="flex items-stretch justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border bg-page safe-bottom md:hidden">
+      <div className="flex h-14 items-stretch">
         {tabs.map((tab) => {
           const active =
             tab.href === "/"
               ? pathname === "/"
               : pathname.startsWith(tab.href);
+          const Icon = tab.icon;
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={cn(
-                "flex flex-1 flex-col items-center gap-0.5 py-1.5 text-[10px] transition",
-                active ? "text-pitch" : "text-muted"
-              )}
+              className="flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5"
             >
-              <span className="text-base">{tab.icon}</span>
-              <span className="font-medium">{t(tab.labelKey)}</span>
+              <Icon
+                size={18}
+                strokeWidth={1.75}
+                className={cn(active ? "text-accent" : "text-muted")}
+              />
+              <span className="text-[11px] text-muted">{t(tab.labelKey)}</span>
             </Link>
           );
         })}

@@ -27,10 +27,10 @@ export default function MyPositionFab() {
   return (
     <button
       onClick={scrollToMe}
-      className="fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-pitch text-lg font-bold text-black shadow-lg shadow-pitch/30 transition hover:scale-105 md:bottom-8"
+      className="fixed bottom-16 right-4 z-40 flex h-11 min-h-[44px] min-w-[44px] items-center justify-center border border-accent bg-accent text-label font-medium text-black transition-colors hover:bg-transparent hover:text-accent md:bottom-8"
       aria-label={t("my_position")}
     >
-      📍
+      {t("my_position").charAt(0)}
     </button>
   );
 }

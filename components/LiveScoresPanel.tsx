@@ -1,28 +1,25 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useRef } from "react";
 import { Link } from "@/i18n/routing";
 import {
   formatLastUpdated,
   getLiveMatches,
+  type LiveMatch,
 } from "@/lib/liveScores";
 import { useLiveScores } from "@/hooks/useLiveScores";
 import FlagChip from "./FlagChip";
 import { getCountryDisplayName } from "@/data/countries";
-import { cn } from "@/lib/utils";
 
-function LiveBadge() {
-  const t = useTranslations();
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-pitch/20 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-pitch">
-      <span className="relative flex h-2 w-2">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch opacity-75" />
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-pitch" />
-      </span>
-      {t("live_badge")}
-    </span>
-  );
+function sortFinalMatches(matches: LiveMatch[]): LiveMatch[] {
+  return [...matches]
+    .filter((m) => m.status === "final")
+    .sort((a, b) => {
+      const aTime = new Date(a.finishedAt ?? `${a.matchDate}T23:59:59`).getTime();
+      const bTime = new Date(b.finishedAt ?? `${b.matchDate}T23:59:59`).getTime();
+      return aTime - bTime;
+    });
 }
 
 export default function LiveScoresPanel() {
@@ -30,11 +27,25 @@ export default function LiveScoresPanel() {
   const locale = useLocale();
   const { data, loading, error } = useLiveScores();
   const liveMatches = data ? getLiveMatches(data.matches) : [];
+  const recentFinal = useMemo(
+    () => (data ? sortFinalMatches(data.matches) : []),
+    [data]
+  );
+  const recentScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = recentScrollRef.current;
+    if (!el || recentFinal.length === 0) return;
+    const frame = requestAnimationFrame(() => {
+      el.scrollLeft = el.scrollWidth - el.clientWidth;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [recentFinal, data?.lastUpdated]);
 
   if (loading && !data) {
     return (
-      <section className="mb-6 rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white">
-        <div className="h-20 animate-pulse rounded-lg bg-white/5 light:bg-slate-100" />
+      <section className="mb-4 border-b border-border px-4 pb-4 md:px-0">
+        <div className="h-16 animate-pulse bg-surface" />
       </section>
     );
   }
@@ -42,111 +53,95 @@ export default function LiveScoresPanel() {
   if (error && !data) return null;
 
   return (
-    <section className="mb-4 rounded-xl border border-pitch/30 bg-gradient-to-br from-stadium-card to-stadium-navy/80 p-3 light:border-pitch/40 light:from-white light:to-slate-50">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-lg tracking-wide text-pitch">
-          {t("live_scores")}
-        </h2>
+    <section className="mb-4 border-b border-border px-4 pb-4 md:px-0">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="label-caps">{t("live_scores")}</h2>
         {data?.lastUpdated && (
-          <p className="text-xs text-muted">
-            {t("last_updated")}:{" "}
-            <span className="font-medium text-secondary">
-              {formatLastUpdated(data.lastUpdated, locale)}
-            </span>
+          <p className="text-label text-muted">
+            {t("last_updated")}: {formatLastUpdated(data.lastUpdated, locale)}
           </p>
         )}
       </div>
 
-      <AnimatePresence mode="popLayout">
-        {liveMatches.length === 0 ? (
-          <motion.p
-            key="empty"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-sm text-muted"
-          >
-            {t("no_live_matches")}
-          </motion.p>
-        ) : (
-          <div key="list" className="space-y-2">
-            {liveMatches.map((match) => (
-              <motion.div
-                key={match.espnId}
-                layout
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className={cn(
-                  "flex items-center justify-between gap-2 rounded-lg border border-pitch/20 bg-black/20 px-3 py-3 light:border-pitch/30 light:bg-slate-50",
-                  match.isLive && "shadow-[0_0_20px_rgba(0,208,132,0.15)]"
+      {liveMatches.length === 0 ? (
+        <p className="text-body text-muted">{t("no_live_matches")}</p>
+      ) : (
+        <div className="space-y-2">
+          {liveMatches.map((match) => (
+            <div
+              key={match.espnId}
+              className="flex items-center justify-between gap-2 border border-border bg-surface px-3 py-3"
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <FlagChip country={match.team1} size={16} />
+                <span className="truncate text-body font-medium text-primary-theme">
+                  {getCountryDisplayName(match.team1, true)}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center px-2">
+                <span className="mb-1 inline-flex items-center gap-1 text-[10px] font-medium uppercase text-accent">
+                  <span className="live-dot" aria-hidden />
+                  {t("live_badge")}
+                </span>
+                <span className="font-display text-2xl tabular-nums">
+                  {match.score1} - {match.score2}
+                </span>
+                {match.displayClock && (
+                  <span className="text-label text-muted">{match.displayClock}</span>
                 )}
-              >
-                <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <FlagChip country={match.team1} size={18} />
-                  <span className="text-sm font-semibold leading-tight text-primary-theme">
-                    {getCountryDisplayName(match.team1, true)}
-                  </span>
-                </div>
+              </div>
 
-                <div className="flex flex-col items-center px-2">
-                  <LiveBadge />
-                  <span className="mt-1 font-display text-2xl tabular-nums">
-                    {match.score1} - {match.score2}
-                  </span>
-                  {match.displayClock && (
-                    <span className="font-accent text-xs text-pitch">
-                      {match.displayClock}
-                    </span>
-                  )}
-                </div>
+              <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+                <span className="truncate text-right text-body font-medium text-primary-theme">
+                  {getCountryDisplayName(match.team2, true)}
+                </span>
+                <FlagChip country={match.team2} size={16} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-                <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                  <span className="text-right text-sm font-semibold leading-tight text-primary-theme">
-                    {getCountryDisplayName(match.team2, true)}
-                  </span>
-                  <FlagChip country={match.team2} size={18} />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </AnimatePresence>
-
-      {data && data.matches.some((m) => m.status === "final") && (
-        <div className="mt-4 border-t border-white/10 pt-3 light:border-slate-200">
-          <p className="mb-2 text-xs uppercase tracking-wide text-muted">
-            {t("recent_results")}
-          </p>
-          <div className="flex gap-2 overflow-x-auto hide-scrollbar">
-            {data.matches
-              .filter((m) => m.status === "final")
-              .slice(0, 6)
-              .map((match) => (
+      {recentFinal.length > 0 && (
+        <div className="mt-4 border-t border-border pt-3">
+          <p className="mb-2 label-caps">{t("recent_results")}</p>
+          <div className="relative">
+            <div
+              ref={recentScrollRef}
+              className="flex gap-2 overflow-x-auto hide-scrollbar max-sm:snap-x max-sm:snap-mandatory"
+            >
+              {recentFinal.map((match) => (
                 <div
                   key={`final-${match.espnId}`}
-                  className="flex-shrink-0 rounded-lg bg-white/5 px-3 py-2 text-center text-xs light:bg-slate-100"
+                  className="flex-shrink-0 snap-start border border-border bg-surface px-3 py-2 text-center max-sm:snap-start"
                 >
                   <div className="mb-1 flex justify-center gap-1">
                     <FlagChip country={match.team1} size={12} />
                     <FlagChip country={match.team2} size={12} />
                   </div>
-                  <span className="font-accent font-bold">
+                  <span className="font-display text-lg tabular-nums">
                     {match.score1} - {match.score2}
                   </span>
                   {match.group && (
-                    <p className="text-muted">
+                    <p className="text-label text-muted">
                       {t("group")} {match.group}
                     </p>
                   )}
                 </div>
               ))}
+            </div>
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[var(--bg)] to-transparent"
+              aria-hidden
+            />
           </div>
         </div>
       )}
 
       <Link
         href="/partidos"
-        className="mt-3 inline-block text-sm text-pitch hover:underline"
+        className="mt-3 inline-block min-h-[44px] py-2 text-body text-accent"
       >
         {t("view_all_matches")} →
       </Link>

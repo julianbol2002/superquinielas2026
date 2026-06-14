@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useAppStore } from "@/lib/store";
 import { COOKIE_KEYS, setCookie, type Theme } from "@/lib/cookies";
 import { applyAppearance } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 export default function ThemeToggle() {
   const t = useTranslations();
@@ -22,13 +23,14 @@ export default function ThemeToggle() {
           key={opt}
           type="button"
           onClick={() => toggle(opt)}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition ${
+          className={cn(
+            "min-h-[44px] flex-1 border px-4 py-2.5 text-body font-medium transition-colors duration-150",
             theme === opt
-              ? "bg-pitch text-black"
-              : "bg-white/10 text-slate-300 light:bg-slate-100 light:text-slate-600"
-          }`}
+              ? "border-accent bg-accent text-black"
+              : "border-border bg-surface text-secondary hover:bg-hover"
+          )}
         >
-          {opt === "dark" ? `🌑 ${t("dark")}` : `☀️ ${t("light")}`}
+          {opt === "dark" ? t("dark") : t("light")}
         </button>
       ))}
     </div>

@@ -10,6 +10,7 @@ import {
   Cell,
 } from "recharts";
 import type { AnalyticsSnapshot } from "@/lib/analytics";
+import { CHART_GRID, chartAxisTick, chartTooltipStyle } from "@/lib/chartTheme";
 
 export default function HotStreaksChart({
   snapshot,
@@ -28,27 +29,17 @@ export default function HotStreaksChart({
     }));
 
   return (
-    <div className="h-[360px] w-full">
+    <div className="h-[360px] w-full animate-[fade-in_400ms_ease-out]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
           layout="vertical"
           margin={{ top: 4, right: 16, left: 4, bottom: 4 }}
         >
-          <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 10 }} />
-          <YAxis
-            type="category"
-            dataKey="name"
-            width={90}
-            tick={{ fill: "#94a3b8", fontSize: 10 }}
-          />
+          <XAxis type="number" tick={chartAxisTick} />
+          <YAxis type="category" dataKey="name" width={90} tick={chartAxisTick} />
           <Tooltip
-            contentStyle={{
-              background: "#1a2234",
-              border: "1px solid #ffffff20",
-              borderRadius: 8,
-              fontSize: 12,
-            }}
+            contentStyle={chartTooltipStyle}
             formatter={(value, name) => [
               value,
               name === "best" ? "Mejor racha" : "Racha actual",
@@ -57,25 +48,25 @@ export default function HotStreaksChart({
               payload?.[0]?.payload?.fullName ?? ""
             }
           />
-          <Bar dataKey="best" name="best" fill="#475569" radius={[0, 4, 4, 0]}>
+          <Bar dataKey="best" name="best" fill={CHART_GRID} isAnimationActive={false}>
             {data.map((_, i) => (
-              <Cell key={i} fill="#475569" />
+              <Cell key={i} fill="var(--text-muted)" />
             ))}
           </Bar>
-          <Bar dataKey="current" name="current" radius={[0, 4, 4, 0]}>
+          <Bar dataKey="current" name="current" isAnimationActive={false}>
             {data.map((entry, i) => (
               <Cell
                 key={i}
-                fill={entry.active ? "#FFD700" : "#64748b"}
+                fill={entry.active ? "var(--gold)" : "var(--border)"}
               />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      <p className="mt-2 text-center text-xs text-slate-400">
-        <span className="inline-block h-2 w-2 rounded-full bg-gold" /> Racha actual
+      <p className="mt-2 text-center text-label text-muted">
+        <span className="inline-block h-2 w-2 bg-gold" /> Racha actual
         {" · "}
-        <span className="inline-block h-2 w-2 rounded-full bg-slate-600" /> Mejor racha
+        <span className="inline-block h-2 w-2 bg-border" /> Mejor racha
       </p>
     </div>
   );

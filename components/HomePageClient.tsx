@@ -8,10 +8,12 @@ import {
 } from "@/data/quinielas";
 import { useLiveScores } from "@/hooks/useLiveScores";
 import { recordRankSnapshot, hasReliableRankHistory } from "@/lib/rankHistory";
+import { getPredictionHighlights } from "@/lib/predictionHighlights";
 import Hero from "@/components/Hero";
 import LiveScoresPanel from "@/components/LiveScoresPanel";
 import PlayerPodium from "@/components/PlayerPodium";
 import StatCards from "@/components/StatCards";
+import LiveMatchLeaderboardBanner from "@/components/LiveMatchLeaderboardBanner";
 import Leaderboard from "@/components/Leaderboard";
 import CountryPredictionsChart from "@/components/CountryPredictionsChart";
 import MyPositionFab from "@/components/MyPositionFab";
@@ -47,6 +49,10 @@ export default function HomePageClient() {
     [allEntries, betFilter]
   );
 
+  const hotStreakSlug = useMemo(() => {
+    return getPredictionHighlights(allEntries, liveData?.matches ?? []).longestStreak?.slug ?? null;
+  }, [allEntries, liveData?.matches]);
+
   const betTabs: { key: typeof betFilter; label: string }[] = [
     { key: "all", label: t("all") },
     { key: 25, label: "$25" },
@@ -65,18 +71,23 @@ export default function HomePageClient() {
         rankHistoryReady={rankHistoryReady}
       />
 
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-display text-2xl tracking-wide">{t("leaderboard")}</h2>
+      <LiveMatchLeaderboardBanner
+        matches={liveData?.matches ?? []}
+        lastUpdated={liveData?.lastUpdated}
+      />
+
+      <div className="mb-4 flex items-center justify-between px-4 md:px-0">
+        <h2 className="font-display text-2xl tracking-wide text-primary-theme">{t("leaderboard")}</h2>
         <div className="flex gap-1 overflow-x-auto hide-scrollbar">
           {betTabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setBetFilter(tab.key)}
               className={cn(
-                "flex-shrink-0 rounded-full px-3 py-1 text-sm font-medium transition",
+                "min-h-[44px] flex-shrink-0 border px-3 py-1.5 text-label font-medium transition-colors",
                 betFilter === tab.key
-                  ? "bg-pitch text-black"
-                  : "bg-white/10 text-secondary light:bg-slate-200 light:text-slate-700"
+                  ? "border-accent bg-accent text-black"
+                  : "border-border bg-surface text-secondary hover:bg-hover"
               )}
             >
               {tab.label}
@@ -85,7 +96,7 @@ export default function HomePageClient() {
         </div>
       </div>
 
-      <Leaderboard entries={entries} />
+      <Leaderboard entries={entries} hotStreakSlug={hotStreakSlug} />
       <div className="mt-8">
         <CountryPredictionsChart />
       </div>

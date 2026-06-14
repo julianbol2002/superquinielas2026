@@ -1,27 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 export default function CountUp({
   value,
   className,
+  duration = 800,
 }: {
   value: number;
   className?: string;
+  duration?: number;
 }) {
-  const spring = useSpring(0, { stiffness: 80, damping: 20 });
-  const display = useTransform(spring, (v) => Math.round(v));
-  const [shown, setShown] = useState(0);
+  const [shown, setShown] = useState(value);
+  const prev = useRef(value);
 
   useEffect(() => {
-    spring.set(value);
-    return display.on("change", (v) => setShown(v));
-  }, [value, spring, display]);
+    const from = prev.current;
+    const to = value;
+    prev.current = value;
+    if (from === to) {
+      setShown(to);
+      return;
+    }
 
-  return (
-    <motion.span className={className} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      {shown}
-    </motion.span>
-  );
+    const start = performance.now();
+    let frame = 0;
+
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setShown(Math.round(from + (to - from) * eased));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value, duration]);
+
+  return <span className={className}>{shown}</span>;
 }

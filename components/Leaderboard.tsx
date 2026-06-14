@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
 import { Link, useRouter } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
-import { getBetTierLabel } from "@/lib/predictionScoring";
+import { getBetTierAbbrev } from "@/lib/predictionScoring";
 import { cn } from "@/lib/utils";
 import CountUp from "./CountUp";
 import RankChange from "./RankChange";
@@ -16,21 +16,7 @@ import ScoreBreakdownTooltip from "./ScoreBreakdownTooltip";
 interface LeaderboardProps {
   entries: RankedQuiniela[];
   highlightSlug?: string;
-}
-
-function betBadgeClass(bet: number) {
-  if (bet >= 100) return "bg-gold/20 text-gold border-gold/30";
-  if (bet >= 50) return "bg-pitch/20 text-pitch border-pitch/30";
-  return "bg-blue-500/20 text-blue-300 light:text-blue-700 border-blue-500/30";
-}
-
-function pointBadgeClass(points: number) {
-  if (points >= 6) return "bg-gold/20 text-gold";
-  if (points >= 5) return "bg-pitch/25 text-pitch";
-  if (points >= 4) return "bg-emerald-500/20 text-emerald-400 light:text-emerald-700";
-  if (points >= 3) return "bg-blue-500/20 text-blue-300 light:text-blue-700";
-  if (points >= 2) return "bg-slate-500/20 text-slate-300 light:text-slate-600";
-  return "bg-white/10 text-muted";
+  hotStreakSlug?: string | null;
 }
 
 function getRowNavHandlers(slug: string, router: ReturnType<typeof useRouter>) {
@@ -48,54 +34,31 @@ function getRowNavHandlers(slug: string, router: ReturnType<typeof useRouter>) {
 export default function Leaderboard({
   entries,
   highlightSlug,
+  hotStreakSlug = null,
 }: LeaderboardProps) {
   const t = useTranslations();
   const router = useRouter();
   const activePlayer = useAppStore((s) => s.activePlayer);
   const rowRefs = useRef<Map<string, HTMLElement>>(new Map());
 
-  useEffect(() => {
-    if (entries.length === 0) return;
-    let cancelled = false;
-    import("canvas-confetti").then(({ default: confetti }) => {
-      if (cancelled) return;
-      const firstRow = rowRefs.current.get(entries[0].slug);
-      if (!firstRow) return;
-      const rect = firstRow.getBoundingClientRect();
-      confetti({
-        particleCount: 40,
-        spread: 50,
-        origin: {
-          x: (rect.left + rect.width / 2) / window.innerWidth,
-          y: (rect.top + rect.height / 2) / window.innerHeight,
-        },
-        colors: ["#FFD700", "#00D084"],
-        ticks: 80,
-        scalar: 0.7,
-      });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [entries]);
-
-  const getRowClass = (rank: number) => {
-    if (rank === 1) return "row-gold";
-    if (rank === 2) return "row-silver";
-    if (rank === 3) return "row-bronze";
-    return "";
-  };
+  const rowClass = (rank: number, isHighlighted: boolean) =>
+    cn(
+      "min-h-[44px] cursor-pointer border-b border-border transition-colors hover:bg-hover",
+      rank === 1 && "rank-accent-bar",
+      isHighlighted && "bg-hover"
+    );
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 light:border-slate-200">
-      {/* Mobile card layout */}
-      <div className="divide-y divide-white/5 sm:hidden light:divide-slate-100">
+    <div className="overflow-hidden border-y border-border md:border md:rounded">
+      {/* Mobile */}
+      <div className="sm:hidden">
         {entries.map((entry, i) => {
           const isHighlighted =
             highlightSlug === entry.slug ||
             (activePlayer === entry.captain && !highlightSlug);
           const nav = getRowNavHandlers(entry.slug, router);
-          const tier = getBetTierLabel(entry.bet);
+          const tier = getBetTierAbbrev(entry.bet);
+          const isHot = hotStreakSlug === entry.slug;
 
           return (
             <motion.div
@@ -108,76 +71,57 @@ export default function Leaderboard({
               role="link"
               tabIndex={0}
               {...nav}
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className={cn(
-                "min-h-[64px] cursor-pointer px-2 py-2.5 transition active:bg-white/5 light:active:bg-slate-50",
-                getRowClass(entry.rank),
-                isHighlighted && "highlight-row ring-2 ring-inset ring-pitch/50"
-              )}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.03, duration: 0.15 }}
+              className={cn("px-4 py-2.5", rowClass(entry.rank, isHighlighted))}
             >
-              <div className="flex min-h-[32px] items-center gap-1.5">
-                <div className="flex w-4 flex-shrink-0 justify-center">
+              <div className="flex min-h-[44px] items-center gap-2">
+                <div className="flex w-5 flex-shrink-0 justify-center">
                   <RankChange change={entry.rankChange} />
                 </div>
-                <span className="w-5 flex-shrink-0 text-center font-accent text-sm font-bold text-gold">
-                  <CountUp value={entry.rank} />
+                <span className="w-5 flex-shrink-0 text-center font-display text-lg text-primary-theme">
+                  {entry.rank}
                 </span>
                 <PlayerAvatar captain={entry.captain} size={32} className="flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="max-w-[120px] truncate font-semibold leading-tight">
+                  <p className="truncate text-body font-medium">
                     {entry.name}
-                    {entry.points >= 4 && (
-                      <span className="ml-0.5" title={t("on_fire")}>
+                    {isHot && (
+                      <span className="ml-1 text-label" title={t("on_fire")}>
                         🔥
                       </span>
                     )}
                   </p>
                 </div>
                 <div
-                  className="flex flex-shrink-0 items-center"
+                  className="flex flex-shrink-0 items-center gap-1"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <ScoreBreakdownTooltip
-                    breakdown={entry.scoreBreakdown}
-                    size="sm"
-                    badgeClass={pointBadgeClass(entry.points)}
-                  />
+                  <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} size="sm" />
                 </div>
-                <span className="flex-shrink-0 pl-0.5 text-lg text-slate-500" aria-hidden>
-                  ›
-                </span>
               </div>
 
-              <div className="mt-1 flex min-h-[24px] items-center gap-2 pl-[4.75rem]">
-                <span className="truncate text-xs text-muted">{entry.captain}</span>
-                <span className="text-muted">·</span>
-                <span
-                  className={cn(
-                    "flex-shrink-0 rounded-full border px-1.5 py-0.5 font-accent text-[10px] font-bold uppercase tracking-wide",
-                    betBadgeClass(entry.bet)
-                  )}
-                >
-                  {tier}
-                </span>
+              <div className="mt-1 flex items-center gap-2 pl-[4.5rem]">
+                <span className="truncate text-label text-muted">{entry.captain}</span>
+                <span className="text-[10px] uppercase tracking-wide text-muted">{tier}</span>
               </div>
             </motion.div>
           );
         })}
       </div>
 
-      {/* Desktop table */}
+      {/* Desktop */}
       <div className="hidden sm:block">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-body">
           <thead>
-            <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase tracking-wide text-muted light:border-slate-200 light:bg-slate-50">
-              <th className="px-2 py-3 font-accent">{t("rank")}</th>
-              <th className="px-2 py-3">{t("quiniela_name")}</th>
-              <th className="px-2 py-3">{t("captain")}</th>
-              <th className="px-2 py-3">{t("bet")}</th>
-              <th className="px-2 py-3 text-right">{t("points")}</th>
-              <th className="w-8 px-1 py-3" aria-hidden />
+            <tr className="border-b border-border label-caps">
+              <th className="px-3 py-2.5 font-normal">{t("rank")}</th>
+              <th className="px-3 py-2.5 font-normal">{t("quiniela_name")}</th>
+              <th className="px-3 py-2.5 font-normal">{t("captain")}</th>
+              <th className="px-3 py-2.5 font-normal">{t("bet")}</th>
+              <th className="px-3 py-2.5 text-right font-normal">{t("points")}</th>
+              <th className="w-6 px-1 py-2.5" aria-hidden />
             </tr>
           </thead>
           <tbody>
@@ -186,7 +130,8 @@ export default function Leaderboard({
                 highlightSlug === entry.slug ||
                 (activePlayer === entry.captain && !highlightSlug);
               const nav = getRowNavHandlers(entry.slug, router);
-              const tier = getBetTierLabel(entry.bet);
+              const tier = getBetTierAbbrev(entry.bet);
+              const isHot = hotStreakSlug === entry.slug;
 
               return (
                 <motion.tr
@@ -199,37 +144,31 @@ export default function Leaderboard({
                   role="link"
                   tabIndex={0}
                   {...nav}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className={cn(
-                    "min-h-[48px] cursor-pointer border-b border-white/5 transition hover:bg-white/5 light:border-slate-100 light:hover:bg-slate-50",
-                    getRowClass(entry.rank),
-                    isHighlighted && "highlight-row ring-2 ring-inset ring-pitch/50"
-                  )}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.03, duration: 0.15 }}
+                  className={rowClass(entry.rank, isHighlighted)}
                 >
-                  <td className="px-2 py-3">
-                    <div className="flex items-center gap-1">
-                      <div className="w-4 flex-shrink-0">
-                        <RankChange change={entry.rankChange} />
-                      </div>
-                      <span className="w-5 font-accent text-lg font-bold text-gold">
-                        <CountUp value={entry.rank} />
+                  <td className="px-3 py-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <RankChange change={entry.rankChange} />
+                      <span className="font-display text-xl text-primary-theme">
+                        {entry.rank}
                       </span>
                     </div>
                   </td>
-                  <td className="max-w-[200px] px-2 py-3">
+                  <td className="max-w-[200px] px-3 py-2.5">
                     <div className="flex min-w-0 items-center gap-2">
-                      <PlayerAvatar captain={entry.captain} size={32} className="flex-shrink-0" />
+                      <PlayerAvatar captain={entry.captain} size={28} className="flex-shrink-0" />
                       <Link
                         href={`/quiniela/${entry.slug}`}
-                        className="min-w-0 hover:text-pitch"
+                        className="min-w-0 hover:text-accent"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <p className="truncate font-semibold">
+                        <p className="truncate font-medium">
                           {entry.name}
-                          {entry.points >= 4 && (
-                            <span className="ml-1" title={t("on_fire")}>
+                          {isHot && (
+                            <span className="ml-1 text-label" title={t("on_fire")}>
                               🔥
                             </span>
                           )}
@@ -237,28 +176,15 @@ export default function Leaderboard({
                       </Link>
                     </div>
                   </td>
-                  <td className="px-2 py-3">
-                    <span className="text-secondary light:text-slate-600">
-                      {entry.captain}
-                    </span>
+                  <td className="px-3 py-2.5 text-secondary">{entry.captain}</td>
+                  <td className="px-3 py-2.5">
+                    <span className="text-[10px] uppercase tracking-wide text-muted">{tier}</span>
                   </td>
-                  <td className="px-2 py-3">
-                    <span
-                      className={cn(
-                        "inline-block rounded-full border px-2 py-0.5 font-accent text-xs font-bold uppercase tracking-wide",
-                        betBadgeClass(entry.bet)
-                      )}
-                    >
-                      {tier}
-                    </span>
-                  </td>
-                  <td className="px-2 py-3 text-right align-middle">
+                  <td className="px-3 py-2.5 text-right align-middle">
                     <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} />
                   </td>
-                  <td className="px-1 py-3 text-right text-slate-500">
-                    <span aria-hidden className="text-lg">
-                      ›
-                    </span>
+                  <td className="px-1 py-2.5 text-right text-muted">
+                    <span aria-hidden>›</span>
                   </td>
                 </motion.tr>
               );

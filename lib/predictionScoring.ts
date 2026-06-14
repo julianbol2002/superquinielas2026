@@ -83,6 +83,12 @@ export function getBetTierLabel(bet: 25 | 50 | 100): "JUGADOR" | "GOLEADOR" | "M
   return "JUGADOR";
 }
 
+export function getBetTierAbbrev(bet: 25 | 50 | 100): "JUG" | "GOL" | "MVP" {
+  if (bet >= 100) return "MVP";
+  if (bet >= 50) return "GOL";
+  return "JUG";
+}
+
 export function getScoredPredictions(
   slug: string,
   liveMatches: LiveMatch[] = []

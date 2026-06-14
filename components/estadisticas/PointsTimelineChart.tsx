@@ -16,6 +16,12 @@ import {
   getTopSlugs,
   getBottomSlugs,
 } from "@/lib/analytics";
+import {
+  CHART_GRID,
+  chartAxisTick,
+  chartMargin,
+  chartTooltipStyle,
+} from "@/lib/chartTheme";
 
 type FilterMode = "all" | "top5" | "bottom5";
 
@@ -39,14 +45,14 @@ export default function PointsTimelineChart({
 
   if (snapshot.playedCount === 0) {
     return (
-      <p className="py-8 text-center text-sm text-slate-400">
+      <p className="py-8 text-center text-body text-muted">
         Aún no hay partidos jugados para mostrar la línea de tiempo.
       </p>
     );
   }
 
   return (
-    <div>
+    <div className="animate-[fade-in_400ms_ease-out]">
       <div className="mb-3 flex flex-wrap gap-2">
         {(
           [
@@ -58,10 +64,10 @@ export default function PointsTimelineChart({
           <button
             key={key}
             onClick={() => setFilter(key)}
-            className={`rounded-full px-3 py-1 text-xs font-medium ${
+            className={`min-h-[44px] border px-3 py-1 text-label font-medium transition-colors duration-150 ${
               filter === key
-                ? "bg-pitch text-black"
-                : "bg-white/10 text-slate-400"
+                ? "border-accent bg-accent text-black"
+                : "border-border bg-surface text-muted hover:bg-hover"
             }`}
           >
             {label}
@@ -70,21 +76,12 @@ export default function PointsTimelineChart({
       </div>
       <div className="h-[320px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff15" />
-            <XAxis
-              dataKey="match"
-              tick={{ fill: "#94a3b8", fontSize: 10 }}
-              label={{ value: "Partido", position: "insideBottom", offset: -2, fill: "#94a3b8" }}
-            />
-            <YAxis tick={{ fill: "#94a3b8", fontSize: 10 }} width={32} />
+          <LineChart data={data} margin={chartMargin}>
+            <CartesianGrid stroke={CHART_GRID} strokeWidth={0.5} vertical={false} />
+            <XAxis dataKey="match" tick={chartAxisTick} interval={4} />
+            <YAxis tick={chartAxisTick} width={32} interval={4} />
             <Tooltip
-              contentStyle={{
-                background: "#1a2234",
-                border: "1px solid #ffffff20",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
+              contentStyle={chartTooltipStyle}
               labelFormatter={(m) => `Partido ${m}`}
               formatter={(value, name) => {
                 const slug = String(name);
@@ -100,10 +97,9 @@ export default function PointsTimelineChart({
                 type="monotone"
                 dataKey={slug}
                 stroke={snapshot.colors[slug]}
-                strokeWidth={2}
+                strokeWidth={1.5}
                 dot={false}
-                animationDuration={1500}
-                animationBegin={0}
+                isAnimationActive={false}
               />
             ))}
           </LineChart>

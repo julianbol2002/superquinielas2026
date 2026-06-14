@@ -73,6 +73,17 @@ export function getLivePredictorsForMatch(
   };
 }
 
+export function formatPredictorNameList(
+  entries: LivePredictorEntry[],
+  maxVisible = 2
+): { names: string[]; overflow: number } {
+  const all = entries.map((e) => e.name);
+  return {
+    names: all.slice(0, maxVisible),
+    overflow: Math.max(0, all.length - maxVisible),
+  };
+}
+
 export interface ShowLivePredictorsOptions {
   liveMatch?: LiveMatch | null;
   /** ISO timestamp when the result was saved or the match ended */

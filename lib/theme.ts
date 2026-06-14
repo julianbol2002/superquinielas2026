@@ -12,8 +12,8 @@ export const COLORWAY_OPTIONS: ColorwayOption[] = [
   {
     id: "classic",
     labelKey: "colorway_classic",
-    swatch: "#00D084",
-    swatchAlt: "#FFD700",
+    swatch: "#00FF87",
+    swatchAlt: "#F5C518",
   },
   {
     id: "ocean",

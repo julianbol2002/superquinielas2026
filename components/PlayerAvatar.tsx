@@ -28,7 +28,7 @@ export default function PlayerAvatar({
         alt={captain}
         width={size}
         height={size}
-        className={cn("rounded-full object-cover ring-2 ring-pitch/30", className)}
+        className={cn("rounded-full border border-white/80 object-cover", className)}
         style={{ width: size, height: size }}
         onError={() => setError(true)}
         unoptimized
@@ -39,10 +39,10 @@ export default function PlayerAvatar({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full bg-gradient-to-br from-pitch/30 to-stadium-card font-accent font-bold text-pitch ring-2 ring-pitch/20",
+        "flex items-center justify-center rounded-full border border-white/80 bg-surface text-label font-medium text-secondary",
         className
       )}
-      style={{ width: size, height: size, fontSize: size * 0.35 }}
+      style={{ width: size, height: size, fontSize: size * 0.34 }}
     >
       {getInitials(captain)}
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 export default function RankChange({ change }: { change: number }) {
@@ -8,7 +7,7 @@ export default function RankChange({ change }: { change: number }) {
 
   if (change === 0) {
     return (
-      <span className="font-accent text-xs text-slate-500" title={t("no_change")}>
+      <span className="text-[10px] text-muted" title={t("no_change")}>
         —
       </span>
     );
@@ -17,16 +16,14 @@ export default function RankChange({ change }: { change: number }) {
   const up = change > 0;
 
   return (
-    <motion.span
-      initial={{ opacity: 0, y: up ? 10 : -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`inline-flex items-center gap-0.5 font-accent text-sm font-bold ${
-        up ? "text-pitch" : "text-red-400"
+    <span
+      className={`inline-flex items-center text-[10px] ${
+        up ? "text-secondary" : "text-muted"
       }`}
       title={`${Math.abs(change)} ${up ? t("positions_up") : t("positions_down")}`}
     >
       {up ? "↑" : "↓"}
       {Math.abs(change)}
-    </motion.span>
+    </span>
   );
 }

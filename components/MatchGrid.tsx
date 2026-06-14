@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { motion } from "framer-motion";
 import {
   worldCupGroups,
   computeStandings,
@@ -20,7 +19,6 @@ import {
 import { useLiveScores } from "@/hooks/useLiveScores";
 import { shouldShowLivePredictors } from "@/lib/livePredictors";
 import { PLAYED_MATCH_RESULTS } from "@/data/tournamentResults";
-import { cn } from "@/lib/utils";
 import FlagChip, { TeamFlagCell } from "./FlagChip";
 import LivePredictorsPanel from "./LivePredictorsPanel";
 
@@ -179,22 +177,21 @@ export default function MatchGrid() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-4 md:px-0">
         <div>
-          <h1 className="font-display text-3xl tracking-wide">{t("matches")}</h1>
+          <h1 className="font-display text-2xl tracking-wide text-primary-theme">{t("matches")}</h1>
           {liveData?.lastUpdated && (
-            <p className="mt-1 text-xs text-muted">
+            <p className="mt-1 text-label text-muted">
               {t("last_updated")}: {formatLastUpdated(liveData.lastUpdated, locale)}
-              <span className="ml-2 text-pitch">• {t("live_sync")}</span>
             </p>
           )}
         </div>
         <button
           onClick={() => setAdminMode(!adminMode)}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+          className={`min-h-[44px] border px-3 py-1.5 text-label font-medium transition-colors ${
             adminMode
-              ? "bg-pitch text-black"
-              : "bg-white/10 text-slate-300 light:bg-slate-200 light:text-slate-700"
+              ? "border-accent bg-accent text-black"
+              : "border-border bg-surface text-secondary hover:bg-hover"
           }`}
         >
           {t("admin_mode")}
@@ -217,7 +214,7 @@ export default function MatchGrid() {
           ))}
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 px-4 md:grid-cols-2 md:px-0">
           {worldCupGroups.map((group, gi) => (
             <GroupCard
               key={group.name}
@@ -289,13 +286,8 @@ function GroupCard({
   const standings = computeStandings(group, groupResults);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white light:shadow-sm"
-    >
-      <h2 className="mb-3 font-display text-xl text-pitch">
+    <div className="border border-border bg-surface p-4 md:rounded">
+      <h2 className="mb-3 label-caps">
         {t("group")} {group.name}
       </h2>
 
@@ -325,7 +317,7 @@ function GroupCard({
           </thead>
           <tbody>
             {standings.map((row, i) => (
-              <tr key={row.team} className="border-t border-white/5 light:border-slate-100">
+              <tr key={row.team} className="border-t border-border">
                 <td className="py-1.5 pr-1">{i + 1}</td>
                 <td className="py-1.5">
                   <div className="flex min-w-[88px] items-center gap-1.5">
@@ -341,7 +333,7 @@ function GroupCard({
                 <td className="px-1 py-1.5 text-center">{row.lost}</td>
                 <td className="px-1 py-1.5 text-center">{row.gf}</td>
                 <td className="px-1 py-1.5 text-center">{row.ga}</td>
-                <td className="px-1 py-1.5 text-center font-bold text-pitch">
+                <td className="px-1 py-1.5 text-center font-medium text-gold">
                   {row.pts}
                 </td>
               </tr>
@@ -368,7 +360,7 @@ function GroupCard({
           />
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -431,18 +423,11 @@ function FixtureRow({
     });
 
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg",
-        match?.isLive
-          ? "border border-pitch/30 bg-pitch/5 light:bg-pitch/10"
-          : "bg-white/5 light:bg-slate-50"
-      )}
-    >
-      <div className="flex items-center gap-1 px-2 py-2 text-sm sm:gap-2">
-        <div className="flex min-w-0 flex-1 items-center gap-1">
+    <div className="overflow-hidden border border-border bg-surface">
+      <div className="flex min-h-[44px] items-center gap-2 px-3 py-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5">
           <FlagChip country={team1} size={14} className="shrink-0" />
-          <span className="text-[11px] font-medium leading-tight text-secondary sm:text-xs">
+          <span className="truncate text-label text-secondary">
             {getCountryDisplayName(team1, true)}
           </span>
         </div>
@@ -455,46 +440,43 @@ function FixtureRow({
               max={20}
               value={s1}
               onChange={(e) => setS1(Number(e.target.value))}
-              className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
+              className="w-10 border border-border bg-page px-1 py-1 text-center text-body"
             />
-            <span>-</span>
+            <span className="text-muted">-</span>
             <input
               type="number"
               min={0}
               max={20}
               value={s2}
               onChange={(e) => setS2(Number(e.target.value))}
-              className="w-10 rounded bg-stadium-dark px-1 py-0.5 text-center text-base light:border light:border-slate-200 light:bg-white"
+              className="w-10 border border-border bg-page px-1 py-1 text-center text-body"
             />
             <button
               onClick={() => onSave(group, team1, team2, s1, s2)}
-              className="ml-1 rounded bg-pitch px-2 py-0.5 text-xs font-bold text-black"
+              className="ml-1 border border-accent bg-accent px-2 py-1 text-label font-medium text-black"
             >
               {t("save_score")}
             </button>
           </div>
         ) : (
-          <div className="flex shrink-0 flex-col items-center px-1">
+          <div className="flex shrink-0 flex-col items-center px-2">
             {match?.isLive && (
-              <span className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-pitch">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pitch opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-pitch" />
-                </span>
+              <span className="mb-0.5 inline-flex items-center gap-1 text-[10px] font-medium uppercase text-accent">
+                <span className="live-dot" aria-hidden />
                 {t("live_badge")}
               </span>
             )}
-            <span className="font-accent text-base font-bold tabular-nums sm:text-lg">
+            <span className="font-display text-2xl tabular-nums text-primary-theme">
               {displayScore}
             </span>
             {match?.displayClock && match.isLive && (
-              <span className="text-[10px] text-pitch">{match.displayClock}</span>
+              <span className="text-[10px] text-muted">{match.displayClock}</span>
             )}
           </div>
         )}
 
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
-          <span className="text-right text-[11px] font-medium leading-tight text-secondary sm:text-xs">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
+          <span className="truncate text-right text-label text-secondary">
             {getCountryDisplayName(team2, true)}
           </span>
           <FlagChip country={team2} size={14} className="shrink-0" />
