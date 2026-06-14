@@ -10,16 +10,21 @@ interface PlayerAvatarProps {
   captain: string;
   size?: number;
   className?: string;
+  ringColor?: string;
 }
 
 export default function PlayerAvatar({
   captain,
   size = 48,
   className,
+  ringColor,
 }: PlayerAvatarProps) {
   const slug = captainToSlug(captain);
   const avatarUrl = getAvatarUrl(slug);
   const [error, setError] = useState(false);
+  const borderStyle = ringColor
+    ? { borderColor: ringColor, borderWidth: 2 }
+    : { borderColor: "rgba(255,255,255,0.8)", borderWidth: 1 };
 
   if (avatarUrl && !error) {
     return (
@@ -28,8 +33,8 @@ export default function PlayerAvatar({
         alt={captain}
         width={size}
         height={size}
-        className={cn("rounded-full border border-white/80 object-cover", className)}
-        style={{ width: size, height: size }}
+        className={cn("rounded-full border object-cover", className)}
+        style={{ width: size, height: size, ...borderStyle }}
         onError={() => setError(true)}
         unoptimized
       />
@@ -39,10 +44,15 @@ export default function PlayerAvatar({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full border border-white/80 bg-surface text-label font-medium text-secondary",
+        "flex items-center justify-center rounded-full border bg-surface text-label font-medium text-secondary",
         className
       )}
-      style={{ width: size, height: size, fontSize: size * 0.34 }}
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.34,
+        ...borderStyle,
+      }}
     >
       {getInitials(captain)}
     </div>

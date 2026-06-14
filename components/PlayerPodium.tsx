@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
 import { Link } from "@/i18n/routing";
+import { PODIUM_PLACE_STYLES } from "@/lib/rankStyles";
 import { cn } from "@/lib/utils";
 import PlayerAvatar from "./PlayerAvatar";
 
@@ -10,8 +11,7 @@ interface PlayerPodiumProps {
   entries: RankedQuiniela[];
 }
 
-const podiumOrder = [1, 0, 2];
-const barHeights = ["h-12", "h-16", "h-10"];
+const podiumOrder = [1, 0, 2] as const;
 
 export default function PlayerPodium({ entries }: PlayerPodiumProps) {
   const t = useTranslations();
@@ -21,38 +21,48 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
   return (
     <section className="mb-5 px-4 md:px-0">
       <h2 className="mb-3 label-caps">{t("podium_title")}</h2>
-      <div className="flex items-end justify-center gap-3 md:gap-8">
-        {podiumOrder.map((idx, visualIdx) => {
+      <div className="flex items-end justify-center gap-2 md:gap-4">
+        {podiumOrder.map((idx) => {
           const entry = top3[idx];
-          const isFirst = entry.rank === 1;
+          const place = entry.rank as 1 | 2 | 3;
+          const styles = PODIUM_PLACE_STYLES[place];
 
           return (
-            <div
+            <Link
               key={entry.slug}
-              className="flex max-w-[110px] flex-col items-center md:max-w-[140px]"
+              href={`/quiniela/${entry.slug}`}
+              className={cn(
+                "flex w-[30%] max-w-[120px] flex-col items-center border-l-[3px] px-2 py-3 md:max-w-[140px]",
+                styles.minHeight
+              )}
+              style={{
+                borderLeftColor: styles.border,
+                backgroundColor: styles.bg,
+              }}
             >
-              <Link
-                href={`/quiniela/${entry.slug}`}
-                className="group flex flex-col items-center"
+              <span
+                className="font-display text-lg leading-none"
+                style={{ color: styles.border }}
               >
-                <PlayerAvatar
-                  captain={entry.captain}
-                  size={visualIdx === 1 ? 48 : 40}
-                />
-                <p className="mt-2 line-clamp-2 text-center text-body font-medium group-hover:text-accent">
-                  {entry.name}
-                </p>
-                <p className="truncate text-label text-muted">{entry.captain}</p>
-                <p className="mt-1 font-display text-2xl text-gold">{entry.points}</p>
-              </Link>
-              <div
-                className={cn(
-                  "mt-2 w-16 border border-border bg-surface md:w-24",
-                  barHeights[visualIdx],
-                  isFirst && "rank-accent-bar"
-                )}
+                {entry.rank}
+              </span>
+              <PlayerAvatar
+                captain={entry.captain}
+                size={place === 1 ? 48 : 40}
+                ringColor={styles.border}
+                className="mt-2"
               />
-            </div>
+              <p className="mt-2 line-clamp-2 text-center text-body font-bold text-[#f0f0f0]">
+                {entry.name}
+              </p>
+              <p className="truncate text-label text-captain">{entry.captain}</p>
+              <p
+                className="mt-1 font-display text-2xl"
+                style={{ color: styles.border }}
+              >
+                {entry.points}
+              </p>
+            </Link>
           );
         })}
       </div>

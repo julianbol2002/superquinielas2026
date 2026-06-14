@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
 import { getQuinielasByCaptain, quinielaToSlug } from "@/data/quinielas";
+import { cn } from "@/lib/utils";
 import PlayerAvatar from "./PlayerAvatar";
 
 const navLinks = [
@@ -15,8 +16,14 @@ const navLinks = [
   { href: "/ajustes", labelKey: "nav_settings" as const },
 ];
 
+function isNavActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname.startsWith(href);
+}
+
 export default function Header() {
   const t = useTranslations();
+  const pathname = usePathname();
   const activePlayer = useAppStore((s) => s.activePlayer);
 
   return (
@@ -37,15 +44,21 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-body text-secondary transition-colors hover:text-accent"
-            >
-              {t(link.labelKey)}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = isNavActive(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "relative pb-0.5 text-body transition-colors hover:text-accent",
+                  active ? "nav-link-active" : "text-secondary"
+                )}
+              >
+                {t(link.labelKey)}
+              </Link>
+            );
+          })}
         </nav>
 
         {activePlayer && (() => {

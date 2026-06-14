@@ -6,9 +6,9 @@ import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
 import { Link, useRouter } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
-import { getBetTierAbbrev } from "@/lib/predictionScoring";
+import { rankNumberClass } from "@/lib/rankStyles";
 import { cn } from "@/lib/utils";
-import CountUp from "./CountUp";
+import BetTierBadge from "./BetTierBadge";
 import RankChange from "./RankChange";
 import PlayerAvatar from "./PlayerAvatar";
 import ScoreBreakdownTooltip from "./ScoreBreakdownTooltip";
@@ -57,7 +57,6 @@ export default function Leaderboard({
             highlightSlug === entry.slug ||
             (activePlayer === entry.captain && !highlightSlug);
           const nav = getRowNavHandlers(entry.slug, router);
-          const tier = getBetTierAbbrev(entry.bet);
           const isHot = hotStreakSlug === entry.slug;
 
           return (
@@ -80,12 +79,17 @@ export default function Leaderboard({
                 <div className="flex w-5 flex-shrink-0 justify-center">
                   <RankChange change={entry.rankChange} />
                 </div>
-                <span className="w-5 flex-shrink-0 text-center font-display text-lg text-primary-theme">
+                <span
+                  className={cn(
+                    "w-5 flex-shrink-0 text-center font-display text-lg",
+                    rankNumberClass(entry.rank)
+                  )}
+                >
                   {entry.rank}
                 </span>
                 <PlayerAvatar captain={entry.captain} size={32} className="flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-medium">
+                  <p className="truncate text-body font-medium text-[#f0f0f0] transition-colors hover:text-accent">
                     {entry.name}
                     {isHot && (
                       <span className="ml-1 text-label" title={t("on_fire")}>
@@ -103,8 +107,8 @@ export default function Leaderboard({
               </div>
 
               <div className="mt-1 flex items-center gap-2 pl-[4.5rem]">
-                <span className="truncate text-label text-muted">{entry.captain}</span>
-                <span className="text-[10px] uppercase tracking-wide text-muted">{tier}</span>
+                <span className="truncate text-label text-captain">{entry.captain}</span>
+                <BetTierBadge bet={entry.bet} />
               </div>
             </motion.div>
           );
@@ -130,7 +134,6 @@ export default function Leaderboard({
                 highlightSlug === entry.slug ||
                 (activePlayer === entry.captain && !highlightSlug);
               const nav = getRowNavHandlers(entry.slug, router);
-              const tier = getBetTierAbbrev(entry.bet);
               const isHot = hotStreakSlug === entry.slug;
 
               return (
@@ -152,7 +155,9 @@ export default function Leaderboard({
                   <td className="px-3 py-2.5">
                     <div className="flex items-center gap-1.5">
                       <RankChange change={entry.rankChange} />
-                      <span className="font-display text-xl text-primary-theme">
+                      <span
+                        className={cn("font-display text-xl", rankNumberClass(entry.rank))}
+                      >
                         {entry.rank}
                       </span>
                     </div>
@@ -162,7 +167,7 @@ export default function Leaderboard({
                       <PlayerAvatar captain={entry.captain} size={28} className="flex-shrink-0" />
                       <Link
                         href={`/quiniela/${entry.slug}`}
-                        className="min-w-0 hover:text-accent"
+                        className="min-w-0 text-[#f0f0f0] transition-colors hover:text-accent"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <p className="truncate font-medium">
@@ -176,9 +181,9 @@ export default function Leaderboard({
                       </Link>
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-secondary">{entry.captain}</td>
+                  <td className="px-3 py-2.5 text-captain">{entry.captain}</td>
                   <td className="px-3 py-2.5">
-                    <span className="text-[10px] uppercase tracking-wide text-muted">{tier}</span>
+                    <BetTierBadge bet={entry.bet} />
                   </td>
                   <td className="px-3 py-2.5 text-right align-middle">
                     <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} />

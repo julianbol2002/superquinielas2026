@@ -18,6 +18,7 @@ import {
 } from "@/lib/liveScores";
 import { useLiveScores } from "@/hooks/useLiveScores";
 import { shouldShowLivePredictors } from "@/lib/livePredictors";
+import { getGroupBorderColor } from "@/lib/groupColors";
 import { PLAYED_MATCH_RESULTS } from "@/data/tournamentResults";
 import FlagChip, { TeamFlagCell } from "./FlagChip";
 import LivePredictorsPanel from "./LivePredictorsPanel";
@@ -287,7 +288,10 @@ function GroupCard({
 
   return (
     <div className="border border-border bg-surface p-4 md:rounded">
-      <h2 className="mb-3 label-caps">
+      <h2
+        className="mb-3 inline-block border-l-[3px] bg-[#1a1a1a] px-2 py-1 label-caps"
+        style={{ borderLeftColor: getGroupBorderColor(group.name) }}
+      >
         {t("group")} {group.name}
       </h2>
 
@@ -364,6 +368,32 @@ function GroupCard({
   );
 }
 
+function CompletedMatchScore({
+  score1,
+  score2,
+}: {
+  score1: number;
+  score2: number;
+}) {
+  if (score1 === score2) {
+    return (
+      <span className="font-display text-2xl tabular-nums text-[#f5c518]">
+        {score1} - {score2}
+      </span>
+    );
+  }
+
+  const team1Wins = score1 > score2;
+
+  return (
+    <span className="font-display text-2xl tabular-nums">
+      <span className={team1Wins ? "text-accent" : "text-[#666666]"}>{score1}</span>
+      <span className="text-muted"> - </span>
+      <span className={!team1Wins ? "text-accent" : "text-[#666666]"}>{score2}</span>
+    </span>
+  );
+}
+
 function FixtureRow({
   team1,
   team2,
@@ -411,6 +441,11 @@ function FixtureRow({
     match?.score1 != null && match?.score2 != null
       ? `${match.score1} - ${match.score2}`
       : "—";
+
+  const isCompleted =
+    match?.score1 != null &&
+    match?.score2 != null &&
+    !match.isLive;
 
   const showPredictors =
     !adminMode &&
@@ -466,9 +501,16 @@ function FixtureRow({
                 {t("live_badge")}
               </span>
             )}
-            <span className="font-display text-2xl tabular-nums text-primary-theme">
-              {displayScore}
-            </span>
+            {isCompleted ? (
+              <CompletedMatchScore
+                score1={match!.score1!}
+                score2={match!.score2!}
+              />
+            ) : (
+              <span className="font-display text-2xl tabular-nums text-primary-theme">
+                {displayScore}
+              </span>
+            )}
             {match?.displayClock && match.isLive && (
               <span className="text-[10px] text-muted">{match.displayClock}</span>
             )}

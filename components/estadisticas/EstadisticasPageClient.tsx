@@ -74,7 +74,7 @@ export default function EstadisticasPageClient() {
 
       <Section title={t("stats_rank_movement")}>
         <Suspense fallback={<ChartSkeleton />}>
-          <RankBumpChart snapshot={snapshot} mobile={mobile} />
+          <RankBumpChart snapshot={snapshot} />
         </Suspense>
       </Section>
 

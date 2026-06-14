@@ -15,6 +15,7 @@ import {
   scoreMatchPrediction,
 } from "@/lib/quinielaScoring";
 import type { LiveMatch } from "@/lib/liveScores";
+import { buildQuinielaColorMap } from "@/lib/chartColors";
 
 export type AccuracyCell = "exact" | "result" | "wrong" | "pending";
 
@@ -96,15 +97,6 @@ export interface AnalyticsSnapshot {
   summary: SummaryCallout[];
   colors: Record<string, string>;
 }
-
-const CHART_COLORS = [
-  "#00D084", "#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1",
-  "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F",
-  "#BB8FCE", "#85C1E9", "#F8B500", "#E74C3C", "#2ECC71",
-  "#9B59B6", "#1ABC9C", "#E67E22", "#3498DB", "#16A085",
-  "#C0392B", "#8E44AD", "#27AE60", "#2980B9", "#F39C12",
-  "#D35400", "#7F8C8D",
-];
 
 const COUNTRY_KIT_COLORS: Record<string, string> = {
   Spain: "#C60B1E",
@@ -565,10 +557,9 @@ export function buildAnalytics(liveMatches: LiveMatch[] = []): AnalyticsSnapshot
     },
   ];
 
-  const colors: Record<string, string> = {};
-  quinielas.forEach((q, i) => {
-    colors[quinielaToSlug(q.name)] = CHART_COLORS[i % CHART_COLORS.length];
-  });
+  const colors = buildQuinielaColorMap(
+    Object.fromEntries(slugs.map((slug, i) => [slug, names[slug] ?? quinielas[i]?.name ?? slug]))
+  );
 
   return {
     matches,

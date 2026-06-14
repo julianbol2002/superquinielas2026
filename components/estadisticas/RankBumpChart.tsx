@@ -3,41 +3,45 @@
 import { useMemo } from "react";
 import {
   LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { type AnalyticsSnapshot, getBumpChartData } from "@/lib/analytics";
+import { CHART_GRID, chartAxisTick, chartTooltipStyle } from "@/lib/chartTheme";
+import ChartQuinielaFilter, {
+  useChartQuinielaFilter,
+} from "./ChartQuinielaFilter";
 import {
-  type AnalyticsSnapshot,
-  getBumpChartData,
-  getTopSlugs,
-} from "@/lib/analytics";
-import {
-  CHART_GRID,
-  chartAxisTick,
-  chartMargin,
-  chartTooltipStyle,
-} from "@/lib/chartTheme";
+  FilteredQuinielaLines,
+  chartMarginWithLabels,
+} from "./FilteredQuinielaLines";
 
 export default function RankBumpChart({
   snapshot,
-  mobile,
 }: {
   snapshot: AnalyticsSnapshot;
-  mobile?: boolean;
 }) {
-  const slugs = useMemo(
-    () => (mobile ? getTopSlugs(snapshot, 10) : snapshot.quinielaSlugs),
-    [mobile, snapshot]
-  );
+  const {
+    mode,
+    setMode,
+    slugs,
+    hoveredSlug,
+    setHoveredSlug,
+    customSlugs,
+    toggleCustomSlug,
+    pickerOpen,
+    setPickerOpen,
+  } = useChartQuinielaFilter(snapshot);
 
   const data = useMemo(
     () => getBumpChartData(snapshot, slugs),
     [snapshot, slugs]
   );
+
+  const showLabels = mode !== "all" && slugs.length > 0;
 
   if (snapshot.playedCount < 2) {
     return (
@@ -47,48 +51,48 @@ export default function RankBumpChart({
     );
   }
 
-  function lineColor(slug: string): string {
-    const ranks = snapshot.ranksOverTime[slug] ?? [];
-    if (ranks.length < 2) return "var(--text-muted)";
-    const delta = ranks[0] - ranks[ranks.length - 1];
-    if (delta > 0) return "var(--accent)";
-    if (delta < 0) return "var(--red)";
-    return "var(--text-muted)";
-  }
-
   return (
-    <div className="h-[340px] w-full animate-[fade-in_400ms_ease-out]">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={chartMargin}>
-          <CartesianGrid stroke={CHART_GRID} strokeWidth={0.5} vertical={false} />
-          <XAxis dataKey="match" tick={chartAxisTick} interval={4} />
-          <YAxis
-            reversed
-            domain={[1, snapshot.quinielaSlugs.length]}
-            tick={chartAxisTick}
-            width={28}
-            interval={4}
-          />
-          <Tooltip
-            contentStyle={chartTooltipStyle}
-            formatter={(value, name) => [
-              `#${value}`,
-              snapshot.quinielaNames[String(name)],
-            ]}
-          />
-          {slugs.map((slug) => (
-            <Line
-              key={slug}
-              type="monotone"
-              dataKey={slug}
-              stroke={lineColor(slug)}
-              strokeWidth={1.5}
-              dot={false}
-              isAnimationActive={false}
+    <div className="animate-[fade-in_400ms_ease-out]">
+      <ChartQuinielaFilter
+        snapshot={snapshot}
+        mode={mode}
+        onModeChange={setMode}
+        customSlugs={customSlugs}
+        onToggleCustom={toggleCustomSlug}
+        pickerOpen={pickerOpen}
+        onPickerOpenChange={setPickerOpen}
+      />
+      <div className="h-[340px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={chartMarginWithLabels}>
+            <CartesianGrid stroke={CHART_GRID} strokeWidth={0.5} vertical={false} />
+            <XAxis dataKey="match" tick={chartAxisTick} interval={4} />
+            <YAxis
+              reversed
+              domain={[1, snapshot.quinielaSlugs.length]}
+              tick={chartAxisTick}
+              width={28}
+              interval={4}
             />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+            <Tooltip
+              contentStyle={chartTooltipStyle}
+              formatter={(value, name) => [
+                `#${value}`,
+                snapshot.quinielaNames[String(name)],
+              ]}
+            />
+            <FilteredQuinielaLines
+              snapshot={snapshot}
+              slugs={slugs}
+              dataLength={data.length}
+              mode={mode}
+              hoveredSlug={hoveredSlug}
+              onHover={setHoveredSlug}
+              showLabels={showLabels}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

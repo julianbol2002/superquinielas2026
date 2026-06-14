@@ -20,6 +20,11 @@ const tabs: { href: string; icon: LucideIcon; labelKey: "nav_home" | "nav_matche
   { href: "/ajustes", icon: Settings, labelKey: "nav_settings" },
 ];
 
+function isNavActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname.startsWith(href);
+}
+
 export default function BottomNav() {
   const t = useTranslations();
   const pathname = usePathname();
@@ -28,10 +33,7 @@ export default function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border bg-page safe-bottom md:hidden">
       <div className="flex h-14 items-stretch">
         {tabs.map((tab) => {
-          const active =
-            tab.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(tab.href);
+          const active = isNavActive(pathname, tab.href);
           const Icon = tab.icon;
           return (
             <Link
@@ -44,7 +46,14 @@ export default function BottomNav() {
                 strokeWidth={1.75}
                 className={cn(active ? "text-accent" : "text-muted")}
               />
-              <span className="text-[11px] text-muted">{t(tab.labelKey)}</span>
+              <span
+                className={cn(
+                  "relative text-[11px]",
+                  active ? "nav-link-active" : "text-muted"
+                )}
+              >
+                {t(tab.labelKey)}
+              </span>
             </Link>
           );
         })}
