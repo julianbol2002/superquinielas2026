@@ -38,7 +38,7 @@ export default function Header() {
             priority
             className="flex-shrink-0"
           />
-          <span className="font-display text-xl tracking-wide text-primary-theme md:text-2xl">
+          <span className="font-display text-xl tracking-wide text-heading md:text-2xl">
             {t("site_name")}
           </span>
         </Link>

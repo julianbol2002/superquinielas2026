@@ -37,10 +37,10 @@ function StatCard({
   return (
     <div className="flex h-20 max-h-20 min-w-[148px] flex-shrink-0 snap-start flex-col justify-center border border-border bg-surface px-3 py-2">
       <div className="flex items-center gap-1.5 label-caps">
-        <Icon size={12} strokeWidth={1.75} className="text-muted" />
+        <Icon size={12} strokeWidth={1.75} className="text-accent-soft" />
         <span className="truncate">{label}</span>
       </div>
-      <p className="mt-1 truncate text-body font-medium text-primary-theme">{value}</p>
+      <p className="mt-1 truncate text-body font-medium text-heading">{value}</p>
       <p className="truncate text-label text-muted">{sub}</p>
     </div>
   );

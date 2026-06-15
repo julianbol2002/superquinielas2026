@@ -74,7 +74,7 @@ export default function LiveScoresPanel() {
             >
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <FlagChip country={match.team1} size={16} />
-                <span className="truncate text-body font-medium text-primary-theme">
+                <span className="truncate text-body font-medium text-name">
                   {getCountryDisplayName(match.team1, true)}
                 </span>
               </div>
@@ -84,7 +84,7 @@ export default function LiveScoresPanel() {
                   <span className="live-dot" aria-hidden />
                   {t("live_badge")}
                 </span>
-                <span className="font-display text-2xl tabular-nums">
+                <span className="font-display text-2xl tabular-nums text-accent">
                   {match.score1} - {match.score2}
                 </span>
                 {match.displayClock && (
@@ -93,7 +93,7 @@ export default function LiveScoresPanel() {
               </div>
 
               <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-                <span className="truncate text-right text-body font-medium text-primary-theme">
+                <span className="truncate text-right text-body font-medium text-name">
                   {getCountryDisplayName(match.team2, true)}
                 </span>
                 <FlagChip country={match.team2} size={16} />
@@ -120,7 +120,7 @@ export default function LiveScoresPanel() {
                     <FlagChip country={match.team1} size={12} />
                     <FlagChip country={match.team2} size={12} />
                   </div>
-                  <span className="font-display text-lg tabular-nums">
+                  <span className="font-display text-lg tabular-nums text-section">
                     {match.score1} - {match.score2}
                   </span>
                   {match.group && (

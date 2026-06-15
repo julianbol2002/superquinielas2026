@@ -180,7 +180,7 @@ export default function MatchGrid() {
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 px-4 md:px-0">
         <div>
-          <h1 className="font-display text-2xl tracking-wide text-primary-theme">{t("matches")}</h1>
+          <h1 className="font-display text-2xl tracking-wide text-heading">{t("matches")}</h1>
           {liveData?.lastUpdated && (
             <p className="mt-1 text-label text-muted">
               {t("last_updated")}: {formatLastUpdated(liveData.lastUpdated, locale)}

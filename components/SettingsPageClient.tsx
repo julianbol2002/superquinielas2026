@@ -49,7 +49,7 @@ export default function SettingsPageClient() {
 
   return (
     <div className="px-4 pb-8 md:px-0">
-      <h1 className="mb-6 font-display text-2xl tracking-wide text-primary-theme">
+      <h1 className="mb-6 font-display text-2xl tracking-wide text-heading">
         {t("settings")}
       </h1>
 

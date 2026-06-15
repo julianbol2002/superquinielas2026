@@ -89,7 +89,7 @@ export default function Leaderboard({
                 </span>
                 <PlayerAvatar captain={entry.captain} size={32} className="flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-medium text-[#f0f0f0] transition-colors hover:text-accent">
+                  <p className="truncate text-body font-medium text-name transition-colors hover:text-accent">
                     {entry.name}
                     {isHot && (
                       <span className="ml-1 text-label" title={t("on_fire")}>
@@ -167,7 +167,7 @@ export default function Leaderboard({
                       <PlayerAvatar captain={entry.captain} size={28} className="flex-shrink-0" />
                       <Link
                         href={`/quiniela/${entry.slug}`}
-                        className="min-w-0 text-[#f0f0f0] transition-colors hover:text-accent"
+                        className="min-w-0 text-name transition-colors hover:text-accent"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <p className="truncate font-medium">

@@ -11,6 +11,7 @@ interface PlayerPodiumProps {
   entries: RankedQuiniela[];
 }
 
+/** Visual order: 2nd — 1st — 3rd */
 const podiumOrder = [1, 0, 2] as const;
 
 export default function PlayerPodium({ entries }: PlayerPodiumProps) {
@@ -20,7 +21,7 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
 
   return (
     <section className="mb-5 px-4 md:px-0">
-      <h2 className="mb-3 label-caps">{t("podium_title")}</h2>
+      <h2 className="mb-4 label-caps">{t("podium_title")}</h2>
       <div className="flex items-end justify-center gap-2 md:gap-4">
         {podiumOrder.map((idx) => {
           const entry = top3[idx];
@@ -28,41 +29,56 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
           const styles = PODIUM_PLACE_STYLES[place];
 
           return (
-            <Link
+            <div
               key={entry.slug}
-              href={`/quiniela/${entry.slug}`}
-              className={cn(
-                "flex w-[30%] max-w-[120px] flex-col items-center border-l-[3px] px-2 py-3 md:max-w-[140px]",
-                styles.minHeight
-              )}
-              style={{
-                borderLeftColor: styles.border,
-                backgroundColor: styles.bg,
-              }}
+              className="flex w-[30%] max-w-[120px] flex-col md:max-w-[140px]"
             >
-              <span
-                className="font-display text-lg leading-none"
-                style={{ color: styles.border }}
+              <Link
+                href={`/quiniela/${entry.slug}`}
+                className={cn(
+                  "flex flex-col items-center border border-b-0 border-border px-2 py-3 transition-colors hover:bg-hover",
+                  place === 1 && "pb-4"
+                )}
+                style={{
+                  borderLeftWidth: 3,
+                  borderLeftColor: styles.border,
+                  backgroundColor: styles.bg,
+                }}
               >
-                {entry.rank}
-              </span>
-              <PlayerAvatar
-                captain={entry.captain}
-                size={place === 1 ? 48 : 40}
-                ringColor={styles.border}
-                className="mt-2"
+                <span
+                  className="font-display text-lg leading-none"
+                  style={{ color: styles.border }}
+                >
+                  {entry.rank}
+                </span>
+                <PlayerAvatar
+                  captain={entry.captain}
+                  size={place === 1 ? 52 : place === 2 ? 44 : 40}
+                  ringColor={styles.border}
+                  className="mt-2"
+                />
+                <p className="mt-2 line-clamp-2 text-center text-body font-bold text-name">
+                  {entry.name}
+                </p>
+                <p className="truncate text-label text-captain">{entry.captain}</p>
+                <p
+                  className="mt-1 font-display text-2xl"
+                  style={{ color: styles.border }}
+                >
+                  {entry.points}
+                </p>
+              </Link>
+
+              <div
+                aria-hidden
+                className={cn("w-full border border-t-0 border-border", styles.pedestalHeight)}
+                style={{
+                  borderLeftWidth: 3,
+                  borderLeftColor: styles.border,
+                  backgroundColor: styles.pedestalBg,
+                }}
               />
-              <p className="mt-2 line-clamp-2 text-center text-body font-bold text-[#f0f0f0]">
-                {entry.name}
-              </p>
-              <p className="truncate text-label text-captain">{entry.captain}</p>
-              <p
-                className="mt-1 font-display text-2xl"
-                style={{ color: styles.border }}
-              >
-                {entry.points}
-              </p>
-            </Link>
+            </div>
           );
         })}
       </div>

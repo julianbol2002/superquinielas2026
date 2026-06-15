@@ -77,7 +77,7 @@ export default function HomePageClient() {
       />
 
       <div className="mb-4 flex items-center justify-between px-4 md:px-0">
-        <h2 className="font-display text-2xl tracking-wide text-primary-theme">{t("leaderboard")}</h2>
+        <h2 className="font-display text-2xl tracking-wide text-section">{t("leaderboard")}</h2>
         <div className="flex gap-1 overflow-x-auto hide-scrollbar">
           {betTabs.map((tab) => (
             <button

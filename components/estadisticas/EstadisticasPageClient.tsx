@@ -34,7 +34,7 @@ function Section({
 }) {
   return (
     <section className="mb-10">
-      <h2 className="mb-4 font-display text-xl tracking-wide text-pitch">{title}</h2>
+      <h2 className="mb-4 font-display text-xl tracking-wide text-section">{title}</h2>
       {children}
     </section>
   );
@@ -59,7 +59,7 @@ export default function EstadisticasPageClient() {
 
   return (
     <div className="pb-8">
-      <h1 className="mb-2 font-display text-3xl tracking-wide">
+      <h1 className="mb-2 font-display text-3xl tracking-wide text-heading">
         {t("nav_stats")}
       </h1>
       <p className="mb-6 text-sm text-muted">{t("stats_subtitle")}</p>

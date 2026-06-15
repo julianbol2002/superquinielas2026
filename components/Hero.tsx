@@ -29,7 +29,7 @@ export default function Hero() {
     <section className="hero-radial mb-4 border-b border-border px-4 pb-3 md:px-0">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 text-left">
-          <h1 className="font-display text-2xl leading-none tracking-wide text-primary-theme md:text-[28px]">
+          <h1 className="font-display text-2xl leading-none tracking-wide text-heading md:text-[28px]">
             {t("site_name")}
           </h1>
           <p className="mt-1 label-caps">{t("tagline")}</p>

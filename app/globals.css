@@ -46,8 +46,13 @@
   --border: #222222;
   --hover: #1a1a1a;
   --text-primary: #f0f0f0;
-  --text-secondary: #999999;
-  --text-muted: #666666;
+  --text-heading: #f2f5f3;
+  --text-section: #e6eee9;
+  --text-name: #ececec;
+  --text-secondary: #a3a3a3;
+  --text-muted: #6e6e6e;
+  --text-label-tint: #7a9486;
+  --text-captain: #949494;
   --red: #ff3b3b;
   --bg-primary: var(--bg);
   --bg-navy: var(--surface);
@@ -61,8 +66,13 @@
   --border: #e0e0e0;
   --hover: #ebebeb;
   --text-primary: #0a0a0a;
+  --text-heading: #0f1412;
+  --text-section: #1a2420;
+  --text-name: #1c1c1c;
   --text-secondary: #444444;
   --text-muted: #888888;
+  --text-label-tint: #4a6b58;
+  --text-captain: #666666;
   --red: #e03232;
   --bg-primary: var(--bg);
   --bg-navy: var(--surface);
@@ -90,7 +100,23 @@ body {
   }
 
   .text-captain {
-    color: #888888;
+    color: var(--text-captain);
+  }
+
+  .text-heading {
+    color: var(--text-heading);
+  }
+
+  .text-section {
+    color: var(--text-section);
+  }
+
+  .text-name {
+    color: var(--text-name);
+  }
+
+  .text-accent-soft {
+    color: color-mix(in srgb, var(--accent) 45%, var(--text-muted));
   }
 
   .nav-link-active {
@@ -164,7 +190,7 @@ body {
 
   .label-caps {
     @apply text-xs uppercase tracking-[0.1em];
-    color: var(--text-muted);
+    color: var(--text-label-tint);
   }
 }
 
