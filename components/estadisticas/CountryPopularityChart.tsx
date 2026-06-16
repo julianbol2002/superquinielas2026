@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -11,6 +13,7 @@ import {
 } from "recharts";
 import dynamic from "next/dynamic";
 import type { AnalyticsSnapshot } from "@/lib/analytics";
+import { quinielas } from "@/data/quinielas";
 import { getCountryCode } from "@/data/countries";
 import { chartAxisTick, chartTooltipStyle } from "@/lib/chartTheme";
 
@@ -21,10 +24,17 @@ export default function CountryPopularityChart({
 }: {
   snapshot: AnalyticsSnapshot;
 }) {
-  const data = snapshot.countryPopularity.map((d) => ({
-    ...d,
-    label: `${d.count} de 27 quinielas`,
-  }));
+  const t = useTranslations();
+  const totalQuinielas = quinielas.length;
+
+  const data = useMemo(
+    () =>
+      snapshot.countryPopularity.map((d) => ({
+        ...d,
+        label: t("stats_country_of_total", { count: d.count, total: totalQuinielas }),
+      })),
+    [snapshot.countryPopularity, t, totalQuinielas]
+  );
 
   return (
     <div className="h-[400px] w-full animate-[fade-in_400ms_ease-out]">
@@ -34,7 +44,7 @@ export default function CountryPopularityChart({
           layout="vertical"
           margin={{ top: 4, right: 24, left: 8, bottom: 4 }}
         >
-          <XAxis type="number" domain={[0, 27]} tick={chartAxisTick} />
+          <XAxis type="number" domain={[0, totalQuinielas]} tick={chartAxisTick} />
           <YAxis
             type="category"
             dataKey="country"
@@ -43,7 +53,13 @@ export default function CountryPopularityChart({
           />
           <Tooltip
             contentStyle={chartTooltipStyle}
-            formatter={(value) => [`${value} de 27 quinielas`, "Pronósticos"]}
+            formatter={(value) => [
+              t("stats_country_of_total", {
+                count: Number(value),
+                total: totalQuinielas,
+              }),
+              t("stats_country_predictions_tooltip"),
+            ]}
           />
           <Bar dataKey="count" isAnimationActive={false}>
             {data.map((entry) => (

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   BarChart,
   Bar,
@@ -17,6 +18,7 @@ export default function HotStreaksChart({
 }: {
   snapshot: AnalyticsSnapshot;
 }) {
+  const t = useTranslations();
   const data = [...snapshot.streaks]
     .sort((a, b) => b.bestStreak - a.bestStreak)
     .slice(0, 15)
@@ -42,7 +44,7 @@ export default function HotStreaksChart({
             contentStyle={chartTooltipStyle}
             formatter={(value, name) => [
               value,
-              name === "best" ? "Mejor racha" : "Racha actual",
+              name === "best" ? t("stats_streak_best") : t("stats_streak_current"),
             ]}
             labelFormatter={(_, payload) =>
               payload?.[0]?.payload?.fullName ?? ""
@@ -64,9 +66,9 @@ export default function HotStreaksChart({
         </BarChart>
       </ResponsiveContainer>
       <p className="mt-2 text-center text-label text-muted">
-        <span className="inline-block h-2 w-2 bg-gold" /> Racha actual
+        <span className="inline-block h-2 w-2 bg-gold" /> {t("stats_streak_current")}
         {" · "}
-        <span className="inline-block h-2 w-2 bg-border" /> Mejor racha
+        <span className="inline-block h-2 w-2 bg-border" /> {t("stats_streak_best")}
       </p>
     </div>
   );

@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
 import type { AnalyticsSnapshot } from "@/lib/analytics";
 import { getTopSlugs } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
@@ -8,17 +10,18 @@ import { cn } from "@/lib/utils";
 export type ChartFilterMode = "top5" | "top10" | "all" | "custom";
 
 export function useChartQuinielaFilter(snapshot: AnalyticsSnapshot) {
+  const { overrides } = useScoreOverrides();
   const [mode, setMode] = useState<ChartFilterMode>("top5");
   const [customSlugs, setCustomSlugs] = useState<string[]>([]);
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const slugs = useMemo(() => {
-    if (mode === "top5") return getTopSlugs(snapshot, 5);
-    if (mode === "top10") return getTopSlugs(snapshot, 10);
+    if (mode === "top5") return getTopSlugs(snapshot, 5, overrides);
+    if (mode === "top10") return getTopSlugs(snapshot, 10, overrides);
     if (mode === "custom") return customSlugs.slice(0, 8);
     return snapshot.quinielaSlugs;
-  }, [mode, customSlugs, snapshot]);
+  }, [mode, customSlugs, snapshot, overrides]);
 
   const toggleCustomSlug = (slug: string) => {
     setCustomSlugs((prev) => {
@@ -58,11 +61,13 @@ export default function ChartQuinielaFilter({
   pickerOpen: boolean;
   onPickerOpenChange: (open: boolean) => void;
 }) {
+  const t = useTranslations();
+
   const pills: { key: ChartFilterMode; label: string }[] = [
-    { key: "top5", label: "Top 5" },
-    { key: "top10", label: "Top 10" },
-    { key: "all", label: "Todos" },
-    { key: "custom", label: "Seleccionar" },
+    { key: "top5", label: t("stats_chart_top5") },
+    { key: "top10", label: t("stats_chart_top10") },
+    { key: "all", label: t("stats_chart_all") },
+    { key: "custom", label: t("stats_chart_custom") },
   ];
 
   return (
@@ -92,7 +97,7 @@ export default function ChartQuinielaFilter({
       {mode === "custom" && pickerOpen && (
         <div className="mt-2 max-h-48 overflow-y-auto border border-border bg-surface p-2">
           <p className="mb-2 text-label text-muted">
-            Elige hasta 8 ({customSlugs.length}/8)
+            {t("stats_chart_pick_up_to", { count: customSlugs.length })}
           </p>
           <div className="grid gap-1 sm:grid-cols-2">
             {snapshot.quinielaSlugs.map((slug) => {

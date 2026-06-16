@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import AppShell from "@/components/AppShell";
+import { ScoreOverridesProvider } from "@/components/ScoreOverridesProvider";
 
 type Props = {
   children: React.ReactNode;
@@ -24,7 +25,9 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <AppShell locale={locale}>{children}</AppShell>
+      <ScoreOverridesProvider>
+        <AppShell locale={locale}>{children}</AppShell>
+      </ScoreOverridesProvider>
     </NextIntlClientProvider>
   );
 }

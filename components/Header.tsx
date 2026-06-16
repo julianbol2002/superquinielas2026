@@ -7,6 +7,7 @@ import { useAppStore } from "@/lib/store";
 import { getQuinielasByCaptain, quinielaToSlug } from "@/data/quinielas";
 import { cn } from "@/lib/utils";
 import PlayerAvatar from "./PlayerAvatar";
+import DailyRecapBell from "./DailyRecapBell";
 
 const navLinks = [
   { href: "/", labelKey: "nav_home" as const },
@@ -61,21 +62,24 @@ export default function Header() {
           })}
         </nav>
 
-        {activePlayer && (() => {
-          const top = getQuinielasByCaptain(activePlayer)[0];
-          if (!top) return null;
-          return (
-            <Link
-              href={`/quiniela/${quinielaToSlug(top.name)}`}
-              className="flex min-h-[44px] items-center gap-2 border border-border bg-surface px-2 py-1"
-            >
-              <PlayerAvatar captain={activePlayer} size={28} />
-              <span className="hidden max-w-[100px] truncate text-body font-medium text-primary-theme sm:inline">
-                {activePlayer.split(" ")[0]}
-              </span>
-            </Link>
-          );
-        })()}
+        <div className="flex items-center gap-2">
+          <DailyRecapBell />
+          {activePlayer && (() => {
+            const top = getQuinielasByCaptain(activePlayer)[0];
+            if (!top) return null;
+            return (
+              <Link
+                href={`/quiniela/${quinielaToSlug(top.name)}`}
+                className="flex min-h-[44px] items-center gap-2 border border-border bg-surface px-2 py-1"
+              >
+                <PlayerAvatar captain={activePlayer} size={28} />
+                <span className="hidden max-w-[100px] truncate text-body font-medium text-primary-theme sm:inline">
+                  {activePlayer.split(" ")[0]}
+                </span>
+              </Link>
+            );
+          })()}
+        </div>
       </div>
     </header>
   );

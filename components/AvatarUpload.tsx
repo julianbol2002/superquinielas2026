@@ -59,7 +59,7 @@ export default function AvatarUpload({ captain, onUploaded }: AvatarUploadProps)
   return (
     <div>
       <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-pitch px-4 py-2 text-sm font-semibold text-black transition hover:bg-pitch/90">
-        {loading ? "..." : t("upload_photo")}
+        {loading ? t("loading") : t("upload_photo")}
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp"

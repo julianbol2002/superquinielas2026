@@ -1,5 +1,11 @@
 import { fetchMatches, upsertMatch, isSupabaseConfigured } from "@/lib/supabase";
-import { worldCupGroups } from "@/data/countries";
+import { worldCupGroups, getAllGroupFixtures } from "@/data/countries";
+import {
+  getPlayedResultsMap,
+  MATCH_PLAYED_DATES,
+  resultKeyFromTeams,
+} from "@/data/tournamentResults";
+import { toLocalYmd } from "@/lib/matchDates";
 
 export const ESPN_SCOREBOARD_URL =
   "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
@@ -210,6 +216,41 @@ function getMonthChunks(): Array<{ start: string; end: string }> {
   return chunks;
 }
 
+function getSealedFallbackMatches(): LiveMatch[] {
+  const results = getPlayedResultsMap();
+  const fixtures = getAllGroupFixtures();
+  const matches: LiveMatch[] = [];
+
+  for (const f of fixtures) {
+    const fixtureId = `${f.group}-${f.team1}-${f.team2}`;
+    const result = results.get(resultKeyFromTeams(f.team1, f.team2));
+    if (!result) continue;
+    const playedOn = MATCH_PLAYED_DATES[fixtureId];
+    matches.push({
+      espnId: fixtureId,
+      team1: f.team1,
+      team2: f.team2,
+      score1: result.score1,
+      score2: result.score2,
+      group: f.group,
+      stage: "group",
+      status: "final",
+      isLive: false,
+      matchDate: playedOn ?? "",
+      finishedAt: playedOn ? `${playedOn}T23:59:59` : undefined,
+    });
+  }
+
+  return matches;
+}
+
+async function fetchRecentEspnMatches(days = 21): Promise<LiveMatch[]> {
+  const end = new Date();
+  const start = new Date(end);
+  start.setDate(start.getDate() - days);
+  return fetchEspnScoreboardForDates(formatYmd(start), formatYmd(end));
+}
+
 export function parseEspnScoreboard(data: EspnScoreboard): LiveMatch[] {
   const events = data.events ?? [];
   const results: LiveMatch[] = [];
@@ -249,7 +290,7 @@ export function parseEspnScoreboard(data: EspnScoreboard): LiveMatch[] {
         comp.status.displayClock ||
         comp.status.type.shortDetail ||
         comp.status.type.description,
-      matchDate: (comp.date || event.date).split("T")[0],
+      matchDate: toLocalYmd(comp.date || event.date),
       finishedAt:
         status === "final" ? comp.date || event.date : undefined,
     });
@@ -369,6 +410,18 @@ export async function fetchAllEspnMatches(): Promise<LiveMatch[]> {
   }
 
   if (all.length === 0) {
+    try {
+      all.push(...(await fetchRecentEspnMatches()));
+    } catch {
+      /* recent window failed */
+    }
+  }
+
+  if (all.length === 0) {
+    const sealed = getSealedFallbackMatches();
+    if (sealed.length > 0) {
+      return sealed;
+    }
     throw new Error("ESPN API returned no match data");
   }
 

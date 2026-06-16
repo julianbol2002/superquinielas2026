@@ -12,11 +12,13 @@ import BetTierBadge from "./BetTierBadge";
 import RankChange from "./RankChange";
 import PlayerAvatar from "./PlayerAvatar";
 import ScoreBreakdownTooltip from "./ScoreBreakdownTooltip";
+import LeaderboardBadges from "./LeaderboardBadges";
+import type { QuinielaBadge } from "@/lib/badges";
 
 interface LeaderboardProps {
   entries: RankedQuiniela[];
   highlightSlug?: string;
-  hotStreakSlug?: string | null;
+  badgesBySlug?: Record<string, QuinielaBadge[]>;
 }
 
 function getRowNavHandlers(slug: string, router: ReturnType<typeof useRouter>) {
@@ -34,7 +36,7 @@ function getRowNavHandlers(slug: string, router: ReturnType<typeof useRouter>) {
 export default function Leaderboard({
   entries,
   highlightSlug,
-  hotStreakSlug = null,
+  badgesBySlug = {},
 }: LeaderboardProps) {
   const t = useTranslations();
   const router = useRouter();
@@ -57,7 +59,7 @@ export default function Leaderboard({
             highlightSlug === entry.slug ||
             (activePlayer === entry.captain && !highlightSlug);
           const nav = getRowNavHandlers(entry.slug, router);
-          const isHot = hotStreakSlug === entry.slug;
+          const rowBadges = badgesBySlug[entry.slug] ?? [];
 
           return (
             <motion.div
@@ -91,18 +93,18 @@ export default function Leaderboard({
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-body font-medium text-name transition-colors hover:text-accent">
                     {entry.name}
-                    {isHot && (
-                      <span className="ml-1 text-label" title={t("on_fire")}>
-                        🔥
-                      </span>
-                    )}
+                    <LeaderboardBadges badges={rowBadges} />
                   </p>
                 </div>
                 <div
                   className="flex flex-shrink-0 items-center gap-1"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} size="sm" />
+                  <ScoreBreakdownTooltip
+                    breakdown={entry.scoreBreakdown}
+                    officialPoints={entry.points}
+                    size="sm"
+                  />
                 </div>
               </div>
 
@@ -134,7 +136,7 @@ export default function Leaderboard({
                 highlightSlug === entry.slug ||
                 (activePlayer === entry.captain && !highlightSlug);
               const nav = getRowNavHandlers(entry.slug, router);
-              const isHot = hotStreakSlug === entry.slug;
+              const rowBadges = badgesBySlug[entry.slug] ?? [];
 
               return (
                 <motion.tr
@@ -172,11 +174,7 @@ export default function Leaderboard({
                       >
                         <p className="truncate font-medium">
                           {entry.name}
-                          {isHot && (
-                            <span className="ml-1 text-label" title={t("on_fire")}>
-                              🔥
-                            </span>
-                          )}
+                          <LeaderboardBadges badges={rowBadges} />
                         </p>
                       </Link>
                     </div>
@@ -186,7 +184,10 @@ export default function Leaderboard({
                     <BetTierBadge bet={entry.bet} />
                   </td>
                   <td className="px-3 py-2.5 text-right align-middle">
-                    <ScoreBreakdownTooltip breakdown={entry.scoreBreakdown} />
+                    <ScoreBreakdownTooltip
+                      breakdown={entry.scoreBreakdown}
+                      officialPoints={entry.points}
+                    />
                   </td>
                   <td className="px-1 py-2.5 text-right text-muted">
                     <span aria-hidden>›</span>

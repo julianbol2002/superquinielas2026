@@ -74,7 +74,7 @@ export default function ShareCard({ entry }: ShareCardProps) {
         disabled={loading}
         className="min-h-[44px] w-full border border-accent bg-accent px-4 py-3 text-body font-medium text-black transition-colors duration-150 hover:bg-transparent hover:text-accent disabled:opacity-50"
       >
-        {loading ? "..." : t("share")}
+        {loading ? t("share_loading") : t("share")}
       </button>
     </div>
   );

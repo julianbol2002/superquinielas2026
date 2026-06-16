@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/routing";
 import {
-  getRankedQuinielas,
   quinielas,
   slugToQuiniela,
 } from "@/data/quinielas";
@@ -18,6 +17,7 @@ import {
   type RowAccuracy,
 } from "@/lib/predictionScoring";
 import { useLiveScores } from "@/hooks/useLiveScores";
+import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import ShareCard from "@/components/ShareCard";
 import AvatarUpload from "@/components/AvatarUpload";
@@ -206,11 +206,12 @@ export default function QuinielaDetailClient({ slug }: { slug: string }) {
   const t = useTranslations();
   const quiniela = slugToQuiniela(slug);
   const { data: liveData } = useLiveScores();
+  const allEntries = useRankedQuinielas(liveData?.matches ?? []);
 
   const entry = useMemo(() => {
     if (!quiniela) return null;
-    return getRankedQuinielas().find((q) => q.slug === slug) ?? null;
-  }, [quiniela, slug]);
+    return allEntries.find((q) => q.slug === slug) ?? null;
+  }, [quiniela, slug, allEntries]);
 
   const rows = useMemo(
     () => getScoredPredictions(slug, liveData?.matches ?? []),

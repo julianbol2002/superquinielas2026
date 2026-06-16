@@ -3,18 +3,21 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import {
-  getRankedQuinielas,
   filterQuinielasByBet,
 } from "@/data/quinielas";
+import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
 import { useLiveScores } from "@/hooks/useLiveScores";
 import { recordRankSnapshot, hasReliableRankHistory } from "@/lib/rankHistory";
-import { getPredictionHighlights } from "@/lib/predictionHighlights";
+import { computeLeaderboardBadges } from "@/lib/badges";
+import { loadLocalMatches } from "@/lib/localMatchStore";
+import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
 import Hero from "@/components/Hero";
 import LiveScoresPanel from "@/components/LiveScoresPanel";
 import PlayerPodium from "@/components/PlayerPodium";
 import StatCards from "@/components/StatCards";
 import LiveMatchLeaderboardBanner from "@/components/LiveMatchLeaderboardBanner";
 import Leaderboard from "@/components/Leaderboard";
+import OfficialSyncStatus from "@/components/OfficialSyncStatus";
 import CountryPredictionsChart from "@/components/CountryPredictionsChart";
 import MyPositionFab from "@/components/MyPositionFab";
 import { cn } from "@/lib/utils";
@@ -24,11 +27,9 @@ export default function HomePageClient() {
   const [betFilter, setBetFilter] = useState<"all" | 25 | 50 | 100>("all");
 
   const { data: liveData } = useLiveScores();
+  const { overrides } = useScoreOverrides();
 
-  const allEntries = useMemo(
-    () => getRankedQuinielas(liveData?.matches ?? []),
-    [liveData?.matches]
-  );
+  const allEntries = useRankedQuinielas(liveData?.matches ?? []);
 
   const [rankHistoryReady, setRankHistoryReady] = useState(false);
 
@@ -49,9 +50,15 @@ export default function HomePageClient() {
     [allEntries, betFilter]
   );
 
-  const hotStreakSlug = useMemo(() => {
-    return getPredictionHighlights(allEntries, liveData?.matches ?? []).longestStreak?.slug ?? null;
-  }, [allEntries, liveData?.matches]);
+  const localRows = useMemo(
+    () => loadLocalMatches(),
+    [liveData?.lastUpdated]
+  );
+
+  const badgeBoard = useMemo(
+    () => computeLeaderboardBadges(allEntries, liveData?.matches ?? [], localRows, overrides),
+    [allEntries, liveData?.matches, localRows, overrides]
+  );
 
   const betTabs: { key: typeof betFilter; label: string }[] = [
     { key: "all", label: t("all") },
@@ -76,7 +83,7 @@ export default function HomePageClient() {
         lastUpdated={liveData?.lastUpdated}
       />
 
-      <div className="mb-4 flex items-center justify-between px-4 md:px-0">
+      <div className="mb-1 flex items-center justify-between px-4 md:px-0">
         <h2 className="font-display text-2xl tracking-wide text-section">{t("leaderboard")}</h2>
         <div className="flex gap-1 overflow-x-auto hide-scrollbar">
           {betTabs.map((tab) => (
@@ -96,7 +103,11 @@ export default function HomePageClient() {
         </div>
       </div>
 
-      <Leaderboard entries={entries} hotStreakSlug={hotStreakSlug} />
+      <OfficialSyncStatus />
+
+      <div className="mb-4 px-4 md:px-0">
+        <Leaderboard entries={entries} badgesBySlug={badgeBoard.bySlug} />
+      </div>
       <div className="mt-8">
         <CountryPredictionsChart />
       </div>

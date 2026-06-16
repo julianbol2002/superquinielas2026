@@ -5,11 +5,13 @@ import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/routing";
 import {
-  getRankedQuinielas,
   slugToQuiniela,
   getQuinielaAveragePoints,
 } from "@/data/quinielas";
 import { getPrizeForQuiniela } from "@/lib/prizes";
+import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
+import { useLiveScores } from "@/hooks/useLiveScores";
+import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import QuinielaCard from "@/components/QuinielaCard";
 import ShareCard from "@/components/ShareCard";
@@ -20,22 +22,25 @@ import FlagChip from "@/components/FlagChip";
 export default function PlayerProfileClient({ slug }: { slug: string }) {
   const t = useTranslations();
   const quiniela = slugToQuiniela(slug);
+  const { data: liveData } = useLiveScores();
+  const { overrides } = useScoreOverrides();
+  const allEntries = useRankedQuinielas(liveData?.matches ?? []);
 
   const entry = useMemo(() => {
     if (!quiniela) return null;
-    return getRankedQuinielas().find((q) => q.slug === slug) ?? null;
-  }, [quiniela, slug]);
+    return allEntries.find((q) => q.slug === slug) ?? null;
+  }, [quiniela, slug, allEntries]);
 
   const prize = useMemo(
-    () => (entry ? getPrizeForQuiniela(entry.slug) : undefined),
-    [entry]
+    () => (entry ? getPrizeForQuiniela(entry.slug, overrides) : undefined),
+    [entry, overrides]
   );
 
   if (!quiniela || !entry) {
     notFound();
   }
 
-  const avg = getQuinielaAveragePoints();
+  const avg = getQuinielaAveragePoints(liveData?.matches ?? [], overrides);
   const pct = avg > 0 ? Math.min(100, (entry.points / avg) * 50) : 50;
 
   return (
@@ -98,7 +103,9 @@ export default function PlayerProfileClient({ slug }: { slug: string }) {
                 style={{ height: "50%", marginTop: "50%" }}
               />
             </div>
-            <p className="mt-1 text-center text-sm">{avg.toFixed(1)} avg</p>
+            <p className="mt-1 text-center text-sm">
+              {avg.toFixed(1)} {t("profile_avg_label")}
+            </p>
           </div>
         </div>
         <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
@@ -114,7 +121,7 @@ export default function PlayerProfileClient({ slug }: { slug: string }) {
             <p className="font-bold">
               {prize ? `$${prize.estimatedPayout}` : "—"}
             </p>
-            <p className="text-slate-400">{t("bet")} tier</p>
+            <p className="text-slate-400">{t("profile_bet_tier")}</p>
           </div>
         </div>
       </div>

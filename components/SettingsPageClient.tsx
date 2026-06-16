@@ -97,8 +97,10 @@ export default function SettingsPageClient() {
       <section className="mb-8">
         <h2 className="mb-3 label-caps">{t("notifications")}</h2>
         <div className="flex min-h-[44px] items-center justify-between border border-border bg-surface px-4 py-3">
-          <span className="text-body">{t("notifications_soon")}</span>
-          <div className="h-6 w-11 border border-border bg-page opacity-50" />
+          <span className="text-body">{t("notifications_daily_recap")}</span>
+          <div className="flex h-6 w-11 items-center justify-end border border-accent/40 bg-accent/10 px-1">
+            <span className="h-4 w-4 bg-accent" aria-hidden />
+          </div>
         </div>
       </section>
 

@@ -1,6 +1,8 @@
 import { computeQuinielaScore, type QuinielaScoreBreakdown } from "@/lib/quinielaScoring";
 import type { LiveMatch } from "@/lib/liveScores";
 import { getPreviousRanksFromHistory } from "@/lib/rankHistory";
+import { ORIGINAL_SITE_POINTS } from "@/data/expectedPoints";
+import type { ScoreOverrideMap } from "@/lib/scoreOverrides";
 
 export interface Quiniela {
   captain: string;
@@ -9,36 +11,38 @@ export interface Quiniela {
   finalist1: string;
   finalist2: string;
   winner: string;
+  /** Baseline official score from Azure site (Puntos Efectivos) */
+  officialPoints: number;
 }
 
 export const quinielas: Quiniela[] = [
-  { captain: "Isabella Bolanos", name: "Barquito de papel", bet: 25, finalist1: "Spain", finalist2: "France", winner: "Spain" },
-  { captain: "Oly", name: "Oly54", bet: 25, finalist1: "France", finalist2: "Netherlands", winner: "France" },
-  { captain: "Camilo", name: "Camb", bet: 100, finalist1: "France", finalist2: "Portugal", winner: "France" },
-  { captain: "Spongebob Squarepants", name: "The Krusty Krab", bet: 50, finalist1: "France", finalist2: "England", winner: "France" },
-  { captain: "Alex Bolanos", name: "Panoramix", bet: 25, finalist1: "Spain", finalist2: "France", winner: "Spain" },
-  { captain: "Andres Martino", name: "Martino", bet: 50, finalist1: "Spain", finalist2: "Germany", winner: "Spain" },
-  { captain: "Jeb Corliss", name: "Jeb Corliss", bet: 50, finalist1: "Argentina", finalist2: "Spain", winner: "Spain" },
-  { captain: "Juanillo", name: "Que Finta", bet: 50, finalist1: "France", finalist2: "Spain", winner: "France" },
-  { captain: "Mario Van Severen", name: "Panzer", bet: 100, finalist1: "Netherlands", finalist2: "Portugal", winner: "Netherlands" },
-  { captain: "Mauricio 1", name: "It's coming Home", bet: 100, finalist1: "Portugal", finalist2: "England", winner: "England" },
-  { captain: "Anita", name: "Ana X", bet: 25, finalist1: "Argentina", finalist2: "Australia", winner: "Argentina" },
-  { captain: "Federico Bolanos Jr", name: "Fede", bet: 25, finalist1: "France", finalist2: "Spain", winner: "Spain" },
-  { captain: "Gerardo", name: "G1", bet: 100, finalist1: "Argentina", finalist2: "Spain", winner: "Spain" },
-  { captain: "Gloria Panamá", name: "Gloria Gana", bet: 25, finalist1: "Spain", finalist2: "Portugal", winner: "Spain" },
-  { captain: "Rodrigo Bolanos", name: "Quiniela Pupusera", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
-  { captain: "Spongebob Squarepants", name: "Marco Bolanos", bet: 50, finalist1: "France", finalist2: "Portugal", winner: "Portugal" },
-  { captain: "Adriano", name: "MARADRIANO", bet: 100, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
-  { captain: "Ana Luz", name: "Abuela", bet: 25, finalist1: "Brazil", finalist2: "France", winner: "Brazil" },
-  { captain: "Cam Bolanos", name: "Cam Bolanos", bet: 100, finalist1: "France", finalist2: "Portugal", winner: "France" },
-  { captain: "Federico Bolanos", name: "Lico BP", bet: 100, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina" },
-  { captain: "Francesca Panko", name: "Francesca Panko", bet: 50, finalist1: "Spain", finalist2: "Argentina", winner: "Spain" },
-  { captain: "Alex", name: "MISTER SHIT", bet: 25, finalist1: "Spain", finalist2: "Portugal", winner: "Portugal" },
-  { captain: "Cam Bolanos", name: "C2", bet: 25, finalist1: "Brazil", finalist2: "Spain", winner: "Brazil" },
-  { captain: "Carlos Panama Diaz", name: "Duo Dinamico Iron Beagle", bet: 100, finalist1: "England", finalist2: "France", winner: "England" },
-  { captain: "Daniella Bolanos", name: "Dani Bolanos", bet: 25, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina" },
-  { captain: "Federico Bolanos", name: "Tessa", bet: 50, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina" },
-  { captain: "Julian Bolanos", name: "juliquini", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
+  { captain: "Isabella Bolanos", name: "Barquito de papel", bet: 25, finalist1: "Spain", finalist2: "France", winner: "Spain", officialPoints: 13 },
+  { captain: "Oly", name: "Oly54", bet: 25, finalist1: "France", finalist2: "Netherlands", winner: "France", officialPoints: 13 },
+  { captain: "Camilo", name: "Camb", bet: 100, finalist1: "France", finalist2: "Portugal", winner: "France", officialPoints: 14 },
+  { captain: "Spongebob Squarepants", name: "The Krusty Krab", bet: 50, finalist1: "France", finalist2: "England", winner: "France", officialPoints: 13 },
+  { captain: "Alex Bolanos", name: "Panoramix", bet: 25, finalist1: "Spain", finalist2: "France", winner: "Spain", officialPoints: 11 },
+  { captain: "Andres Martino", name: "Martino", bet: 50, finalist1: "Spain", finalist2: "Germany", winner: "Spain", officialPoints: 14 },
+  { captain: "Jeb Corliss", name: "Jeb Corliss", bet: 50, finalist1: "Argentina", finalist2: "Spain", winner: "Spain", officialPoints: 10 },
+  { captain: "Juanillo", name: "Que Finta", bet: 50, finalist1: "France", finalist2: "Spain", winner: "France", officialPoints: 16 },
+  { captain: "Mario Van Severen", name: "Panzer", bet: 100, finalist1: "Netherlands", finalist2: "Portugal", winner: "Netherlands", officialPoints: 11 },
+  { captain: "Mauricio 1", name: "It's coming Home", bet: 100, finalist1: "Portugal", finalist2: "England", winner: "England", officialPoints: 14 },
+  { captain: "Anita", name: "Ana X", bet: 25, finalist1: "Argentina", finalist2: "Australia", winner: "Argentina", officialPoints: 9 },
+  { captain: "Federico Bolanos Jr", name: "Fede", bet: 25, finalist1: "France", finalist2: "Spain", winner: "Spain", officialPoints: 11 },
+  { captain: "Gerardo", name: "G1", bet: 100, finalist1: "Argentina", finalist2: "Spain", winner: "Spain", officialPoints: 10 },
+  { captain: "Gloria Panamá", name: "Gloria Gana", bet: 25, finalist1: "Spain", finalist2: "Portugal", winner: "Spain", officialPoints: 10 },
+  { captain: "Rodrigo Bolanos", name: "Quiniela Pupusera", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina", officialPoints: 9 },
+  { captain: "Spongebob Squarepants", name: "Marco Bolanos", bet: 50, finalist1: "France", finalist2: "Portugal", winner: "Portugal", officialPoints: 14 },
+  { captain: "Adriano", name: "MARADRIANO", bet: 100, finalist1: "Argentina", finalist2: "France", winner: "Argentina", officialPoints: 9 },
+  { captain: "Ana Luz", name: "Abuela", bet: 25, finalist1: "Brazil", finalist2: "France", winner: "Brazil", officialPoints: 10 },
+  { captain: "Cam Bolanos", name: "Cam Bolanos", bet: 100, finalist1: "France", finalist2: "Portugal", winner: "France", officialPoints: 10 },
+  { captain: "Federico Bolanos", name: "Lico BP", bet: 100, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina", officialPoints: 15 },
+  { captain: "Francesca Panko", name: "Francesca Panko", bet: 50, finalist1: "Spain", finalist2: "Argentina", winner: "Spain", officialPoints: 9 },
+  { captain: "Alex", name: "MISTER SHIT", bet: 25, finalist1: "Spain", finalist2: "Portugal", winner: "Portugal", officialPoints: 7 },
+  { captain: "Cam Bolanos", name: "C2", bet: 25, finalist1: "Brazil", finalist2: "Spain", winner: "Brazil", officialPoints: 7 },
+  { captain: "Carlos Panama Diaz", name: "Duo Dinamico Iron Beagle", bet: 100, finalist1: "England", finalist2: "France", winner: "England", officialPoints: 8 },
+  { captain: "Daniella Bolanos", name: "Dani Bolanos", bet: 25, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina", officialPoints: 4 },
+  { captain: "Federico Bolanos", name: "Tessa", bet: 50, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina", officialPoints: 10 },
+  { captain: "Julian Bolanos", name: "juliquini", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina", officialPoints: 8 },
 ];
 
 /** Actual tournament winner for accuracy checks (update as tournament progresses) */
@@ -93,6 +97,20 @@ export function formatQuinielaLabel(
   return `${entry.name} (${entry.captain})`;
 }
 
+export function getBaselineOfficialPoints(name: string): number {
+  return ORIGINAL_SITE_POINTS[name] ?? quinielas.find((q) => q.name === name)?.officialPoints ?? 0;
+}
+
+function resolveOfficialPoints(
+  name: string,
+  scoreOverrides?: ScoreOverrideMap | null
+): number {
+  const override = scoreOverrides?.[name];
+  if (override !== undefined) return override.officialPoints;
+  return getBaselineOfficialPoints(name);
+}
+
+/** Matches Azure tiebreaker: points desc, then captain A→Z */
 function sortQuinielas(entries: RankedQuiniela[]): RankedQuiniela[] {
   return [...entries].sort((a, b) => {
     if (b.points !== a.points) return b.points - a.points;
@@ -102,24 +120,27 @@ function sortQuinielas(entries: RankedQuiniela[]): RankedQuiniela[] {
 
 export function getRankedQuinielas(
   liveMatches: LiveMatch[] = [],
-  previousRanksOverride?: Record<string, number>
+  options?: {
+    previousRanksOverride?: Record<string, number>;
+    scoreOverrides?: ScoreOverrideMap | null;
+  }
 ): RankedQuiniela[] {
   const previousRanks =
-    previousRanksOverride ??
+    options?.previousRanksOverride ??
     (typeof window !== "undefined" ? getPreviousRanksFromHistory() : null);
 
   const withScores: RankedQuiniela[] = quinielas.map((q) => {
     const scoreBreakdown = computeQuinielaScore(q, liveMatches);
-    const matchPoints = scoreBreakdown.matchPoints;
+    const points = resolveOfficialPoints(q.name, options?.scoreOverrides);
     return {
       ...q,
-      points: matchPoints,
+      points,
       scoreBreakdown,
       slug: quinielaToSlug(q.name),
       rank: 0,
       previousRank: 0,
       rankChange: 0,
-      onFire: matchPoints >= 4,
+      onFire: points >= 4,
       correctWinner: q.winner === ACTUAL_WINNER,
     };
   });
@@ -158,8 +179,11 @@ export function getWinnerPredictions(): { country: string; count: number }[] {
     .sort((a, b) => b.count - a.count);
 }
 
-export function getQuinielaAveragePoints(liveMatches: LiveMatch[] = []): number {
-  const ranked = getRankedQuinielas(liveMatches);
+export function getQuinielaAveragePoints(
+  liveMatches: LiveMatch[] = [],
+  scoreOverrides?: ScoreOverrideMap | null
+): number {
+  const ranked = getRankedQuinielas(liveMatches, { scoreOverrides });
   if (ranked.length === 0) return 0;
   return ranked.reduce((sum, q) => sum + q.points, 0) / ranked.length;
 }

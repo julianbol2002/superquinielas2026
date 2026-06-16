@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { getRankedQuinielas, type RankedQuiniela } from "@/data/quinielas";
+import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
 import { useLiveScores } from "@/hooks/useLiveScores";
+import type { RankedQuiniela } from "@/data/quinielas";
 import FlagChip from "./FlagChip";
 import { cn } from "@/lib/utils";
 
@@ -28,10 +29,7 @@ export default function QuinielasTable() {
   const [sortKey, setSortKey] = useState<SortKey>("points");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const rows = useMemo(
-    () => getRankedQuinielas(liveData?.matches ?? []),
-    [liveData?.matches]
-  );
+  const rows = useRankedQuinielas(liveData?.matches ?? []);
 
   const filtered = useMemo(() => {
     let list = [...rows];

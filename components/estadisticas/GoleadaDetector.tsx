@@ -16,7 +16,7 @@ export default function GoleadaDetector({
   if (snapshot.goleadas.length === 0) {
     return (
       <p className="rounded-xl border border-white/10 bg-stadium-card p-6 text-center text-sm text-slate-400 light:bg-white">
-        Ninguna goleada de escándalo (4+ goles) registrada aún. 🔥
+        {t("stats_goleada_empty")} 🔥
       </p>
     );
   }
@@ -40,7 +40,7 @@ export default function GoleadaDetector({
             <div className="mb-3 flex items-center gap-2">
               <span className="text-2xl">🔥</span>
               <p className="font-display text-lg text-orange-400">
-                Goleada de escándalo
+                {t("stats_goleada_title")}
               </p>
             </div>
 
@@ -56,7 +56,7 @@ export default function GoleadaDetector({
             {hit.length > 0 && (
               <div className="mt-4 border-t border-orange-500/20 pt-3">
                 <p className="mb-2 text-xs uppercase text-pitch">
-                  Acertaron el bonus (+3)
+                  {t("stats_goleada_hit_bonus")}
                 </p>
                 <div className="space-y-3">
                   {hit.map((h) => (
@@ -86,9 +86,9 @@ export default function GoleadaDetector({
 
             {missed.length > 0 && (
               <div className="mt-3">
-                <p className="text-xs uppercase text-slate-400">Se lo perdieron</p>
+                <p className="text-xs uppercase text-slate-400">{t("stats_goleada_missed")}</p>
                 <p className="mt-1 text-xs text-slate-500">
-                  {missed.length} quiniela{missed.length !== 1 ? "s" : ""}
+                  {t("stats_goleada_missed_count", { count: missed.length })}
                 </p>
               </div>
             )}

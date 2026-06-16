@@ -4,8 +4,8 @@ import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
+import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
 import { buildAnalytics } from "@/lib/analytics";
-import { getRankedQuinielas } from "@/data/quinielas";
 import { useLiveScores } from "@/hooks/useLiveScores";
 
 function CompararContent() {
@@ -15,12 +15,12 @@ function CompararContent() {
   const slugA = params.get("a") ?? "";
   const slugB = params.get("b") ?? "";
   const { data: liveData } = useLiveScores();
+  const all = useRankedQuinielas(liveData?.matches ?? []);
   const snapshot = useMemo(
     () => buildAnalytics(liveData?.matches ?? []),
     [liveData?.lastUpdated, liveData?.matches]
   );
 
-  const all = getRankedQuinielas();
   const entryA = all.find((q) => q.slug === slugA);
   const entryB = all.find((q) => q.slug === slugB);
   const h2h = entryA && entryB ? snapshot.headToHead[slugA]?.[slugB] ?? 0 : 0;

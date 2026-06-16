@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import type { AnalyticsSnapshot } from "@/lib/analytics";
 import { Link } from "@/i18n/routing";
 
@@ -9,6 +10,8 @@ export default function ClimbersFallers({
 }: {
   snapshot: AnalyticsSnapshot;
 }) {
+  const t = useTranslations();
+
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <motion.div
@@ -16,10 +19,10 @@ export default function ClimbersFallers({
         animate={{ opacity: 1, y: 0 }}
         className="rounded-xl border border-pitch/30 bg-pitch/5 p-4"
       >
-        <h3 className="mb-3 font-display text-lg text-pitch">Cohete 🚀</h3>
+        <h3 className="mb-3 font-display text-lg text-pitch">{t("recap_kind_climber")}</h3>
         <div className="space-y-3">
           {snapshot.climbers.length === 0 ? (
-            <p className="text-sm text-slate-400">Sin datos aún</p>
+            <p className="text-sm text-slate-400">{t("stats_no_data")}</p>
           ) : (
             snapshot.climbers.map((c, i) => (
               <motion.div
@@ -33,7 +36,9 @@ export default function ClimbersFallers({
                     {i + 1}. {c.name}
                   </p>
                   <p className="text-xs text-slate-400">{c.captain}</p>
-                  <p className="font-accent text-pitch">↑ {c.delta} posiciones</p>
+                  <p className="font-accent text-pitch">
+                    ↑ {c.delta} {t("positions_up")}
+                  </p>
                 </Link>
               </motion.div>
             ))
@@ -46,10 +51,10 @@ export default function ClimbersFallers({
         animate={{ opacity: 1, y: 0 }}
         className="rounded-xl border border-red-500/30 bg-red-500/5 p-4"
       >
-        <h3 className="mb-3 font-display text-lg text-red-400">Caída libre 💀</h3>
+        <h3 className="mb-3 font-display text-lg text-red-400">{t("recap_kind_faller")}</h3>
         <div className="space-y-3">
           {snapshot.fallers.length === 0 ? (
-            <p className="text-sm text-slate-400">Sin datos aún</p>
+            <p className="text-sm text-slate-400">{t("stats_no_data")}</p>
           ) : (
             snapshot.fallers.map((c, i) => (
               <motion.div
@@ -63,7 +68,9 @@ export default function ClimbersFallers({
                     {i + 1}. {c.name}
                   </p>
                   <p className="text-xs text-slate-400">{c.captain}</p>
-                  <p className="font-accent text-red-400">↓ {c.delta} posiciones</p>
+                  <p className="font-accent text-red-400">
+                    ↓ {c.delta} {t("positions_down")}
+                  </p>
                 </Link>
               </motion.div>
             ))

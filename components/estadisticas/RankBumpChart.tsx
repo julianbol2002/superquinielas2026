@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   LineChart,
   XAxis,
@@ -24,6 +25,7 @@ export default function RankBumpChart({
 }: {
   snapshot: AnalyticsSnapshot;
 }) {
+  const t = useTranslations();
   const {
     mode,
     setMode,
@@ -46,7 +48,7 @@ export default function RankBumpChart({
   if (snapshot.playedCount < 2) {
     return (
       <p className="py-8 text-center text-body text-muted">
-        Se necesitan al menos 2 partidos para el gráfico de posiciones.
+        {t("stats_rank_chart_empty")}
       </p>
     );
   }

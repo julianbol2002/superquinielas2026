@@ -1,5 +1,6 @@
 import type { MatchRow } from "@/lib/supabase";
 import type { LiveMatch } from "@/lib/liveScores";
+import { getMatchCompletionYmd } from "@/lib/matchDates";
 
 const STORAGE_KEY = "super_quinielas_match_results";
 
@@ -54,7 +55,7 @@ export function mergeEspnIntoLocal(espnMatches: LiveMatch[]): MatchRow[] {
       team2: match.team2,
       score1: match.score1,
       score2: match.score2,
-      match_date: match.matchDate,
+      match_date: getMatchCompletionYmd(match) ?? match.matchDate,
       updated_at: new Date().toISOString(),
     });
   }

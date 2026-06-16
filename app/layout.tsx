@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { triggerDeployScoreSync } from "@/lib/syncOriginalScores";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -39,6 +40,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  triggerDeployScoreSync();
+
   return (
     <html lang="es" className="dark colorway-classic" suppressHydrationWarning>
       <head>

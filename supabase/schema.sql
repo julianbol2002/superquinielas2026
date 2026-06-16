@@ -34,3 +34,16 @@ create policy "Allow public update matches" on matches for update using (true);
 
 create policy "Allow public read ranks" on player_ranks for select using (true);
 create policy "Allow public insert ranks" on player_ranks for insert with check (true);
+
+-- Official score overrides synced from Azure site
+create table if not exists score_overrides (
+  quiniela_name text primary key,
+  official_points integer not null,
+  synced_at timestamp with time zone default now()
+);
+
+alter table score_overrides enable row level security;
+
+create policy "Allow public read score_overrides" on score_overrides for select using (true);
+create policy "Allow public insert score_overrides" on score_overrides for insert with check (true);
+create policy "Allow public update score_overrides" on score_overrides for update using (true);

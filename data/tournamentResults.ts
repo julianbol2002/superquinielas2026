@@ -12,6 +12,13 @@ export const PLAYED_MATCH_RESULTS: Record<string, MatchResult> = {
   "B-Canada-Bosnia and Herzegovina": { score1: 1, score2: 1 },
 };
 
+/** Calendar date (YYYY-MM-DD) when each sealed match finished — for daily recaps */
+export const MATCH_PLAYED_DATES: Record<string, string> = {
+  "A-Mexico-South Africa": "2026-06-11",
+  "A-South Korea-Czechia": "2026-06-12",
+  "B-Canada-Bosnia and Herzegovina": "2026-06-12",
+};
+
 export const ACTUAL_FINALISTS = ["Spain", "France"] as const;
 export const ACTUAL_CHAMPION = "Spain";
 

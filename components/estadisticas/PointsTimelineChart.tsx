@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   LineChart,
   XAxis,
@@ -27,6 +28,7 @@ export default function PointsTimelineChart({
 }: {
   snapshot: AnalyticsSnapshot;
 }) {
+  const t = useTranslations();
   const {
     mode,
     setMode,
@@ -49,7 +51,7 @@ export default function PointsTimelineChart({
   if (snapshot.playedCount === 0) {
     return (
       <p className="py-8 text-center text-body text-muted">
-        Aún no hay partidos jugados para mostrar la línea de tiempo.
+        {t("stats_timeline_empty")}
       </p>
     );
   }
@@ -73,7 +75,7 @@ export default function PointsTimelineChart({
             <YAxis tick={chartAxisTick} width={32} interval={4} />
             <Tooltip
               contentStyle={chartTooltipStyle}
-              labelFormatter={(m) => `Partido ${m}`}
+              labelFormatter={(m) => t("stats_match_tooltip", { number: m })}
               formatter={(value, name) => {
                 const slug = String(name);
                 return [

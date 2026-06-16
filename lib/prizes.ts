@@ -24,9 +24,11 @@ export interface BetTierPool {
   entries: QuinielaPrizeEntry[];
 }
 
+import type { ScoreOverrideMap } from "@/lib/scoreOverrides";
+
 /** Total money collected — each quiniela entry pays its own bet independently */
-export function getTotalPool(): number {
-  return getRankedQuinielas().reduce((sum, q) => sum + q.bet, 0);
+export function getTotalPool(scoreOverrides?: ScoreOverrideMap | null): number {
+  return getRankedQuinielas([], { scoreOverrides }).reduce((sum, q) => sum + q.bet, 0);
 }
 
 function rankWithinTier(entries: RankedQuiniela[], tier: 25 | 50 | 100) {
@@ -42,8 +44,10 @@ function rankWithinTier(entries: RankedQuiniela[], tier: 25 | 50 | 100) {
  * Prize pools are calculated per bet tier ($25 / $50 / $100).
  * Each quiniela entry competes only within its tier; payout weights favor higher ranks.
  */
-export function calculatePrizesByTier(): BetTierPool[] {
-  const ranked = getRankedQuinielas();
+export function calculatePrizesByTier(
+  scoreOverrides?: ScoreOverrideMap | null
+): BetTierPool[] {
+  const ranked = getRankedQuinielas([], { scoreOverrides });
   const tiers: (25 | 50 | 100)[] = [25, 50, 100];
 
   return tiers.map((tier) => {
@@ -81,10 +85,15 @@ export function calculatePrizesByTier(): BetTierPool[] {
 }
 
 /** All prize rows flattened — one row per quiniela entry */
-export function getAllQuinielaPrizes(): QuinielaPrizeEntry[] {
-  return calculatePrizesByTier().flatMap((pool) => pool.entries);
+export function getAllQuinielaPrizes(
+  scoreOverrides?: ScoreOverrideMap | null
+): QuinielaPrizeEntry[] {
+  return calculatePrizesByTier(scoreOverrides).flatMap((pool) => pool.entries);
 }
 
-export function getPrizeForQuiniela(slug: string): QuinielaPrizeEntry | undefined {
-  return getAllQuinielaPrizes().find((p) => p.slug === slug);
+export function getPrizeForQuiniela(
+  slug: string,
+  scoreOverrides?: ScoreOverrideMap | null
+): QuinielaPrizeEntry | undefined {
+  return getAllQuinielaPrizes(scoreOverrides).find((p) => p.slug === slug);
 }

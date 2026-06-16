@@ -9,17 +9,21 @@ import CountUp from "./CountUp";
 
 interface ScoreBreakdownTooltipProps {
   breakdown: QuinielaScoreBreakdown;
+  /** Official Puntos Efectivos (Azure) — what the leaderboard ranks on */
+  officialPoints: number;
   size?: "sm" | "md";
 }
 
 export default function ScoreBreakdownTooltip({
   breakdown,
+  officialPoints,
   size = "md",
 }: ScoreBreakdownTooltipProps) {
   const t = useTranslations();
   const locale = useLocale() as "es" | "en";
   const [open, setOpen] = useState(false);
-  const tooltip = formatScoreTooltip(breakdown, locale);
+  const computedTooltip = formatScoreTooltip(breakdown, locale);
+  const tooltip = `${t("score_official_total", { points: officialPoints })}\n${computedTooltip}\n${t("score_bonus_note")}`;
   const pointsClass = size === "sm" ? "font-display text-lg" : "font-display text-2xl";
 
   return (
@@ -28,7 +32,7 @@ export default function ScoreBreakdownTooltip({
       onClick={(e) => e.stopPropagation()}
     >
       <span className={cn(pointsClass, "leading-none text-accent")}>
-        <CountUp value={breakdown.matchPoints} />
+        <CountUp value={officialPoints} />
       </span>
       <button
         type="button"
@@ -46,7 +50,7 @@ export default function ScoreBreakdownTooltip({
       {open && (
         <span
           role="tooltip"
-          className="absolute right-0 top-full z-50 mt-1 w-64 border border-border bg-surface px-2.5 py-2 text-left text-label leading-relaxed text-secondary"
+          className="absolute right-0 top-full z-50 mt-1 w-72 whitespace-pre-line border border-border bg-surface px-2.5 py-2 text-left text-label leading-relaxed text-secondary"
         >
           {tooltip}
         </span>
