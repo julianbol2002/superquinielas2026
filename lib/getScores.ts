@@ -107,10 +107,10 @@ function extractFormValue(html: string, name: string): string | null {
   return null;
 }
 
-function extractFormAction(html: string, fallback: string): string {
+function extractFormAction(html: string, pageUrl: string, fallback: string): string {
   const m = html.match(/<form[^>]*action=["']([^"']*)["']/i);
   if (!m?.[1]) return fallback;
-  return new URL(m[1], ORIGINAL_SITE_BASE).href;
+  return new URL(m[1], pageUrl).href;
 }
 
 function isLoginPage(html: string, finalUrl: string): boolean {
@@ -238,7 +238,7 @@ async function scrapeAzureSite(): Promise<Score[]> {
     throw new Error("[SCORES] WebForms tokens not found on login page");
   }
 
-  const postUrl = extractFormAction(loginPage.html, loginGetUrl);
+  const postUrl = extractFormAction(loginPage.html, loginPage.url, loginGetUrl);
 
   const formData = new URLSearchParams();
   formData.set("__EVENTTARGET", "");
@@ -265,7 +265,10 @@ async function scrapeAzureSite(): Promise<Score[]> {
   console.log(`[SCORES] Login response status: ${loginRes.status}`);
   console.log(`[SCORES] Login redirect URL: ${redirectPath(loginRes.url)}`);
 
-  const loginSuccess = !isLoginPage(loginRes.html, loginRes.url);
+  const loginSuccess =
+    loginRes.status >= 200 &&
+    loginRes.status < 400 &&
+    !isLoginPage(loginRes.html, loginRes.url);
   console.log(`[SCORES] Login success: ${loginSuccess ? "yes" : "no"}`);
 
   if (!loginSuccess) {
