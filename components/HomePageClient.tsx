@@ -6,8 +6,7 @@ import { filterQuinielasByBet } from "@/data/quinielas";
 import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
 import { useLiveScores } from "@/hooks/useLiveScores";
 import { recordRankSnapshot, hasReliableRankHistory } from "@/lib/rankHistory";
-import { computeLeaderboardBadges } from "@/lib/badges";
-import { loadLocalMatches } from "@/lib/localMatchStore";
+import { getPredictionHighlights } from "@/lib/predictionHighlights";
 import { useScores } from "@/components/ScoresProvider";
 import Hero from "@/components/Hero";
 import LiveScoresPanel from "@/components/LiveScoresPanel";
@@ -26,7 +25,7 @@ export default function HomePageClient() {
   const [adminMode, setAdminMode] = useState(false);
 
   const { data: liveData } = useLiveScores();
-  const { pointsMap, refresh, loading: scoresLoading } = useScores();
+  const { refresh, loading: scoresLoading } = useScores();
 
   const allEntries = useRankedQuinielas(liveData?.matches ?? []);
 
@@ -50,14 +49,9 @@ export default function HomePageClient() {
     [allEntries, betFilter]
   );
 
-  const localRows = useMemo(
-    () => loadLocalMatches(),
-    [liveData?.lastUpdated]
-  );
-
-  const badgeBoard = useMemo(
-    () => computeLeaderboardBadges(allEntries, liveData?.matches ?? [], localRows, pointsMap),
-    [allEntries, liveData?.matches, localRows, pointsMap]
+  const hotStreakLeader = useMemo(
+    () => getPredictionHighlights(allEntries, liveData?.matches ?? []).longestStreak,
+    [allEntries, liveData?.matches]
   );
 
   const betTabs: { key: typeof betFilter; label: string }[] = [
@@ -124,7 +118,7 @@ export default function HomePageClient() {
       />
 
       <div className="mb-4 px-4 md:px-0">
-        <Leaderboard entries={entries} badgesBySlug={badgeBoard.bySlug} />
+        <Leaderboard entries={entries} hotStreakSlug={hotStreakLeader?.slug} />
       </div>
       <div className="mt-8">
         <CountryPredictionsChart />

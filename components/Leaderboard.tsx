@@ -12,13 +12,10 @@ import BetTierBadge from "./BetTierBadge";
 import RankChange from "./RankChange";
 import PlayerAvatar from "./PlayerAvatar";
 import ScoreBreakdownTooltip from "./ScoreBreakdownTooltip";
-import LeaderboardBadges from "./LeaderboardBadges";
-import type { QuinielaBadge } from "@/lib/badges";
-
 interface LeaderboardProps {
   entries: RankedQuiniela[];
   highlightSlug?: string;
-  badgesBySlug?: Record<string, QuinielaBadge[]>;
+  hotStreakSlug?: string;
 }
 
 function getRowNavHandlers(slug: string, router: ReturnType<typeof useRouter>) {
@@ -36,7 +33,7 @@ function getRowNavHandlers(slug: string, router: ReturnType<typeof useRouter>) {
 export default function Leaderboard({
   entries,
   highlightSlug,
-  badgesBySlug = {},
+  hotStreakSlug,
 }: LeaderboardProps) {
   const t = useTranslations();
   const router = useRouter();
@@ -59,8 +56,6 @@ export default function Leaderboard({
             highlightSlug === entry.slug ||
             (activePlayer === entry.captain && !highlightSlug);
           const nav = getRowNavHandlers(entry.slug, router);
-          const rowBadges = badgesBySlug[entry.slug] ?? [];
-
           return (
             <motion.div
               key={entry.slug}
@@ -93,7 +88,11 @@ export default function Leaderboard({
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-body font-medium text-name transition-colors hover:text-accent">
                     {entry.name}
-                    <LeaderboardBadges badges={rowBadges} />
+                    {hotStreakSlug === entry.slug && (
+                      <span className="ml-1" aria-hidden>
+                        🔥
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div
@@ -136,8 +135,6 @@ export default function Leaderboard({
                 highlightSlug === entry.slug ||
                 (activePlayer === entry.captain && !highlightSlug);
               const nav = getRowNavHandlers(entry.slug, router);
-              const rowBadges = badgesBySlug[entry.slug] ?? [];
-
               return (
                 <motion.tr
                   key={entry.slug}
@@ -174,7 +171,11 @@ export default function Leaderboard({
                       >
                         <p className="truncate font-medium">
                           {entry.name}
-                          <LeaderboardBadges badges={rowBadges} />
+                          {hotStreakSlug === entry.slug && (
+                            <span className="ml-1" aria-hidden>
+                              🔥
+                            </span>
+                          )}
                         </p>
                       </Link>
                     </div>
