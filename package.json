@@ -9,7 +9,7 @@
     "lint": "next lint",
     "generate:predictions": "node scripts/generate-predictions.cjs",
     "generate:icons": "tsx scripts/generate-icons.ts",
-    "prebuild": "node scripts/generate-predictions.cjs && npx tsx scripts/validate-scoring.ts && tsx scripts/generate-icons.ts"
+    "prebuild": "node scripts/generate-predictions.cjs && npx tsx scripts/validate-scoring.ts && npx tsx scripts/validate-scores.ts && tsx scripts/generate-icons.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

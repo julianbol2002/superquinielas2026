@@ -1,6 +1,6 @@
 "use client";
 
-import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
+import { useScores } from "@/components/ScoresProvider";
 import { Link } from "@/i18n/routing";
 import type { AnalyticsSnapshot } from "@/lib/analytics";
 import { getTopSlugs } from "@/lib/analytics";
@@ -12,8 +12,8 @@ export default function HeadToHeadMatrix({
   snapshot: AnalyticsSnapshot;
   mobile?: boolean;
 }) {
-  const { overrides } = useScoreOverrides();
-  const slugs = mobile ? getTopSlugs(snapshot, 10, overrides) : snapshot.quinielaSlugs.slice(0, 12);
+  const { pointsMap } = useScores();
+  const slugs = mobile ? getTopSlugs(snapshot, 10, pointsMap) : snapshot.quinielaSlugs.slice(0, 12);
 
   function cellColor(val: number): string {
     if (val > 0) return "bg-emerald-600/80 text-white";

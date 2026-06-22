@@ -1,48 +1,49 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-import { OFFICIAL_SYNC_STALE_MS } from "@/data/expectedPoints";
-import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
+import { useTranslations } from "next-intl";
+import { useScores } from "@/components/ScoresProvider";
 import { cn } from "@/lib/utils";
 
-export default function OfficialSyncStatus() {
+const CACHE_DURATION = 30 * 60 * 1000;
+
+export default function OfficialSyncStatus({
+  adminMode,
+  onForceRefresh,
+  refreshing,
+}: {
+  adminMode?: boolean;
+  onForceRefresh?: () => void;
+  refreshing?: boolean;
+}) {
   const t = useTranslations();
-  const locale = useLocale();
-  const { meta, loading } = useScoreOverrides();
-  const lastSyncedAt = meta.lastSyncedAt;
+  const { lastFetched, scores } = useScores();
 
-  if (loading) return null;
-
-  if (!lastSyncedAt) {
+  if (lastFetched === 0 && scores.length === 0) {
     return (
       <p className="mb-3 px-4 text-[11px] text-muted md:px-0">
-        {t("official_sync_baseline")}
+        {t("official_sync_never")}
       </p>
     );
   }
 
-  const stale =
-    Date.now() - new Date(lastSyncedAt).getTime() > OFFICIAL_SYNC_STALE_MS;
-
-  const formatted = new Date(lastSyncedAt).toLocaleString(
-    locale === "es" ? "es-ES" : "en-US",
-    {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  );
+  const minsAgo = Math.max(0, Math.floor((Date.now() - lastFetched) / 60_000));
+  const stale = Date.now() - lastFetched > CACHE_DURATION;
 
   return (
-    <p
-      className={cn(
-        "mb-3 px-4 text-[11px] md:px-0",
-        stale ? "text-[#ff4444]" : "text-muted"
+    <div className="mb-3 flex flex-wrap items-center gap-3 px-4 md:px-0">
+      <p className={cn("text-[11px]", stale ? "text-[#ff4444]" : "text-muted")}>
+        {t("official_sync_minutes_ago", { mins: minsAgo })}
+      </p>
+      {adminMode && onForceRefresh && (
+        <button
+          type="button"
+          onClick={onForceRefresh}
+          disabled={refreshing}
+          className="min-h-[32px] border border-border bg-surface px-2 py-1 text-[11px] font-medium text-secondary hover:bg-hover disabled:opacity-50"
+        >
+          {refreshing ? t("sync_force_loading") : t("sync_force")}
+        </button>
       )}
-    >
-      {t("official_sync_status", { time: formatted })}
-    </p>
+    </div>
   );
 }

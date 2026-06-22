@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
+import { useScores } from "@/components/ScoresProvider";
 import type { AnalyticsSnapshot, AccuracyCell } from "@/lib/analytics";
 import { getTopSlugs } from "@/lib/analytics";
 
@@ -18,7 +18,7 @@ export default function AccuracyHeatmap({
   mobile?: boolean;
 }) {
   const t = useTranslations();
-  const { overrides } = useScoreOverrides();
+  const { pointsMap } = useScores();
   const legend = useMemo(
     () =>
       [
@@ -30,7 +30,7 @@ export default function AccuracyHeatmap({
     [t]
   );
 
-  const slugs = mobile ? getTopSlugs(snapshot, 10, overrides) : snapshot.quinielaSlugs;
+  const slugs = mobile ? getTopSlugs(snapshot, 10, pointsMap) : snapshot.quinielaSlugs;
   const playedMatches = snapshot.matches.filter((m) => m.played);
 
   return (

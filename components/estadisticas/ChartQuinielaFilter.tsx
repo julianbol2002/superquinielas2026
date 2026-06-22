@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
+import { useScores } from "@/components/ScoresProvider";
 import type { AnalyticsSnapshot } from "@/lib/analytics";
 import { getTopSlugs } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
@@ -10,18 +10,18 @@ import { cn } from "@/lib/utils";
 export type ChartFilterMode = "top5" | "top10" | "all" | "custom";
 
 export function useChartQuinielaFilter(snapshot: AnalyticsSnapshot) {
-  const { overrides } = useScoreOverrides();
+  const { pointsMap } = useScores();
   const [mode, setMode] = useState<ChartFilterMode>("top5");
   const [customSlugs, setCustomSlugs] = useState<string[]>([]);
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const slugs = useMemo(() => {
-    if (mode === "top5") return getTopSlugs(snapshot, 5, overrides);
-    if (mode === "top10") return getTopSlugs(snapshot, 10, overrides);
+    if (mode === "top5") return getTopSlugs(snapshot, 5, pointsMap);
+    if (mode === "top10") return getTopSlugs(snapshot, 10, pointsMap);
     if (mode === "custom") return customSlugs.slice(0, 8);
     return snapshot.quinielaSlugs;
-  }, [mode, customSlugs, snapshot, overrides]);
+  }, [mode, customSlugs, snapshot, pointsMap]);
 
   const toggleCustomSlug = (slug: string) => {
     setCustomSlugs((prev) => {

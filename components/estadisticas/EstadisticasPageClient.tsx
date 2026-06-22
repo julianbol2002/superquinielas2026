@@ -4,7 +4,7 @@ import { Suspense, lazy, useMemo, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { buildAnalytics } from "@/lib/analytics";
 import { useLiveScores } from "@/hooks/useLiveScores";
-import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
+import { useScores } from "@/components/ScoresProvider";
 import FunSummaryCallouts from "./FunSummaryCallouts";
 
 const PointsTimelineChart = lazy(() => import("./PointsTimelineChart"));
@@ -44,7 +44,7 @@ function Section({
 export default function EstadisticasPageClient() {
   const t = useTranslations();
   const { data: liveData } = useLiveScores();
-  const { overrides } = useScoreOverrides();
+  const { pointsMap } = useScores();
   const [mobile, setMobile] = useState(false);
 
   useEffect(() => {
@@ -55,8 +55,8 @@ export default function EstadisticasPageClient() {
   }, []);
 
   const snapshot = useMemo(
-    () => buildAnalytics(liveData?.matches ?? [], overrides),
-    [liveData?.lastUpdated, liveData?.matches, overrides]
+    () => buildAnalytics(liveData?.matches ?? [], pointsMap),
+    [liveData?.lastUpdated, liveData?.matches, pointsMap]
   );
 
   return (

@@ -9,7 +9,6 @@ import {
 import { scoreMatchPrediction } from "@/lib/quinielaScoring";
 import type { LiveMatch } from "@/lib/liveScores";
 import type { MatchRow } from "@/lib/supabase";
-import type { ScoreOverrideMap } from "@/lib/scoreOverrides";
 import {
   fixtureOccurredOnDate,
   resolveFixtureRecapDate,
@@ -260,12 +259,12 @@ function scoreDayMatches(
 function computeDayRanks(
   dayResults: DayMatchResult[],
   before: boolean,
-  scoreOverrides?: ScoreOverrideMap | null
+  pointsByQuiniela?: Record<string, number>
 ): Map<string, number> {
   const totals = new Map<string, number>();
   quinielas.forEach((q) => totals.set(quinielaToSlug(q.name), 0));
 
-  const ranked = getRankedQuinielas([], { scoreOverrides });
+  const ranked = getRankedQuinielas([], { pointsByQuiniela });
   ranked.forEach((q) => totals.set(q.slug, q.points));
 
   if (before && dayResults.length > 0) {
@@ -302,14 +301,14 @@ export function getRecapRankMovers(
   recapDate: string,
   liveMatches: LiveMatch[] = [],
   localRows: MatchRow[] = [],
-  scoreOverrides?: ScoreOverrideMap | null
+  pointsByQuiniela?: Record<string, number>
 ): RecapRankMover[] {
   const dayMatches = getMatchesForRecapDate(recapDate, liveMatches, localRows);
   if (dayMatches.length === 0) return [];
 
   const dayResults = scoreDayMatches(dayMatches);
-  const ranksBefore = computeDayRanks(dayResults, true, scoreOverrides);
-  const ranksAfter = computeDayRanks(dayResults, false, scoreOverrides);
+  const ranksBefore = computeDayRanks(dayResults, true, pointsByQuiniela);
+  const ranksAfter = computeDayRanks(dayResults, false, pointsByQuiniela);
   const movers: RecapRankMover[] = [];
 
   for (const q of quinielas) {
@@ -386,7 +385,7 @@ export function buildDailyRecap(
   recapDate: string,
   liveMatches: LiveMatch[] = [],
   localRows: MatchRow[] = [],
-  scoreOverrides?: ScoreOverrideMap | null
+  pointsByQuiniela?: Record<string, number>
 ): DailyRecap {
   const dayMatches = getMatchesForRecapDate(recapDate, liveMatches, localRows);
   const dayResults = scoreDayMatches(dayMatches);
@@ -396,7 +395,7 @@ export function buildDailyRecap(
   const seed = recapDate;
 
   if (!hasMatchActivity) {
-    const ranked = getRankedQuinielas(liveMatches, { scoreOverrides }).slice(0, 5);
+    const ranked = getRankedQuinielas(liveMatches, { pointsByQuiniela }).slice(0, 5);
     stories.push({
       id: "quiet",
       kind: "quiet_day",
@@ -464,8 +463,8 @@ export function buildDailyRecap(
     });
   }
 
-  const ranksBefore = computeDayRanks(dayResults, true, scoreOverrides);
-  const ranksAfter = computeDayRanks(dayResults, false, scoreOverrides);
+  const ranksBefore = computeDayRanks(dayResults, true, pointsByQuiniela);
+  const ranksAfter = computeDayRanks(dayResults, false, pointsByQuiniela);
   const movers: { player: RecapPlayerRef; delta: number; direction: "up" | "down" }[] = [];
 
   for (const q of quinielas) {
@@ -605,7 +604,7 @@ export function buildDailyRecap(
     });
   }
 
-  const ranked = getRankedQuinielas(liveMatches, { scoreOverrides }).slice(0, 3);
+  const ranked = getRankedQuinielas(liveMatches, { pointsByQuiniela }).slice(0, 3);
   stories.push({
     id: "standings",
     kind: "standings",

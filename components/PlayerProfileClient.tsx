@@ -11,7 +11,7 @@ import {
 import { getPrizeForQuiniela } from "@/lib/prizes";
 import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
 import { useLiveScores } from "@/hooks/useLiveScores";
-import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
+import { useScores } from "@/components/ScoresProvider";
 import PlayerAvatar from "@/components/PlayerAvatar";
 import QuinielaCard from "@/components/QuinielaCard";
 import ShareCard from "@/components/ShareCard";
@@ -23,7 +23,7 @@ export default function PlayerProfileClient({ slug }: { slug: string }) {
   const t = useTranslations();
   const quiniela = slugToQuiniela(slug);
   const { data: liveData } = useLiveScores();
-  const { overrides } = useScoreOverrides();
+  const { pointsMap } = useScores();
   const allEntries = useRankedQuinielas(liveData?.matches ?? []);
 
   const entry = useMemo(() => {
@@ -32,15 +32,15 @@ export default function PlayerProfileClient({ slug }: { slug: string }) {
   }, [quiniela, slug, allEntries]);
 
   const prize = useMemo(
-    () => (entry ? getPrizeForQuiniela(entry.slug, overrides) : undefined),
-    [entry, overrides]
+    () => (entry ? getPrizeForQuiniela(entry.slug, pointsMap) : undefined),
+    [entry, pointsMap]
   );
 
   if (!quiniela || !entry) {
     notFound();
   }
 
-  const avg = getQuinielaAveragePoints(liveData?.matches ?? [], overrides);
+  const avg = getQuinielaAveragePoints(liveData?.matches ?? [], pointsMap);
   const pct = avg > 0 ? Math.min(100, (entry.points / avg) * 50) : 50;
 
   return (

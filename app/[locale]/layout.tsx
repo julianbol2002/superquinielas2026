@@ -3,7 +3,8 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import AppShell from "@/components/AppShell";
-import { ScoreOverridesProvider } from "@/components/ScoreOverridesProvider";
+import { ScoresProvider } from "@/components/ScoresProvider";
+import { getLastFetched, getScores } from "@/lib/getScores";
 
 type Props = {
   children: React.ReactNode;
@@ -22,12 +23,13 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
   const messages = await getMessages();
+  const scores = await getScores();
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <ScoreOverridesProvider>
+      <ScoresProvider initialScores={scores} initialLastFetched={getLastFetched()}>
         <AppShell locale={locale}>{children}</AppShell>
-      </ScoreOverridesProvider>
+      </ScoresProvider>
     </NextIntlClientProvider>
   );
 }

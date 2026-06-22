@@ -1,7 +1,6 @@
 import { quinielas, quinielaToSlug, type RankedQuiniela } from "@/data/quinielas";
 import { getPredictionsForSlug } from "@/data/predictions";
 import { getLatestRecapDate, getRecapRankMovers } from "@/lib/dailyRecap";
-import type { ScoreOverrideMap } from "@/lib/scoreOverrides";
 import type { LiveMatch } from "@/lib/liveScores";
 import { loadLocalMatches } from "@/lib/localMatchStore";
 import {
@@ -242,7 +241,7 @@ export function computeLeaderboardBadges(
   entries: RankedQuiniela[],
   liveMatches: LiveMatch[] = [],
   localRows?: MatchRow[],
-  scoreOverrides?: ScoreOverrideMap | null
+  pointsByQuiniela?: Record<string, number>
 ): LeaderboardBadgeBoard {
   const rows =
     localRows ??
@@ -250,7 +249,7 @@ export function computeLeaderboardBadges(
 
   const globalAwards = computeGlobalAwards(liveMatches);
   const recapDate = getLatestRecapDate();
-  const movers = getRecapRankMovers(recapDate, liveMatches, rows, scoreOverrides);
+  const movers = getRecapRankMovers(recapDate, liveMatches, rows, pointsByQuiniela);
 
   const topClimber = [...movers]
     .filter((m) => m.direction === "up")

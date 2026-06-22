@@ -15,7 +15,6 @@ import {
   scoreMatchPrediction,
 } from "@/lib/quinielaScoring";
 import type { LiveMatch } from "@/lib/liveScores";
-import type { ScoreOverrideMap } from "@/lib/scoreOverrides";
 import { buildQuinielaColorMap } from "@/lib/chartColors";
 
 export type AccuracyCell = "exact" | "result" | "wrong" | "pending";
@@ -265,7 +264,7 @@ function computeRanks(
 
 export function buildAnalytics(
   liveMatches: LiveMatch[] = [],
-  scoreOverrides?: ScoreOverrideMap | null
+  pointsByQuiniela?: Record<string, number>
 ): AnalyticsSnapshot {
   const matches = buildMatchList(liveMatches);
   const playedCount = matches.filter((m) => m.played).length;
@@ -325,7 +324,7 @@ export function buildAnalytics(
 
   const ranksOverTime = computeRanks(cumulativePoints, playedCount, names, captains);
 
-  const ranked = getRankedQuinielas(liveMatches, { scoreOverrides });
+  const ranked = getRankedQuinielas(liveMatches, { pointsByQuiniela });
   const climbers = ranked
     .map((q) => {
       const ranks = ranksOverTime[q.slug] ?? [];
@@ -626,9 +625,9 @@ export function getBumpChartData(snapshot: AnalyticsSnapshot, slugs: string[]) {
 export function getTopSlugs(
   _snapshot: AnalyticsSnapshot,
   n: number,
-  scoreOverrides?: ScoreOverrideMap | null
+  pointsByQuiniela?: Record<string, number>
 ): string[] {
-  return getRankedQuinielas([], { scoreOverrides })
+  return getRankedQuinielas([], { pointsByQuiniela })
     .slice(0, n)
     .map((q) => q.slug);
 }
@@ -636,9 +635,9 @@ export function getTopSlugs(
 export function getBottomSlugs(
   _snapshot: AnalyticsSnapshot,
   n: number,
-  scoreOverrides?: ScoreOverrideMap | null
+  pointsByQuiniela?: Record<string, number>
 ): string[] {
-  return getRankedQuinielas([], { scoreOverrides })
+  return getRankedQuinielas([], { pointsByQuiniela })
     .slice(-n)
     .map((q) => q.slug);
 }

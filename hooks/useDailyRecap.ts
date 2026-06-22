@@ -15,13 +15,13 @@ import {
 } from "@/lib/dailyRecapState";
 import { loadLocalMatches } from "@/lib/localMatchStore";
 import type { LiveMatch } from "@/lib/liveScores";
-import { useScoreOverrides } from "@/components/ScoreOverridesProvider";
+import { useScores } from "@/components/ScoresProvider";
 
 export function useDailyRecap(
   liveMatches: LiveMatch[] = [],
   scoresVersion?: string | null
 ) {
-  const { overrides } = useScoreOverrides();
+  const { pointsMap } = useScores();
   const [now, setNow] = useState(() => new Date());
   const [readVersion, setReadVersion] = useState(0);
   const [localVersion, setLocalVersion] = useState(0);
@@ -58,9 +58,9 @@ export function useDailyRecap(
     () =>
       availableDates.map((date) => ({
         date,
-        recap: buildDailyRecap(date, liveMatches, localRows, overrides),
+        recap: buildDailyRecap(date, liveMatches, localRows, pointsMap),
       })),
-    [availableDates, liveMatches, localRows, overrides]
+    [availableDates, liveMatches, localRows, pointsMap]
   );
 
   const latestDate = useMemo(() => getLatestRecapDate(now), [now]);
