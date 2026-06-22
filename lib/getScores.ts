@@ -115,7 +115,10 @@ function extractFormAction(html: string, fallback: string): string {
 
 function isLoginPage(html: string, finalUrl: string): boolean {
   if (finalUrl.toLowerCase().includes("/account/login")) return true;
-  return /name=["']Email["']/i.test(html) && /name=["']Password["']/i.test(html);
+  return (
+    /name=["']ctl00\$MainContent\$Email["']/i.test(html) &&
+    /name=["']ctl00\$MainContent\$Password["']/i.test(html)
+  );
 }
 
 function normalizeQuinielaName(raw: string): string | null {
@@ -224,27 +227,29 @@ async function scrapeAzureSite(): Promise<Score[]> {
   const loginPage = await fetchWithJar(loginGetUrl, jar);
   console.log(`[SCORES] Login page status: ${loginPage.status}`);
 
-  const token =
-    extractFormValue(loginPage.html, "__RequestVerificationToken") ??
-    extractFormValue(loginPage.html, "RequestVerificationToken");
+  const viewState = extractFormValue(loginPage.html, "__VIEWSTATE");
+  const viewStateGenerator = extractFormValue(loginPage.html, "__VIEWSTATEGENERATOR");
+  const eventValidation = extractFormValue(loginPage.html, "__EVENTVALIDATION");
 
   console.log(
-    `[SCORES] CSRF token found: ${token ? "yes" : "no"} — value: ${maskToken(token)}`
+    `[SCORES] CSRF token found: ${viewState ? "yes" : "no"} — value: ${maskToken(viewState)}`
   );
-  if (!token) {
-    throw new Error("[SCORES] CSRF token not found on login page");
+  if (!viewState || !eventValidation) {
+    throw new Error("[SCORES] WebForms tokens not found on login page");
   }
 
   const postUrl = extractFormAction(loginPage.html, loginGetUrl);
-  const returnUrl =
-    extractFormValue(loginPage.html, "ReturnUrl") ?? QUINIELAS_PATH;
 
   const formData = new URLSearchParams();
-  formData.set("Email", email);
-  formData.set("Password", password);
-  formData.set("RememberMe", "true");
-  formData.set("__RequestVerificationToken", token);
-  formData.set("ReturnUrl", returnUrl);
+  formData.set("__EVENTTARGET", "");
+  formData.set("__EVENTARGUMENT", "");
+  formData.set("__VIEWSTATE", viewState);
+  if (viewStateGenerator) formData.set("__VIEWSTATEGENERATOR", viewStateGenerator);
+  formData.set("__EVENTVALIDATION", eventValidation);
+  formData.set("ctl00$MainContent$Email", email);
+  formData.set("ctl00$MainContent$Password", password);
+  formData.set("ctl00$MainContent$RememberMe", "true");
+  formData.set("ctl00$MainContent$ctl05", "Log in");
 
   console.log("[SCORES] Posting login...");
   const loginRes = await fetchWithJar(postUrl, jar, {
