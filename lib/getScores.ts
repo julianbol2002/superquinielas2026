@@ -1,4 +1,5 @@
 import { quinielas } from "@/data/quinielas";
+import { ORIGINAL_SITE_POINTS } from "@/data/expectedPoints";
 import { CookieJar, fetchWithJar } from "@/lib/httpCookieJar";
 
 export interface Score {
@@ -50,6 +51,26 @@ export function scoresToMap(scores: Score[]): Record<string, number> {
   return Object.fromEntries(scores.map((s) => [s.quiniela, s.points]));
 }
 
+function fallbackScores(): Score[] {
+  return quinielas.map((q) => ({
+    quiniela: q.name,
+    points: ORIGINAL_SITE_POINTS[q.name] ?? 0,
+  }));
+}
+
+/** Reference totals when Azure scrape is unavailable */
+export function getBundledScores(): Score[] {
+  return fallbackScores();
+}
+
+function useFallbackScores(reason: string): Score[] {
+  console.warn(`[SCORES] ${reason} — using bundled reference scores`);
+  const fallback = fallbackScores();
+  cachedScores = fallback;
+  lastFetched = Date.now();
+  return fallback;
+}
+
 export async function getScores(force = false): Promise<Score[]> {
   if (!force && Date.now() - lastFetched < CACHE_DURATION && cachedScores.length > 0) {
     return cachedScores;
@@ -60,6 +81,9 @@ export async function getScores(force = false): Promise<Score[]> {
   inFlight = (async () => {
     try {
       const fresh = await scrapeAzureSite();
+      if (fresh.length === 0) {
+        throw new Error("Scrape returned zero scores");
+      }
       cachedScores = fresh;
       lastFetched = Date.now();
       return fresh;
@@ -70,7 +94,7 @@ export async function getScores(force = false): Promise<Score[]> {
         console.warn("[SCORES] Returning last cached scores");
         return cachedScores;
       }
-      return [];
+      return useFallbackScores("Azure scrape unavailable");
     } finally {
       inFlight = null;
     }

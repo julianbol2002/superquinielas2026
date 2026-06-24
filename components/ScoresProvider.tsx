@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import type { Score } from "@/lib/getScores";
-import { scoresToMap } from "@/lib/getScores";
+import { getBundledScores, scoresToMap } from "@/lib/getScores";
 
 const CACHE_DURATION = 30 * 60 * 1000;
 
@@ -39,8 +39,12 @@ export function ScoresProvider({
   initialScores: Score[];
   initialLastFetched: number;
 }) {
-  const [scores, setScores] = useState<Score[]>(initialScores);
-  const [lastFetched, setLastFetched] = useState(initialLastFetched);
+  const seeded =
+    initialScores.length > 0 ? initialScores : getBundledScores();
+  const seededAt = initialScores.length > 0 ? initialLastFetched : Date.now();
+
+  const [scores, setScores] = useState<Score[]>(seeded);
+  const [lastFetched, setLastFetched] = useState(seededAt);
   const [loading, setLoading] = useState(false);
   const lastFetchedRef = useRef(lastFetched);
   const scoresRef = useRef(scores);
@@ -74,6 +78,10 @@ export function ScoresProvider({
       if (data.scores.length > 0) {
         setScores(data.scores);
         setLastFetched(data.lastFetched > 0 ? data.lastFetched : Date.now());
+      } else if (currentScores.length === 0) {
+        const bundled = getBundledScores();
+        setScores(bundled);
+        setLastFetched(Date.now());
       }
     } finally {
       setLoading(false);
