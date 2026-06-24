@@ -44,43 +44,57 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
               <Link
                 href={`/quiniela/${entry.slug}`}
                 className={cn(
-                  "relative flex flex-col items-center border border-b-0 border-border px-2 py-3 transition-colors hover:bg-hover",
+                  "relative flex flex-col items-center border-2 border-b-0 px-2 py-3 transition-transform hover:scale-[1.02]",
+                  styles.cardClass,
                   place === 1 && "pb-4 podium-winner-glow"
                 )}
                 style={{
-                  borderLeftWidth: 3,
-                  borderLeftColor: styles.border,
+                  borderColor: styles.border,
                   backgroundColor: styles.bg,
+                  boxShadow: place === 1 ? styles.glow : undefined,
                 }}
               >
+                <span
+                  className="podium-rank-badge"
+                  style={{
+                    backgroundColor: styles.border,
+                    color: place === 1 ? "#1a1400" : place === 2 ? "#1a1a1a" : "#1a1008",
+                  }}
+                  aria-hidden
+                >
+                  {place}
+                </span>
                 {place === 1 && (
                   <span
-                    className="absolute -top-3 text-lg"
+                    className="absolute -top-4 text-xl drop-shadow-md"
                     aria-hidden
                     title={t("leader")}
                   >
                     👑
                   </span>
                 )}
-                <span className="text-lg leading-none" aria-hidden>
+                <span className="text-xl leading-none drop-shadow-sm" aria-hidden>
                   {medal}
                 </span>
                 <PlayerAvatar
                   captain={entry.captain}
                   size={place === 1 ? 52 : place === 2 ? 44 : 40}
                   ringColor={styles.border}
-                  className="mt-1"
+                  className="mt-1 shadow-md"
                 />
-                <p className="mt-2 line-clamp-2 text-center text-body font-bold text-name">
+                <p className="mt-2 line-clamp-2 text-center text-body font-bold text-heading">
                   {entry.name}
                 </p>
-                <p className="truncate text-label text-captain">{entry.captain}</p>
+                <p className="truncate text-label font-medium text-secondary">
+                  {entry.captain}
+                </p>
                 <p
-                  className="score-pill mt-2 text-xl"
+                  className="score-pill mt-2 font-display text-xl font-bold"
                   style={{
                     borderColor: styles.border,
                     color: styles.border,
-                    background: `color-mix(in srgb, ${styles.border} 18%, var(--surface))`,
+                    background: `color-mix(in srgb, ${styles.border} 28%, var(--surface))`,
+                    boxShadow: `0 0 16px color-mix(in srgb, ${styles.border} 30%, transparent)`,
                   }}
                 >
                   {entry.points}
@@ -89,10 +103,13 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
 
               <div
                 aria-hidden
-                className={cn("w-full border border-t-0 border-border", styles.pedestalHeight)}
+                className={cn(
+                  "w-full border-2 border-t-0",
+                  styles.pedestalHeight,
+                  styles.pedestalClass
+                )}
                 style={{
-                  borderLeftWidth: 3,
-                  borderLeftColor: styles.border,
+                  borderColor: styles.border,
                   backgroundColor: styles.pedestalBg,
                 }}
               />

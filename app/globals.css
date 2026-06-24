@@ -335,6 +335,59 @@ body {
     animation: podium-glow 2.5s ease-in-out infinite;
   }
 
+  .podium-card-gold {
+    border-color: color-mix(in srgb, #f5c518 70%, white) !important;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #f5c518 35%, transparent),
+      0 8px 24px color-mix(in srgb, #f5c518 25%, transparent);
+  }
+
+  .podium-card-silver {
+    border-color: color-mix(in srgb, #d8d8d8 60%, white) !important;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #c0c0c0 25%, transparent),
+      0 6px 18px color-mix(in srgb, #c0c0c0 18%, transparent);
+  }
+
+  .podium-card-bronze {
+    border-color: color-mix(in srgb, #e0924a 65%, white) !important;
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #cd7f32 25%, transparent),
+      0 6px 16px color-mix(in srgb, #cd7f32 16%, transparent);
+  }
+
+  .podium-pedestal-gold {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #f5c518 55%, #2a2200),
+      color-mix(in srgb, #f5c518 25%, #0a0800)
+    ) !important;
+    border-color: color-mix(in srgb, #f5c518 55%, transparent) !important;
+  }
+
+  .podium-pedestal-silver {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #c0c0c0 45%, #2a2a2a),
+      color-mix(in srgb, #c0c0c0 18%, #101010)
+    ) !important;
+    border-color: color-mix(in srgb, #c0c0c0 45%, transparent) !important;
+  }
+
+  .podium-pedestal-bronze {
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, #cd7f32 50%, #2a1808),
+      color-mix(in srgb, #cd7f32 20%, #100a04)
+    ) !important;
+    border-color: color-mix(in srgb, #cd7f32 45%, transparent) !important;
+  }
+
+  .podium-rank-badge {
+    @apply absolute -left-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full font-display text-sm leading-none;
+    border: 2px solid var(--surface);
+  }
+
   .rank-change-up {
     @apply rounded px-1 py-px font-bold;
     background: color-mix(in srgb, #00cc66 18%, transparent);
@@ -382,10 +435,14 @@ body {
 @keyframes podium-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, #f5c518 0%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, #f5c518 35%, transparent),
+      0 8px 24px color-mix(in srgb, #f5c518 20%, transparent);
   }
   50% {
-    box-shadow: 0 0 24px 2px color-mix(in srgb, #f5c518 35%, transparent);
+    box-shadow:
+      0 0 0 2px color-mix(in srgb, #f5c518 55%, transparent),
+      0 8px 36px color-mix(in srgb, #f5c518 45%, transparent);
   }
 }
 
