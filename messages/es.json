@@ -112,6 +112,7 @@
   "match_teams": "Partido",
   "prediction": "Pronóstico",
   "actual_result": "Resultado",
+  "actual_score": "Resultado real",
   "match_points": "Pts",
   "goleada_bonus": "Bonificación por goleada",
   "stat_exact_scores": "Marcadores exactos",

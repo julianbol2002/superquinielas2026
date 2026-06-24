@@ -112,6 +112,7 @@
   "match_teams": "Match",
   "prediction": "Prediction",
   "actual_result": "Result",
+  "actual_score": "Actual score",
   "match_points": "Pts",
   "goleada_bonus": "Goleada bonus",
   "stat_exact_scores": "Exact scores",

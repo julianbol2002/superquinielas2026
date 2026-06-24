@@ -73,6 +73,71 @@ export function getCountryDisplayName(country: string, compact = false): string 
   return countryShortNames[country] ?? country;
 }
 
+/** FIFA-style 3-letter codes for score lines (e.g. SUI 5 - 2 USA) */
+export const countryFifaAbbrev: Record<string, string> = {
+  Mexico: "MEX",
+  "South Korea": "KOR",
+  "South Africa": "RSA",
+  Czechia: "CZE",
+  Canada: "CAN",
+  Switzerland: "SUI",
+  Qatar: "QAT",
+  "Bosnia and Herzegovina": "BIH",
+  Brazil: "BRA",
+  Morocco: "MAR",
+  Scotland: "SCO",
+  Haiti: "HAI",
+  "United States": "USA",
+  Australia: "AUS",
+  Paraguay: "PAR",
+  Turkey: "TUR",
+  Germany: "GER",
+  Ecuador: "ECU",
+  "Ivory Coast": "CIV",
+  "Curaçao": "CUW",
+  Netherlands: "NED",
+  Japan: "JPN",
+  Sweden: "SWE",
+  Tunisia: "TUN",
+  Belgium: "BEL",
+  Iran: "IRN",
+  Egypt: "EGY",
+  "New Zealand": "NZL",
+  Spain: "ESP",
+  Uruguay: "URU",
+  "Saudi Arabia": "KSA",
+  "Cabo Verde": "CPV",
+  France: "FRA",
+  Senegal: "SEN",
+  Norway: "NOR",
+  Iraq: "IRQ",
+  Argentina: "ARG",
+  Algeria: "ALG",
+  Austria: "AUT",
+  Jordan: "JOR",
+  Portugal: "POR",
+  Colombia: "COL",
+  Uzbekistan: "UZB",
+  "DR Congo": "COD",
+  England: "ENG",
+  Croatia: "CRO",
+  Ghana: "GHA",
+  Panama: "PAN",
+};
+
+export function getCountryAbbrev(country: string): string {
+  return countryFifaAbbrev[country] ?? country.slice(0, 3).toUpperCase();
+}
+
+export function formatScoreWithAbbrevs(
+  team1: string,
+  team2: string,
+  score1: number,
+  score2: number
+): string {
+  return `${getCountryAbbrev(team1)} ${score1} - ${score2} ${getCountryAbbrev(team2)}`;
+}
+
 export interface GroupTeam {
   name: string;
   code: string;

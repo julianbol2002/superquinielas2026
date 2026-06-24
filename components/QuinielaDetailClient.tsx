@@ -8,7 +8,7 @@ import {
   quinielas,
   slugToQuiniela,
 } from "@/data/quinielas";
-import { worldCupGroups } from "@/data/countries";
+import { worldCupGroups, formatScoreWithAbbrevs } from "@/data/countries";
 import {
   computePredictionStats,
   getBetTierLabel,
@@ -86,11 +86,12 @@ function PredictionsTable({ rows }: { rows: ScoredPredictionRow[] }) {
               </h3>
               <div className="overflow-hidden rounded-xl border border-white/10 light:border-slate-200">
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[640px] text-sm">
+                  <table className="w-full min-w-[720px] text-sm">
                     <thead>
                       <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase text-slate-400 light:border-slate-200 light:bg-slate-50">
                         <th className="px-3 py-2 text-left">{t("match_teams")}</th>
-                        <th className="px-3 py-2 text-center">{t("actual_result")}</th>
+                        <th className="px-3 py-2 text-center">{t("prediction")}</th>
+                        <th className="px-3 py-2 text-center">{t("actual_score")}</th>
                         <th className="px-3 py-2 text-right">{t("match_points")}</th>
                       </tr>
                     </thead>
@@ -119,7 +120,15 @@ function PredictionsTable({ rows }: { rows: ScoredPredictionRow[] }) {
                 </h2>
                 <div className="overflow-hidden rounded-xl border border-white/10 light:border-slate-200">
                   <div className="overflow-x-auto">
-                    <table className="w-full min-w-[640px] text-sm">
+                    <table className="w-full min-w-[720px] text-sm">
+                      <thead>
+                        <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase text-slate-400 light:border-slate-200 light:bg-slate-50">
+                          <th className="px-3 py-2 text-left">{t("match_teams")}</th>
+                          <th className="px-3 py-2 text-center">{t("prediction")}</th>
+                          <th className="px-3 py-2 text-center">{t("actual_score")}</th>
+                          <th className="px-3 py-2 text-right">{t("match_points")}</th>
+                        </tr>
+                      </thead>
                       <tbody>
                         {phaseMatches.map((row) => (
                           <MatchRow key={row.id} row={row} />
@@ -147,7 +156,7 @@ function MatchRow({ row }: { row: ScoredPredictionRow }) {
 
   const actualLabel =
     row.played && row.actualScore1 !== null && row.actualScore2 !== null
-      ? `${row.actualScore1} - ${row.actualScore2}`
+      ? formatScoreWithAbbrevs(row.team1, row.team2, row.actualScore1, row.actualScore2)
       : "—";
 
   const pointsLabel =
@@ -168,13 +177,26 @@ function MatchRow({ row }: { row: ScoredPredictionRow }) {
         <MatchTeamsRow
           team1={row.team1}
           team2={row.team2}
-          scoreLine={predictedLabel !== "—" ? predictedLabel : undefined}
-          showGoleadaBadge={row.goleadaBonus}
-          goleadaLabel={t("goleada_short")}
           compactNames
         />
       </td>
-      <td className="px-3 py-2 text-center text-muted">{actualLabel}</td>
+      <td className="px-3 py-2 text-center">
+        <div className="flex items-center justify-center gap-2">
+          <span className="font-accent text-lg tracking-wide">{predictedLabel}</span>
+          {row.goleadaBonus && (
+            <span
+              className="inline-flex items-center gap-0.5 rounded-full bg-orange-500/20 px-2 py-0.5 text-xs font-bold text-orange-400"
+              title={t("goleada_short")}
+            >
+              🔥
+              <span className="sr-only sm:not-sr-only">{t("goleada_short")}</span>
+            </span>
+          )}
+        </div>
+      </td>
+      <td className="px-3 py-2 text-center font-medium text-secondary light:text-slate-700">
+        {actualLabel}
+      </td>
       <td className="px-3 py-2 text-right font-display text-xl text-pitch">
         {pointsLabel}
       </td>
