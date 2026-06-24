@@ -1,9 +1,10 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
 import { Link } from "@/i18n/routing";
-import { PODIUM_PLACE_STYLES } from "@/lib/rankStyles";
+import { PODIUM_PLACE_STYLES, rankMedalEmoji } from "@/lib/rankStyles";
 import { cn } from "@/lib/utils";
 import PlayerAvatar from "./PlayerAvatar";
 
@@ -21,23 +22,30 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
 
   return (
     <section className="mb-5 px-4 md:px-0">
-      <h2 className="mb-4 label-caps">{t("podium_title")}</h2>
+      <h2 className="mb-4 flex items-center gap-2 font-display text-xl tracking-wide text-section">
+        <span aria-hidden>🏟️</span>
+        {t("podium_title")}
+      </h2>
       <div className="flex items-end justify-center gap-2 md:gap-4">
-        {podiumOrder.map((idx) => {
+        {podiumOrder.map((idx, i) => {
           const entry = top3[idx];
           const place = entry.rank as 1 | 2 | 3;
           const styles = PODIUM_PLACE_STYLES[place];
+          const medal = rankMedalEmoji(place);
 
           return (
-            <div
+            <motion.div
               key={entry.slug}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, duration: 0.35, type: "spring" }}
               className="flex w-[30%] max-w-[120px] flex-col md:max-w-[140px]"
             >
               <Link
                 href={`/quiniela/${entry.slug}`}
                 className={cn(
-                  "flex flex-col items-center border border-b-0 border-border px-2 py-3 transition-colors hover:bg-hover",
-                  place === 1 && "pb-4"
+                  "relative flex flex-col items-center border border-b-0 border-border px-2 py-3 transition-colors hover:bg-hover",
+                  place === 1 && "pb-4 podium-winner-glow"
                 )}
                 style={{
                   borderLeftWidth: 3,
@@ -45,25 +53,35 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
                   backgroundColor: styles.bg,
                 }}
               >
-                <span
-                  className="font-display text-lg leading-none"
-                  style={{ color: styles.border }}
-                >
-                  {entry.rank}
+                {place === 1 && (
+                  <span
+                    className="absolute -top-3 text-lg"
+                    aria-hidden
+                    title={t("leader")}
+                  >
+                    👑
+                  </span>
+                )}
+                <span className="text-lg leading-none" aria-hidden>
+                  {medal}
                 </span>
                 <PlayerAvatar
                   captain={entry.captain}
                   size={place === 1 ? 52 : place === 2 ? 44 : 40}
                   ringColor={styles.border}
-                  className="mt-2"
+                  className="mt-1"
                 />
                 <p className="mt-2 line-clamp-2 text-center text-body font-bold text-name">
                   {entry.name}
                 </p>
                 <p className="truncate text-label text-captain">{entry.captain}</p>
                 <p
-                  className="mt-1 font-display text-2xl"
-                  style={{ color: styles.border }}
+                  className="score-pill mt-2 text-xl"
+                  style={{
+                    borderColor: styles.border,
+                    color: styles.border,
+                    background: `color-mix(in srgb, ${styles.border} 18%, var(--surface))`,
+                  }}
                 >
                   {entry.points}
                 </p>
@@ -78,7 +96,7 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
                   backgroundColor: styles.pedestalBg,
                 }}
               />
-            </div>
+            </motion.div>
           );
         })}
       </div>

@@ -28,20 +28,32 @@ function StatCard({
   label,
   value,
   sub,
+  accent,
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
   sub: string;
+  accent: string;
 }) {
   return (
-    <div className="flex h-20 max-h-20 min-w-[148px] flex-shrink-0 snap-start flex-col justify-center border border-border bg-surface px-3 py-2">
-      <div className="flex items-center gap-1.5 label-caps">
-        <Icon size={12} strokeWidth={1.75} className="text-accent-soft" />
+    <div
+      className="stat-card-game flex h-[5.25rem] max-h-[5.25rem] min-w-[152px] flex-shrink-0 snap-start flex-col justify-center px-3 py-2"
+      style={{ borderLeftColor: accent }}
+    >
+      <div className="relative z-[1] flex items-center gap-1.5 label-caps">
+        <span
+          className="flex h-5 w-5 items-center justify-center rounded-sm"
+          style={{ background: `color-mix(in srgb, ${accent} 20%, transparent)` }}
+        >
+          <Icon size={12} strokeWidth={2} style={{ color: accent }} />
+        </span>
         <span className="truncate">{label}</span>
       </div>
-      <p className="mt-1 truncate text-body font-medium text-heading">{value}</p>
-      <p className="truncate text-label text-muted">{sub}</p>
+      <p className="relative z-[1] mt-1 truncate text-body font-semibold text-heading">
+        {value}
+      </p>
+      <p className="relative z-[1] truncate text-label text-muted">{sub}</p>
     </div>
   );
 }
@@ -68,6 +80,7 @@ export default function StatCards({
             stats.biggestClimber && stats.biggestClimber.rankChange > 0
               ? `↑ ${stats.biggestClimber.rankChange}`
               : "—",
+          accent: "#00cc66",
         },
         {
           icon: TrendingDown,
@@ -79,6 +92,7 @@ export default function StatCards({
             stats.biggestFaller && stats.biggestFaller.rankChange < 0
               ? `↓ ${Math.abs(stats.biggestFaller.rankChange)}`
               : "—",
+          accent: "#ff6b6b",
         },
       ]
     : [
@@ -92,6 +106,7 @@ export default function StatCards({
             predictionStats.mostExactCount > 0
               ? `${predictionStats.mostExactCount} ${t("stat_exact_label")}`
               : "—",
+          accent: "var(--accent)",
         },
         {
           icon: Flame,
@@ -103,6 +118,7 @@ export default function StatCards({
             predictionStats.longestStreakCount > 0
               ? `${predictionStats.longestStreakCount} ${t("stat_streak_label")}`
               : "—",
+          accent: "#fb923c",
         },
       ];
 
@@ -112,6 +128,7 @@ export default function StatCards({
       label: t("leader"),
       value: stats.leader ? formatQuinielaLabel(stats.leader) : "—",
       sub: `${stats.leader?.points ?? 0} ${t("points").toLowerCase()}`,
+      accent: "#f5c518",
     },
     ...movementCards,
     {
@@ -123,12 +140,14 @@ export default function StatCards({
       sub: stats.mostAccurate?.correctWinner
         ? t("accuracy").toLowerCase()
         : "—",
+      accent: "var(--accent)",
     },
     {
       icon: DollarSign,
       label: t("biggest_bet"),
       value: stats.biggestBet ? formatQuinielaLabel(stats.biggestBet) : "—",
       sub: `$${stats.biggestBet?.bet ?? 0}`,
+      accent: "#f5c518",
     },
     {
       icon: Zap,
@@ -144,6 +163,7 @@ export default function StatCards({
         predictionStats.perfectMatchBestCount > 0
           ? `${predictionStats.perfectMatchBestCount}× ${t("stat_high_point_matches")}`
           : "4+ pts",
+      accent: "#fb923c",
     },
   ];
 

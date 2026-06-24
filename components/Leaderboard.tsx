@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
 import { Link, useRouter } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
-import { rankNumberClass } from "@/lib/rankStyles";
+import { rankNumberClass, rankMedalEmoji, leaderboardRowClass } from "@/lib/rankStyles";
 import { cn } from "@/lib/utils";
 import BetTierBadge from "./BetTierBadge";
 import RankChange from "./RankChange";
@@ -44,11 +44,12 @@ export default function Leaderboard({
     cn(
       "min-h-[44px] cursor-pointer border-b border-border transition-colors hover:bg-hover",
       rank === 1 && "rank-accent-bar",
-      isHighlighted && "bg-hover"
+      leaderboardRowClass(rank),
+      isHighlighted && "ring-1 ring-inset ring-accent/30"
     );
 
   return (
-    <div className="overflow-hidden border-y border-border md:border md:rounded">
+    <div className="overflow-hidden border border-border md:rounded-lg md:shadow-[0_4px_24px_color-mix(in_srgb,var(--accent)_8%,transparent)]">
       {/* Mobile */}
       <div className="sm:hidden">
         {entries.map((entry, i) => {
@@ -78,11 +79,12 @@ export default function Leaderboard({
                 </div>
                 <span
                   className={cn(
-                    "w-5 flex-shrink-0 text-center font-display text-lg",
-                    rankNumberClass(entry.rank)
+                    "flex w-6 flex-shrink-0 items-center justify-center font-display text-lg",
+                    !rankMedalEmoji(entry.rank) && rankNumberClass(entry.rank)
                   )}
+                  aria-label={`${t("rank")} ${entry.rank}`}
                 >
-                  {entry.rank}
+                  {rankMedalEmoji(entry.rank) ?? entry.rank}
                 </span>
                 <PlayerAvatar captain={entry.captain} size={32} className="flex-shrink-0" />
                 <div className="min-w-0 flex-1">
@@ -155,9 +157,12 @@ export default function Leaderboard({
                     <div className="flex items-center gap-1.5">
                       <RankChange change={entry.rankChange} />
                       <span
-                        className={cn("font-display text-xl", rankNumberClass(entry.rank))}
+                        className={cn(
+                          "font-display text-xl",
+                          !rankMedalEmoji(entry.rank) && rankNumberClass(entry.rank)
+                        )}
                       >
-                        {entry.rank}
+                        {rankMedalEmoji(entry.rank) ?? entry.rank}
                       </span>
                     </div>
                   </td>

@@ -15,7 +15,7 @@ export function BetTierBadge({
   return (
     <span
       className={cn(
-        "inline-block rounded px-1 py-0.5 text-[10px] font-medium uppercase leading-none",
+        "inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none shadow-sm",
         betBadgeClass(bet),
         className
       )}

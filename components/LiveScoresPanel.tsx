@@ -61,7 +61,10 @@ export default function LiveScoresPanel() {
   return (
     <section className="mb-4 border-b border-border px-4 pb-4 md:px-0">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="label-caps">{t("live_scores")}</h2>
+        <h2 className="flex items-center gap-2 label-caps">
+          <span className="live-dot" aria-hidden />
+          {t("live_scores")}
+        </h2>
         {data?.lastUpdated && (
           <p className="text-label text-muted">
             {t("last_updated")}: {formatLastUpdated(data.lastUpdated, locale)}

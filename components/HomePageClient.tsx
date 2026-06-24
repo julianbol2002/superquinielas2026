@@ -78,7 +78,10 @@ export default function HomePageClient() {
       />
 
       <div className="mb-1 flex items-center justify-between px-4 md:px-0">
-        <h2 className="font-display text-2xl tracking-wide text-section">{t("leaderboard")}</h2>
+        <h2 className="flex items-center gap-2 font-display text-2xl tracking-wide text-section">
+          <span aria-hidden>📊</span>
+          {t("leaderboard")}
+        </h2>
         <div className="flex items-center gap-2">
           <button
             type="button"

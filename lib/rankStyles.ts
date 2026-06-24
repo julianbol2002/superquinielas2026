@@ -11,6 +11,20 @@ export function rankNumberClass(rank: number): string {
   return "text-primary-theme";
 }
 
+export function rankMedalEmoji(rank: number): string | null {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return null;
+}
+
+export function leaderboardRowClass(rank: number): string {
+  if (rank === 1) return "leaderboard-row-gold";
+  if (rank === 2) return "leaderboard-row-silver";
+  if (rank === 3) return "leaderboard-row-bronze";
+  return "";
+}
+
 export const PODIUM_PLACE_STYLES: Record<
   1 | 2 | 3,
   { border: string; bg: string; pedestalBg: string; pedestalHeight: string }

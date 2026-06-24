@@ -18,7 +18,7 @@ export default function RankChange({ change }: { change: number }) {
   return (
     <span
       className={`inline-flex items-center text-[10px] ${
-        up ? "text-[#00cc66]" : "text-[#ff4444]"
+        up ? "rank-change-up text-[#00cc66]" : "rank-change-down text-[#ff4444]"
       }`}
       title={`${Math.abs(change)} ${up ? t("positions_up") : t("positions_down")}`}
     >

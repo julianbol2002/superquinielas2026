@@ -56,7 +56,7 @@ export default function AppShell({
   return (
     <div className="flex min-h-screen flex-col bg-page pb-14 md:pb-0">
       <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 pt-2 md:px-6 md:pt-4">
+      <main className="page-pitch-bg mx-auto w-full max-w-6xl flex-1 pt-2 md:px-6 md:pt-4">
         <PageTransition>{children}</PageTransition>
       </main>
       <BottomNav />

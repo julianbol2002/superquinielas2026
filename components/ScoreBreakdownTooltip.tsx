@@ -31,7 +31,7 @@ export default function ScoreBreakdownTooltip({
       className="relative inline-flex items-center gap-1"
       onClick={(e) => e.stopPropagation()}
     >
-      <span className={cn(pointsClass, "leading-none text-accent")}>
+      <span className={cn("score-pill", pointsClass)}>
         <CountUp value={officialPoints} />
       </span>
       <button
