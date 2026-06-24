@@ -48,10 +48,10 @@
 }
 
 .dark {
-  --bg: #031a2e;
-  --surface: rgba(6, 32, 52, 0.78);
-  --border: rgba(0, 177, 64, 0.28);
-  --hover: rgba(12, 52, 78, 0.88);
+  --bg: #020f1a;
+  --surface: rgba(4, 20, 34, 0.9);
+  --border: rgba(0, 177, 64, 0.14);
+  --hover: rgba(8, 36, 54, 0.92);
   --text-primary: #eef6f2;
   --text-heading: #f4faf7;
   --text-section: #dceee6;
@@ -66,24 +66,28 @@
   --bg-card: var(--surface);
   --border-subtle: var(--border);
   --page-gradient: linear-gradient(
-    145deg,
-    #010d1a 0%,
-    #003087 18%,
-    #006b4a 38%,
-    #00b140 52%,
-    #0a4d8c 68%,
+    155deg,
+    #010810 0%,
+    #021428 30%,
+    #031c2a 55%,
     #021830 100%
   );
-  --page-glow-green: rgba(0, 177, 64, 0.42);
-  --page-glow-blue: rgba(0, 48, 135, 0.5);
-  --page-glow-teal: rgba(0, 160, 130, 0.35);
+  --page-glow-green: rgba(0, 120, 70, 0.1);
+  --page-glow-blue: rgba(0, 48, 120, 0.12);
+  --page-glow-teal: rgba(0, 90, 80, 0.08);
+  --page-glow-mid: rgba(0, 80, 60, 0.05);
+  --overlay-green: color-mix(in srgb, var(--fifa-green) 10%, transparent);
+  --overlay-blue: color-mix(in srgb, var(--fifa-blue) 12%, transparent);
+  --overlay-teal: color-mix(in srgb, var(--fifa-teal) 8%, transparent);
+  --overlay-stripe: color-mix(in srgb, var(--fifa-green) 2.5%, transparent);
+  --overlay-stripe-alt: color-mix(in srgb, var(--fifa-blue) 2.5%, transparent);
 }
 
 .light {
-  --bg: #d4eef5;
-  --surface: rgba(255, 255, 255, 0.78);
-  --border: rgba(0, 48, 135, 0.22);
-  --hover: rgba(200, 235, 248, 0.9);
+  --bg: #f0f6fa;
+  --surface: rgba(255, 255, 255, 0.9);
+  --border: rgba(0, 48, 135, 0.1);
+  --hover: rgba(240, 248, 252, 0.95);
   --text-primary: #0a1a28;
   --text-heading: #0c2238;
   --text-section: #143050;
@@ -98,16 +102,21 @@
   --bg-card: var(--surface);
   --border-subtle: var(--border);
   --page-gradient: linear-gradient(
-    145deg,
-    #7ec8e8 0%,
-    #5ab8a0 28%,
-    #4db87a 48%,
-    #6aaee8 72%,
-    #a8d8f0 100%
+    155deg,
+    #f6fafc 0%,
+    #eef4f8 40%,
+    #f2f8f5 65%,
+    #f4f8fc 100%
   );
-  --page-glow-green: rgba(0, 177, 64, 0.28);
-  --page-glow-blue: rgba(0, 72, 180, 0.32);
-  --page-glow-teal: rgba(0, 143, 122, 0.22);
+  --page-glow-green: rgba(0, 150, 90, 0.06);
+  --page-glow-blue: rgba(60, 120, 200, 0.07);
+  --page-glow-teal: rgba(0, 130, 110, 0.05);
+  --page-glow-mid: rgba(80, 160, 120, 0.04);
+  --overlay-green: color-mix(in srgb, var(--fifa-green) 5%, transparent);
+  --overlay-blue: color-mix(in srgb, var(--fifa-blue) 5%, transparent);
+  --overlay-teal: color-mix(in srgb, var(--fifa-teal) 4%, transparent);
+  --overlay-stripe: color-mix(in srgb, var(--fifa-green) 1.5%, transparent);
+  --overlay-stripe-alt: color-mix(in srgb, var(--fifa-blue) 1.5%, transparent);
 }
 
 html {
@@ -137,7 +146,7 @@ body {
     ),
     radial-gradient(
       ellipse 50% 40% at 70% 55%,
-      color-mix(in srgb, var(--fifa-green) 18%, transparent),
+      var(--page-glow-mid),
       transparent 60%
     ),
     var(--page-gradient);
@@ -217,17 +226,17 @@ body {
     background:
       radial-gradient(
         ellipse 100% 80% at 15% -15%,
-        color-mix(in srgb, var(--fifa-green) 45%, transparent),
+        var(--overlay-green),
         transparent 58%
       ),
       radial-gradient(
         ellipse 90% 70% at 88% -5%,
-        color-mix(in srgb, var(--fifa-blue) 50%, transparent),
+        var(--overlay-blue),
         transparent 52%
       ),
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--fifa-teal) 12%, transparent),
+        var(--overlay-teal),
         transparent 70%
       );
   }
@@ -236,31 +245,31 @@ body {
     background-image:
       radial-gradient(
         ellipse 130% 90% at 50% -5%,
-        color-mix(in srgb, var(--fifa-green) 22%, transparent),
+        var(--overlay-green),
         transparent 62%
       ),
       radial-gradient(
         ellipse 80% 60% at 0% 40%,
-        color-mix(in srgb, var(--fifa-blue) 18%, transparent),
+        var(--overlay-blue),
         transparent 55%
       ),
       radial-gradient(
         ellipse 80% 60% at 100% 60%,
-        color-mix(in srgb, var(--fifa-teal) 16%, transparent),
+        var(--overlay-teal),
         transparent 55%
       ),
       linear-gradient(
         135deg,
-        color-mix(in srgb, var(--fifa-blue) 14%, transparent) 0%,
+        var(--overlay-blue) 0%,
         transparent 35%,
-        color-mix(in srgb, var(--fifa-green) 12%, transparent) 100%
+        var(--overlay-green) 100%
       ),
       repeating-linear-gradient(
         -12deg,
         transparent,
-        transparent 20px,
-        color-mix(in srgb, var(--fifa-green) 7%, transparent) 20px,
-        color-mix(in srgb, var(--fifa-blue) 7%, transparent) 21px
+        transparent 24px,
+        var(--overlay-stripe) 24px,
+        var(--overlay-stripe-alt) 25px
       );
   }
 
@@ -336,51 +345,51 @@ body {
   }
 
   .podium-card-gold {
-    border-color: color-mix(in srgb, #f5c518 70%, white) !important;
+    border-color: color-mix(in srgb, #f5c518 45%, var(--border)) !important;
     box-shadow:
-      0 0 0 1px color-mix(in srgb, #f5c518 35%, transparent),
-      0 8px 24px color-mix(in srgb, #f5c518 25%, transparent);
+      0 0 0 1px color-mix(in srgb, #f5c518 15%, transparent),
+      0 4px 14px color-mix(in srgb, #f5c518 10%, transparent);
   }
 
   .podium-card-silver {
-    border-color: color-mix(in srgb, #d8d8d8 60%, white) !important;
+    border-color: color-mix(in srgb, #c0c0c0 40%, var(--border)) !important;
     box-shadow:
-      0 0 0 1px color-mix(in srgb, #c0c0c0 25%, transparent),
-      0 6px 18px color-mix(in srgb, #c0c0c0 18%, transparent);
+      0 0 0 1px color-mix(in srgb, #c0c0c0 12%, transparent),
+      0 4px 12px color-mix(in srgb, #c0c0c0 8%, transparent);
   }
 
   .podium-card-bronze {
-    border-color: color-mix(in srgb, #e0924a 65%, white) !important;
+    border-color: color-mix(in srgb, #cd7f32 40%, var(--border)) !important;
     box-shadow:
-      0 0 0 1px color-mix(in srgb, #cd7f32 25%, transparent),
-      0 6px 16px color-mix(in srgb, #cd7f32 16%, transparent);
+      0 0 0 1px color-mix(in srgb, #cd7f32 12%, transparent),
+      0 4px 12px color-mix(in srgb, #cd7f32 8%, transparent);
   }
 
   .podium-pedestal-gold {
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, #f5c518 55%, #2a2200),
-      color-mix(in srgb, #f5c518 25%, #0a0800)
+      color-mix(in srgb, #f5c518 22%, var(--surface)),
+      color-mix(in srgb, #f5c518 10%, var(--surface))
     ) !important;
-    border-color: color-mix(in srgb, #f5c518 55%, transparent) !important;
+    border-color: color-mix(in srgb, #f5c518 30%, var(--border)) !important;
   }
 
   .podium-pedestal-silver {
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, #c0c0c0 45%, #2a2a2a),
-      color-mix(in srgb, #c0c0c0 18%, #101010)
+      color-mix(in srgb, #c0c0c0 18%, var(--surface)),
+      color-mix(in srgb, #c0c0c0 8%, var(--surface))
     ) !important;
-    border-color: color-mix(in srgb, #c0c0c0 45%, transparent) !important;
+    border-color: color-mix(in srgb, #c0c0c0 28%, var(--border)) !important;
   }
 
   .podium-pedestal-bronze {
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, #cd7f32 50%, #2a1808),
-      color-mix(in srgb, #cd7f32 20%, #100a04)
+      color-mix(in srgb, #cd7f32 20%, var(--surface)),
+      color-mix(in srgb, #cd7f32 9%, var(--surface))
     ) !important;
-    border-color: color-mix(in srgb, #cd7f32 45%, transparent) !important;
+    border-color: color-mix(in srgb, #cd7f32 28%, var(--border)) !important;
   }
 
   .podium-rank-badge {
@@ -436,13 +445,13 @@ body {
   0%,
   100% {
     box-shadow:
-      0 0 0 1px color-mix(in srgb, #f5c518 35%, transparent),
-      0 8px 24px color-mix(in srgb, #f5c518 20%, transparent);
+      0 0 0 1px color-mix(in srgb, #f5c518 12%, transparent),
+      0 4px 14px color-mix(in srgb, #f5c518 8%, transparent);
   }
   50% {
     box-shadow:
-      0 0 0 2px color-mix(in srgb, #f5c518 55%, transparent),
-      0 8px 36px color-mix(in srgb, #f5c518 45%, transparent);
+      0 0 0 1px color-mix(in srgb, #f5c518 22%, transparent),
+      0 4px 18px color-mix(in srgb, #f5c518 14%, transparent);
   }
 }
 

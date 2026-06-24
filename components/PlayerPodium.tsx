@@ -44,7 +44,7 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
               <Link
                 href={`/quiniela/${entry.slug}`}
                 className={cn(
-                  "relative flex flex-col items-center border-2 border-b-0 px-2 py-3 transition-transform hover:scale-[1.02]",
+                  "relative flex flex-col items-center border border-b-0 px-2 py-3 transition-transform hover:scale-[1.01]",
                   styles.cardClass,
                   place === 1 && "pb-4 podium-winner-glow"
                 )}
@@ -93,8 +93,7 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
                   style={{
                     borderColor: styles.border,
                     color: styles.border,
-                    background: `color-mix(in srgb, ${styles.border} 28%, var(--surface))`,
-                    boxShadow: `0 0 16px color-mix(in srgb, ${styles.border} 30%, transparent)`,
+                    background: `color-mix(in srgb, ${styles.border} 14%, var(--surface))`,
                   }}
                 >
                   {entry.points}
@@ -104,7 +103,7 @@ export default function PlayerPodium({ entries }: PlayerPodiumProps) {
               <div
                 aria-hidden
                 className={cn(
-                  "w-full border-2 border-t-0",
+                  "w-full border border-t-0",
                   styles.pedestalHeight,
                   styles.pedestalClass
                 )}
