@@ -10,6 +10,8 @@ export interface PredictionHighlights {
   mostExactCount: number;
   longestStreak: RankedQuiniela | null;
   longestStreakCount: number;
+  perfectMatchEntries: RankedQuiniela[];
+  perfectMatchBestCount: number;
 }
 
 export function getPredictionHighlights(
@@ -20,10 +22,18 @@ export function getPredictionHighlights(
   let mostExactCount = -1;
   let longestStreak: RankedQuiniela | null = null;
   let longestStreakCount = -1;
+  const perfectMatchCandidates: { entry: RankedQuiniela; count: number }[] = [];
 
   for (const entry of entries) {
     const rows = getScoredPredictions(entry.slug, liveMatches);
     const stats = computePredictionStats(rows);
+    const highPointMatches = rows.filter(
+      (r) => r.played && r.pointsEarned >= 4
+    ).length;
+
+    if (highPointMatches > 0) {
+      perfectMatchCandidates.push({ entry, count: highPointMatches });
+    }
 
     if (
       stats.exactScores > mostExactCount ||
@@ -46,10 +56,25 @@ export function getPredictionHighlights(
     }
   }
 
+  const perfectMatchEntries = perfectMatchCandidates
+    .sort(
+      (a, b) =>
+        b.count - a.count ||
+        a.entry.name.localeCompare(b.entry.name, "es")
+    )
+    .map((c) => c.entry);
+
+  const perfectMatchBestCount =
+    perfectMatchCandidates.length > 0
+      ? Math.max(...perfectMatchCandidates.map((c) => c.count))
+      : 0;
+
   return {
     mostExact: mostExactCount > 0 ? mostExact : null,
     mostExactCount: Math.max(0, mostExactCount),
     longestStreak: longestStreakCount > 0 ? longestStreak : null,
     longestStreakCount: Math.max(0, longestStreakCount),
+    perfectMatchEntries,
+    perfectMatchBestCount,
   };
 }

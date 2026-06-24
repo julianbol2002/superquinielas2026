@@ -134,13 +134,16 @@ export default function StatCards({
       icon: Zap,
       label: t("perfect_streak"),
       value:
-        stats.perfectStreak.length > 0
-          ? stats.perfectStreak
+        predictionStats.perfectMatchEntries.length > 0
+          ? predictionStats.perfectMatchEntries
               .slice(0, 2)
               .map((q) => q.name)
               .join(", ")
           : "—",
-      sub: "4+ pts",
+      sub:
+        predictionStats.perfectMatchBestCount > 0
+          ? `${predictionStats.perfectMatchBestCount}× ${t("stat_high_point_matches")}`
+          : "4+ pts",
     },
   ];
 

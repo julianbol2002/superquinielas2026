@@ -50,7 +50,13 @@ export default function LiveScoresPanel() {
     );
   }
 
-  if (error && !data) return null;
+  if (error && !data) {
+    return (
+      <section className="mb-4 border-b border-border px-4 pb-4 md:px-0">
+        <p className="text-body text-muted">{t("live_scores_unavailable")}</p>
+      </section>
+    );
+  }
 
   return (
     <section className="mb-4 border-b border-border px-4 pb-4 md:px-0">

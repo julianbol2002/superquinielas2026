@@ -148,10 +148,11 @@ export function filterQuinielasByBet(
   entries: RankedQuiniela[],
   tier: "all" | 25 | 50 | 100
 ): RankedQuiniela[] {
-  const filtered =
-    tier === "all" ? entries : entries.filter((q) => q.bet === tier);
+  if (tier === "all") return entries;
 
-  return filtered.map((q, i) => ({ ...q, rank: i + 1 }));
+  return entries
+    .filter((q) => q.bet === tier)
+    .map((q, i) => ({ ...q, rank: i + 1, rankChange: 0 }));
 }
 
 export function getWinnerPredictions(): { country: string; count: number }[] {
@@ -185,7 +186,6 @@ export function getStatHighlights(entries: RankedQuiniela[]) {
     .filter((q) => q.correctWinner)
     .sort((a, b) => b.points - a.points)[0];
   const biggestBet = [...entries].sort((a, b) => b.bet - a.bet)[0];
-  const perfectStreak = entries.filter((q) => q.points >= 4);
 
   return {
     leader,
@@ -193,6 +193,5 @@ export function getStatHighlights(entries: RankedQuiniela[]) {
     biggestFaller,
     mostAccurate,
     biggestBet,
-    perfectStreak,
   };
 }

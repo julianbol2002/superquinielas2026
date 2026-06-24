@@ -15,8 +15,14 @@ export default function MyPositionFab() {
 
   const scrollToMe = () => {
     const myQuinielas = getQuinielasByCaptain(activePlayer);
+    const preferDesktop = window.matchMedia("(min-width: 640px)").matches;
+
     for (const q of myQuinielas) {
-      const el = document.getElementById(`quiniela-${quinielaToSlug(q.name)}`);
+      const slug = quinielaToSlug(q.name);
+      const el =
+        (preferDesktop
+          ? document.getElementById(`quiniela-${slug}-desktop`)
+          : null) ?? document.getElementById(`quiniela-${slug}`);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
         return;

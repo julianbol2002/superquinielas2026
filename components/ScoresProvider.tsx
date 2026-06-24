@@ -73,7 +73,14 @@ export function ScoresProvider({
         method: "POST",
         cache: "no-store",
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        if (currentScores.length === 0) {
+          const bundled = getBundledScores();
+          setScores(bundled);
+          setLastFetched(Date.now());
+        }
+        return;
+      }
       const data = (await res.json()) as { scores: Score[]; lastFetched: number };
       if (data.scores.length > 0) {
         setScores(data.scores);

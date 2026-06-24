@@ -478,7 +478,15 @@ export async function syncLiveMatchesToSupabase(
 }
 
 export async function getScoresWithSync(): Promise<ScoresResponse> {
-  const matches = await fetchAllEspnMatches();
+  let matches: LiveMatch[];
+  try {
+    matches = await fetchAllEspnMatches();
+  } catch (err) {
+    console.error("getScoresWithSync ESPN fetch failed:", err);
+    matches = getSealedFallbackMatches();
+    if (matches.length === 0) throw err;
+  }
+
   const hasLiveMatches = matches.some((m) => m.isLive);
   const syncedCount = await syncLiveMatchesToSupabase(matches);
 

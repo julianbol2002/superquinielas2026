@@ -220,8 +220,9 @@ function parseQuinielasTable(html: string): Score[] {
 
   console.log(`[SCORES] Rows found: ${rowNum}`);
 
-  if (rowNum < 27) {
-    console.error(`[SCORES] ERROR: only ${rowNum} rows found, expected 27`);
+  if (rowNum < quinielas.length) {
+    console.error(`[SCORES] ERROR: only ${rowNum} rows found, expected ${quinielas.length}`);
+    throw new Error(`[SCORES] Incomplete scrape: ${rowNum}/${quinielas.length} rows`);
   }
 
   if (rowNum === 0) {
