@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { Score } from "@/lib/getScores";
@@ -41,11 +42,24 @@ export function ScoresProvider({
   const [scores, setScores] = useState<Score[]>(initialScores);
   const [lastFetched, setLastFetched] = useState(initialLastFetched);
   const [loading, setLoading] = useState(false);
+  const lastFetchedRef = useRef(lastFetched);
+  const scoresRef = useRef(scores);
+
+  useEffect(() => {
+    lastFetchedRef.current = lastFetched;
+  }, [lastFetched]);
+
+  useEffect(() => {
+    scoresRef.current = scores;
+  }, [scores]);
 
   const pointsMap = useMemo(() => scoresToMap(scores), [scores]);
 
   const refresh = useCallback(async (force = false) => {
-    if (!force && Date.now() - lastFetched < CACHE_DURATION && scores.length > 0) {
+    const fetchedAt = lastFetchedRef.current;
+    const currentScores = scoresRef.current;
+
+    if (!force && Date.now() - fetchedAt < CACHE_DURATION && currentScores.length > 0) {
       return;
     }
 
@@ -57,23 +71,37 @@ export function ScoresProvider({
       });
       if (!res.ok) return;
       const data = (await res.json()) as { scores: Score[]; lastFetched: number };
-      setScores(data.scores ?? []);
-      setLastFetched(data.lastFetched ?? Date.now());
+      if (data.scores.length > 0) {
+        setScores(data.scores);
+        setLastFetched(data.lastFetched > 0 ? data.lastFetched : Date.now());
+      }
     } finally {
       setLoading(false);
     }
-  }, [lastFetched, scores.length]);
+  }, []);
+
+  useEffect(() => {
+    if (Date.now() - initialLastFetched >= CACHE_DURATION) {
+      void refresh(true);
+    }
+
+    const interval = setInterval(() => {
+      void refresh(true);
+    }, CACHE_DURATION);
+
+    return () => clearInterval(interval);
+  }, [initialLastFetched, refresh]);
 
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
-      if (Date.now() - lastFetched >= CACHE_DURATION) {
+      if (Date.now() - lastFetchedRef.current >= CACHE_DURATION) {
         void refresh(true);
       }
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [lastFetched, refresh]);
+  }, [refresh]);
 
   return (
     <ScoresContext.Provider

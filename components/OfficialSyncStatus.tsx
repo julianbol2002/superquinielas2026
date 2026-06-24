@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useScores } from "@/components/ScoresProvider";
 import { cn } from "@/lib/utils";
@@ -16,7 +17,13 @@ export default function OfficialSyncStatus({
   refreshing?: boolean;
 }) {
   const t = useTranslations();
-  const { lastFetched, scores } = useScores();
+  const { lastFetched, scores, loading } = useScores();
+  const [now, setNow] = useState(Date.now);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   if (lastFetched === 0 && scores.length === 0) {
     return (
@@ -26,13 +33,13 @@ export default function OfficialSyncStatus({
     );
   }
 
-  const minsAgo = Math.max(0, Math.floor((Date.now() - lastFetched) / 60_000));
-  const stale = Date.now() - lastFetched > CACHE_DURATION;
+  const minsAgo = Math.max(0, Math.floor((now - lastFetched) / 60_000));
+  const stale = now - lastFetched > CACHE_DURATION;
 
   return (
     <div className="mb-3 flex flex-wrap items-center gap-3 px-4 md:px-0">
       <p className={cn("text-[11px]", stale ? "text-[#ff4444]" : "text-muted")}>
-        {t("official_sync_minutes_ago", { mins: minsAgo })}
+        {loading ? t("sync_force_loading") : t("official_sync_minutes_ago", { mins: minsAgo })}
       </p>
       {adminMode && onForceRefresh && (
         <button
