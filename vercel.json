@@ -3,11 +3,5 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "crons": [
-    {
-      "path": "/api/refresh-scores",
-      "schedule": "*/30 * * * *"
-    }
-  ]
+  "installCommand": "npm install"
 }
