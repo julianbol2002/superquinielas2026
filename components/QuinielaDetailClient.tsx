@@ -8,7 +8,7 @@ import {
   quinielas,
   slugToQuiniela,
 } from "@/data/quinielas";
-import { worldCupGroups, formatScoreWithAbbrevs } from "@/data/countries";
+import { worldCupGroups, formatScoreWithAbbrevs, getCountryAbbrev } from "@/data/countries";
 import {
   computePredictionStats,
   getBetTierLabel,
@@ -146,13 +146,43 @@ function PredictionsTable({ rows }: { rows: ScoredPredictionRow[] }) {
   );
 }
 
+function PredictionLabel({
+  team1,
+  team2,
+  score1,
+  score2,
+}: {
+  team1: string;
+  team2: string;
+  score1: number;
+  score2: number;
+}) {
+  const abbrev1 = getCountryAbbrev(team1);
+  const abbrev2 = getCountryAbbrev(team2);
+  const team1Wins = score1 > score2;
+  const team2Wins = score2 > score1;
+
+  return (
+    <span className="font-accent text-base tracking-wide sm:text-lg">
+      <span className={cn(team1Wins && "font-bold text-pitch")}>{abbrev1}</span>{" "}
+      {score1} - {score2}{" "}
+      <span className={cn(team2Wins && "font-bold text-pitch")}>{abbrev2}</span>
+    </span>
+  );
+}
+
 function MatchRow({ row }: { row: ScoredPredictionRow }) {
   const t = useTranslations();
 
   const predictedLabel =
-    row.predicted === null
-      ? "—"
-      : `${row.predicted.score1} - ${row.predicted.score2}`;
+    row.predicted === null ? null : (
+      <PredictionLabel
+        team1={row.team1}
+        team2={row.team2}
+        score1={row.predicted.score1}
+        score2={row.predicted.score2}
+      />
+    );
 
   const actualLabel =
     row.played && row.actualScore1 !== null && row.actualScore2 !== null
@@ -182,7 +212,9 @@ function MatchRow({ row }: { row: ScoredPredictionRow }) {
       </td>
       <td className="px-3 py-2 text-center">
         <div className="flex items-center justify-center gap-2">
-          <span className="font-accent text-lg tracking-wide">{predictedLabel}</span>
+          {predictedLabel ?? (
+            <span className="font-accent text-lg tracking-wide">—</span>
+          )}
           {row.goleadaBonus && (
             <span
               className="inline-flex items-center gap-0.5 rounded-full bg-orange-500/20 px-2 py-0.5 text-xs font-bold text-orange-400"
