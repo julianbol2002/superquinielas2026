@@ -4,10 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
-:root,
+:root {
+  --fifa-blue: #003087;
+  --fifa-blue-deep: #021428;
+  --fifa-blue-mid: #0a3d6e;
+  --fifa-green: #00b140;
+  --fifa-teal: #008f7a;
+}
+
 .colorway-classic {
-  --accent: #00ff87;
-  --accent-dim: rgba(0, 255, 135, 0.12);
+  --accent: #00e676;
+  --accent-dim: rgba(0, 225, 118, 0.14);
   --gold: #f5c518;
   --pitch: var(--accent);
 }
@@ -41,43 +48,66 @@
 }
 
 .dark {
-  --bg: #0a0a0a;
-  --surface: #141414;
-  --border: #222222;
-  --hover: #1a1a1a;
-  --text-primary: #f0f0f0;
-  --text-heading: #f2f5f3;
-  --text-section: #e6eee9;
+  --bg: #031a2e;
+  --surface: rgba(6, 32, 52, 0.78);
+  --border: rgba(0, 177, 64, 0.28);
+  --hover: rgba(12, 52, 78, 0.88);
+  --text-primary: #eef6f2;
+  --text-heading: #f4faf7;
+  --text-section: #dceee6;
   --text-name: #ececec;
-  --text-secondary: #a3a3a3;
-  --text-muted: #6e6e6e;
-  --text-label-tint: #7a9486;
-  --text-captain: #949494;
+  --text-secondary: #9eb8c8;
+  --text-muted: #6a8a9e;
+  --text-label-tint: #5ec9a0;
+  --text-captain: #8aa8b8;
   --red: #ff3b3b;
   --bg-primary: var(--bg);
   --bg-navy: var(--surface);
   --bg-card: var(--surface);
   --border-subtle: var(--border);
+  --page-gradient: linear-gradient(
+    145deg,
+    #010d1a 0%,
+    #003087 18%,
+    #006b4a 38%,
+    #00b140 52%,
+    #0a4d8c 68%,
+    #021830 100%
+  );
+  --page-glow-green: rgba(0, 177, 64, 0.42);
+  --page-glow-blue: rgba(0, 48, 135, 0.5);
+  --page-glow-teal: rgba(0, 160, 130, 0.35);
 }
 
 .light {
-  --bg: #f4f4f4;
-  --surface: #ffffff;
-  --border: #e0e0e0;
-  --hover: #ebebeb;
-  --text-primary: #0a0a0a;
-  --text-heading: #0f1412;
-  --text-section: #1a2420;
+  --bg: #d4eef5;
+  --surface: rgba(255, 255, 255, 0.78);
+  --border: rgba(0, 48, 135, 0.22);
+  --hover: rgba(200, 235, 248, 0.9);
+  --text-primary: #0a1a28;
+  --text-heading: #0c2238;
+  --text-section: #143050;
   --text-name: #1c1c1c;
-  --text-secondary: #444444;
-  --text-muted: #888888;
-  --text-label-tint: #4a6b58;
-  --text-captain: #666666;
+  --text-secondary: #3d5a6e;
+  --text-muted: #5a7a8e;
+  --text-label-tint: #1a7a5c;
+  --text-captain: #4a6a7e;
   --red: #e03232;
   --bg-primary: var(--bg);
   --bg-navy: var(--surface);
   --bg-card: var(--surface);
   --border-subtle: var(--border);
+  --page-gradient: linear-gradient(
+    145deg,
+    #7ec8e8 0%,
+    #5ab8a0 28%,
+    #4db87a 48%,
+    #6aaee8 72%,
+    #a8d8f0 100%
+  );
+  --page-glow-green: rgba(0, 177, 64, 0.28);
+  --page-glow-blue: rgba(0, 72, 180, 0.32);
+  --page-glow-teal: rgba(0, 143, 122, 0.22);
 }
 
 html {
@@ -88,10 +118,34 @@ html {
 
 body {
   @apply font-body antialiased;
-  background: var(--bg);
+  background-color: var(--fifa-blue-deep);
+  background-image:
+    radial-gradient(
+      ellipse 90% 60% at 5% 15%,
+      var(--page-glow-green),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 85% 65% at 95% 8%,
+      var(--page-glow-blue),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 50% 95%,
+      var(--page-glow-teal),
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 70% 55%,
+      color-mix(in srgb, var(--fifa-green) 18%, transparent),
+      transparent 60%
+    ),
+    var(--page-gradient);
+  background-attachment: fixed;
   color: var(--text-primary);
   overflow-x: hidden;
   letter-spacing: -0.01em;
+  min-height: 100vh;
 }
 
 @layer utilities {
@@ -147,15 +201,12 @@ body {
   }
 
   .bg-page {
-    background-color: var(--bg);
+    background: transparent;
   }
 
   .bg-surface {
     background-color: var(--surface);
-  }
-
-  .bg-page {
-    background-color: var(--bg);
+    backdrop-filter: blur(12px);
   }
 
   .rank-accent-bar {
@@ -163,35 +214,60 @@ body {
   }
 
   .hero-radial {
-    background: radial-gradient(
-      ellipse 70% 80% at 50% -40%,
-      var(--accent-dim),
-      transparent 70%
-    );
+    background:
+      radial-gradient(
+        ellipse 100% 80% at 15% -15%,
+        color-mix(in srgb, var(--fifa-green) 45%, transparent),
+        transparent 58%
+      ),
+      radial-gradient(
+        ellipse 90% 70% at 88% -5%,
+        color-mix(in srgb, var(--fifa-blue) 50%, transparent),
+        transparent 52%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--fifa-teal) 12%, transparent),
+        transparent 70%
+      );
   }
 
   .page-pitch-bg {
     background-image:
+      radial-gradient(
+        ellipse 130% 90% at 50% -5%,
+        color-mix(in srgb, var(--fifa-green) 22%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        ellipse 80% 60% at 0% 40%,
+        color-mix(in srgb, var(--fifa-blue) 18%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 80% 60% at 100% 60%,
+        color-mix(in srgb, var(--fifa-teal) 16%, transparent),
+        transparent 55%
+      ),
       linear-gradient(
         135deg,
-        transparent 0%,
-        transparent 48%,
-        color-mix(in srgb, var(--accent) 4%, transparent) 49%,
-        transparent 50%
+        color-mix(in srgb, var(--fifa-blue) 14%, transparent) 0%,
+        transparent 35%,
+        color-mix(in srgb, var(--fifa-green) 12%, transparent) 100%
       ),
       repeating-linear-gradient(
         -12deg,
         transparent,
-        transparent 24px,
-        color-mix(in srgb, var(--accent) 3%, transparent) 24px,
-        color-mix(in srgb, var(--accent) 3%, transparent) 25px
+        transparent 20px,
+        color-mix(in srgb, var(--fifa-green) 7%, transparent) 20px,
+        color-mix(in srgb, var(--fifa-blue) 7%, transparent) 21px
       );
   }
 
   .game-chip {
     @apply inline-flex items-center gap-1 border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider;
-    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-    background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    border-color: color-mix(in srgb, var(--fifa-green) 50%, var(--border));
+    background: color-mix(in srgb, var(--fifa-green) 14%, var(--surface));
     color: var(--accent);
   }
 

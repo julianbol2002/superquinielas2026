@@ -42,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark colorway-classic" suppressHydrationWarning>
       <head>
+        <meta name="mobile-web-app-capable" content="yes" />
         <script dangerouslySetInnerHTML={{ __html: appearanceScript }} />
       </head>
       <body className="min-h-screen font-body antialiased">{children}</body>

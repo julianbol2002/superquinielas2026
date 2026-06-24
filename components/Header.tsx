@@ -28,7 +28,7 @@ export default function Header() {
   const activePlayer = useAppStore((s) => s.activePlayer);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-page/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-border bg-surface/75 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 md:px-6">
         <Link href="/" className="flex min-h-[44px] items-center gap-2">
           <Image

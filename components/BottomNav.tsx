@@ -30,7 +30,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border bg-page safe-bottom md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border bg-surface/75 backdrop-blur-md safe-bottom md:hidden">
       <div className="flex h-14 items-stretch">
         {tabs.map((tab) => {
           const active = isNavActive(pathname, tab.href);

@@ -1,4 +1,9 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import {
+  sanitizeSupabaseKey,
+  validateSupabaseKey,
+  friendlySupabaseError,
+} from "@/lib/supabaseKeys";
 
 export interface MatchRow {
   id: string;
@@ -23,9 +28,9 @@ export interface PlayerRankRow {
 let supabase: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return null;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const key = sanitizeSupabaseKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  if (!url || !key || validateSupabaseKey(key)) return null;
   if (!supabase) {
     supabase = createClient(url, key);
   }
@@ -33,10 +38,14 @@ export function getSupabase(): SupabaseClient | null {
 }
 
 export function isSupabaseConfigured(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const key = sanitizeSupabaseKey(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  return Boolean(url && key && !validateSupabaseKey(key));
+}
+
+/** True when profile photo upload/display can work (needs project URL at minimum). */
+export function isAvatarUploadAvailable(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL);
 }
 
 export async function fetchMatches(): Promise<MatchRow[]> {
@@ -90,30 +99,61 @@ export async function fetchPreviousRanks(): Promise<
   return ranks;
 }
 
-export function getAvatarUrl(slug: string): string | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+export function getAvatarBaseUrl(slug: string): string | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   if (!url) return null;
   return `${url}/storage/v1/object/public/avatars/${slug}.webp`;
 }
 
+/** SSR-safe base URL — cache busting is applied client-side only. */
+export function getAvatarUrl(slug: string): string | null {
+  return getAvatarBaseUrl(slug);
+}
+
+export type UploadAvatarResult =
+  | { ok: true; url: string }
+  | { ok: false; error: string };
+
 export async function uploadAvatar(
   slug: string,
   file: Blob
-): Promise<string | null> {
-  const client = getSupabase();
-  if (!client) return null;
+): Promise<UploadAvatarResult> {
+  try {
+    const formData = new FormData();
+    formData.append("slug", slug);
+    formData.append("file", file, `${slug}.webp`);
 
-  const { error } = await client.storage
-    .from("avatars")
-    .upload(`${slug}.webp`, file, {
-      upsert: true,
-      contentType: "image/webp",
+    const res = await fetch("/api/upload-avatar", {
+      method: "POST",
+      body: formData,
     });
 
-  if (error) {
-    console.error("uploadAvatar:", error.message);
-    return null;
-  }
+    const body = (await res.json()) as { url?: string; error?: string };
 
-  return getAvatarUrl(slug);
+    if (!res.ok) {
+      return {
+        ok: false,
+        error: friendlySupabaseError(
+          body.error ?? `Upload failed (${res.status})`
+        ),
+      };
+    }
+
+    if (!body.url) {
+      return { ok: false, error: "Upload succeeded but no URL returned" };
+    }
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`avatar-v:${slug}`, String(Date.now()));
+      window.dispatchEvent(
+        new CustomEvent("avatar-updated", { detail: { slug } })
+      );
+    }
+
+    return { ok: true, url: body.url };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Network error";
+    console.error("uploadAvatar:", message);
+    return { ok: false, error: message };
+  }
 }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { captainToSlug } from "@/data/quinielas";
-import { uploadAvatar, isSupabaseConfigured } from "@/lib/supabase";
+import { uploadAvatar, isAvatarUploadAvailable } from "@/lib/supabase";
 import { compressImage } from "@/lib/utils";
 
 interface AvatarUploadProps {
@@ -30,7 +30,7 @@ export default function AvatarUpload({ captain, onUploaded }: AvatarUploadProps)
       return;
     }
 
-    if (!isSupabaseConfigured()) {
+    if (!isAvatarUploadAvailable()) {
       setMessage(t("supabase_not_configured"));
       return;
     }
@@ -41,13 +41,12 @@ export default function AvatarUpload({ captain, onUploaded }: AvatarUploadProps)
     try {
       const compressed = await compressImage(file);
       const slug = captainToSlug(captain);
-      const url = await uploadAvatar(slug, compressed);
-      if (url) {
+      const result = await uploadAvatar(slug, compressed);
+      if (result.ok) {
         setMessage(t("upload_success"));
         onUploaded?.();
-        window.location.reload();
       } else {
-        setMessage(t("upload_error"));
+        setMessage(result.error);
       }
     } catch {
       setMessage(t("upload_error"));
@@ -69,7 +68,13 @@ export default function AvatarUpload({ captain, onUploaded }: AvatarUploadProps)
         />
       </label>
       {message && (
-        <p className="mt-2 text-xs text-slate-400">{message}</p>
+        <p
+          className={`mt-2 text-xs ${
+            message === t("upload_success") ? "text-accent" : "text-red"
+          }`}
+        >
+          {message}
+        </p>
       )}
     </div>
   );
