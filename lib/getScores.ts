@@ -71,6 +71,33 @@ function useFallbackScores(reason: string): Score[] {
   return fallback;
 }
 
+function validateScrapedScores(scores: Score[]): Score[] {
+  const byName = new Map(scores.map((s) => [s.quiniela, s.points]));
+  const merged: Score[] = [];
+  const missing: string[] = [];
+
+  for (const q of quinielas) {
+    const scraped = byName.get(q.name);
+    if (scraped === undefined) {
+      missing.push(q.name);
+      merged.push({
+        quiniela: q.name,
+        points: ORIGINAL_SITE_POINTS[q.name] ?? 0,
+      });
+    } else {
+      merged.push({ quiniela: q.name, points: scraped });
+    }
+  }
+
+  if (missing.length > 0) {
+    console.warn(
+      `[SCORES] Scrape missing ${missing.length} quiniela(s), filled from reference: ${missing.join(", ")}`
+    );
+  }
+
+  return merged;
+}
+
 export async function getScores(force = false): Promise<Score[]> {
   if (!force && Date.now() - lastFetched < CACHE_DURATION && cachedScores.length > 0) {
     return cachedScores;
@@ -80,7 +107,7 @@ export async function getScores(force = false): Promise<Score[]> {
 
   inFlight = (async () => {
     try {
-      const fresh = await scrapeAzureSite();
+      const fresh = validateScrapedScores(await scrapeAzureSite());
       if (fresh.length === 0) {
         throw new Error("Scrape returned zero scores");
       }
@@ -220,18 +247,24 @@ function parseQuinielasTable(html: string): Score[] {
 
   console.log(`[SCORES] Rows found: ${rowNum}`);
 
-  if (rowNum < quinielas.length) {
-    console.error(`[SCORES] ERROR: only ${rowNum} rows found, expected ${quinielas.length}`);
-    throw new Error(`[SCORES] Incomplete scrape: ${rowNum}/${quinielas.length} rows`);
+  const deduped = new Map<string, number>();
+  for (const row of scores) {
+    deduped.set(row.quiniela, row.points);
   }
 
-  if (rowNum === 0) {
+  if (deduped.size === 0) {
     console.log("[SCORES] Quinielas page HTML preview (first 2000 chars):");
     console.log(html.slice(0, 2000));
     throw new Error("[SCORES] Parsed zero rows from quinielas table");
   }
 
-  return scores;
+  if (deduped.size < quinielas.length) {
+    console.warn(
+      `[SCORES] Partial scrape: ${deduped.size}/${quinielas.length} quinielas — reference will fill gaps`
+    );
+  }
+
+  return [...deduped.entries()].map(([quiniela, points]) => ({ quiniela, points }));
 }
 
 async function scrapeAzureSite(): Promise<Score[]> {
