@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { quinielas, quinielaToSlug } from "@/data/quinielas";
 import { getCountryAbbrev, getAllGroupFixtures } from "@/data/countries";
 import { getPredictionsForSlug, type PredictionScore } from "@/data/predictions";
+import { KNOCKOUT_PICKS } from "@/data/knockoutPicks";
 import { resultKeyFromTeams } from "@/data/tournamentResults";
 import { scoreMatchPrediction } from "@/lib/quinielaScoring";
 import type { RowAccuracy } from "@/lib/predictionScoring";
@@ -74,7 +75,7 @@ function fixturesForRound(round: RoundKey): Fixture[] {
       team2,
       stage: "knockout",
       matchNumber: 72 + i + 1,
-      // Knockout picks are not present in data/predictions.ts yet.
+      // Knockout picks come from KNOCKOUT_PICKS (keyed by team-pair), not predKey.
       predKey: null,
     }));
   }
@@ -138,7 +139,7 @@ export default function AllPicksGrid() {
       const cells: Cell[] = fixtures.map((fx) => {
         const predicted: PredictionScore = fx.predKey
           ? preds[fx.predKey] ?? null
-          : null;
+          : KNOCKOUT_PICKS[slug]?.[resultKeyFromTeams(fx.team1, fx.team2)] ?? null;
         const result = resultMap.get(resultKeyFromTeams(fx.team1, fx.team2));
         const { accuracy, played } = accuracyOf(predicted, result, fx.stage);
         return { predicted, accuracy, played };
