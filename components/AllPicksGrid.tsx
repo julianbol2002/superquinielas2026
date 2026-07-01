@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 type RoundKey = "group" | "r32" | "r16" | "qf" | "sf" | "final";
 
 const ROUNDS: { key: RoundKey; labelKey: string }[] = [
-  { key: "group", labelKey: "round_group" },
   { key: "r32", labelKey: "round_r32" },
   { key: "r16", labelKey: "round_r16" },
   { key: "qf", labelKey: "round_qf" },
@@ -113,7 +112,7 @@ export default function AllPicksGrid() {
   const { data: liveData } = useLiveScores();
   const matches = liveData?.matches ?? [];
 
-  const [round, setRound] = useState<RoundKey>("group");
+  const [round, setRound] = useState<RoundKey>("r32");
   const [selectedSlug, setSelectedSlug] = useState(
     quinielaToSlug(quinielas[0]?.name ?? "")
   );
