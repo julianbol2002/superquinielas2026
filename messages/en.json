@@ -287,5 +287,12 @@
   "bonus_undecided": "TBD",
   "consensus": "Consensus",
   "select_quiniela": "Select quiniela",
-  "sole_correct": "Only quiniela to nail this match"
+  "sole_correct": "Only quiniela to nail this match",
+  "round_group": "Group Stage",
+  "round_r32": "Round of 32",
+  "round_r16": "Round of 16",
+  "round_qf": "Quarterfinals",
+  "round_sf": "Semifinals",
+  "round_final": "Final",
+  "picks_no_round": "No matches in this round yet."
 }

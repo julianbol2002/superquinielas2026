@@ -287,5 +287,12 @@
   "bonus_undecided": "Por definir",
   "consensus": "Consenso",
   "select_quiniela": "Seleccionar quiniela",
-  "sole_correct": "Única quiniela en acertar este partido"
+  "sole_correct": "Única quiniela en acertar este partido",
+  "round_group": "Fase de Grupos",
+  "round_r32": "32avos",
+  "round_r16": "16avos",
+  "round_qf": "Cuartos",
+  "round_sf": "Semifinales",
+  "round_final": "Final",
+  "picks_no_round": "Aún no hay partidos en esta ronda"
 }

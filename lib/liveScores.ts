@@ -14,7 +14,7 @@ export const TOURNAMENT_START = "20260601";
 export const TOURNAMENT_END = "20261231";
 
 export const LIVE_POLL_MS = 30_000;
-export const IDLE_POLL_MS = 5 * 60_000;
+export const IDLE_POLL_MS = 30 * 60_000;
 
 export type MatchStatus = "scheduled" | "live" | "final";
 
@@ -478,22 +478,14 @@ export async function syncLiveMatchesToSupabase(
 }
 
 export async function getScoresWithSync(): Promise<ScoresResponse> {
-  let matches: LiveMatch[];
-  try {
-    matches = await fetchAllEspnMatches();
-  } catch (err) {
-    console.error("getScoresWithSync ESPN fetch failed:", err);
-    matches = getSealedFallbackMatches();
-    if (matches.length === 0) throw err;
-  }
-
-  const hasLiveMatches = matches.some((m) => m.isLive);
+  const { PLAYED_RESULTS } = await import("@/data/matchResults");
+  const matches = PLAYED_RESULTS;
   const syncedCount = await syncLiveMatchesToSupabase(matches);
 
   return {
     matches,
     lastUpdated: new Date().toISOString(),
-    hasLiveMatches,
+    hasLiveMatches: false,
     syncedCount,
     supabaseConfigured: isSupabaseConfigured(),
   };
