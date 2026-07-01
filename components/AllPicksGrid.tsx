@@ -218,9 +218,12 @@ export default function AllPicksGrid() {
         </p>
       ) : (
         <>
-          {/* Desktop matrix — rows = quinielas, columns = matches */}
-          <div className="hidden overflow-auto rounded-sm border border-border bg-surface shadow-md lg:block">
-            <table className="border-collapse text-xs">
+          {/* Desktop matrix — rows = quinielas, columns = matches.
+              Full-bleed out of the centered max-w container so the grid
+              fills the whole screen (and keeps filling as you zoom out). */}
+          <div className="hidden w-screen lg:ml-[calc(50%-50vw)] lg:block lg:px-2 xl:px-6">
+            <div className="overflow-auto rounded-sm border border-border bg-surface shadow-md">
+            <table className="w-full border-collapse text-xs">
               <thead>
                 <tr className="espn-table-head">
                   <th className="sticky left-0 top-0 z-20 bg-black px-3 py-2 text-left">
@@ -306,6 +309,7 @@ export default function AllPicksGrid() {
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
 
           {/* Mobile: pick a quiniela, show its picks for this round */}
