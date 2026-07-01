@@ -12,32 +12,32 @@ export const COLORWAY_OPTIONS: ColorwayOption[] = [
   {
     id: "classic",
     labelKey: "colorway_classic",
-    swatch: "#00FF87",
-    swatchAlt: "#F5C518",
+    swatch: "#CC0000",
+    swatchAlt: "#000000",
   },
   {
     id: "ocean",
     labelKey: "colorway_ocean",
-    swatch: "#06B6D4",
-    swatchAlt: "#38BDF8",
+    swatch: "#0891B2",
+    swatchAlt: "#0284C7",
   },
   {
     id: "sunset",
     labelKey: "colorway_sunset",
-    swatch: "#F97316",
-    swatchAlt: "#FBBF24",
+    swatch: "#EA580C",
+    swatchAlt: "#F59E0B",
   },
   {
     id: "royal",
     labelKey: "colorway_royal",
-    swatch: "#A855F7",
-    swatchAlt: "#EAB308",
+    swatch: "#7C3AED",
+    swatchAlt: "#A855F7",
   },
   {
     id: "rojo",
     labelKey: "colorway_rojo",
-    swatch: "#EF4444",
-    swatchAlt: "#FACC15",
+    swatch: "#E11D48",
+    swatchAlt: "#F43F5E",
   },
 ];
 
