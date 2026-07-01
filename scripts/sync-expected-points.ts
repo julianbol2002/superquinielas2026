@@ -1,7 +1,8 @@
 /**
- * Scrape Azure and print data/expectedPoints.ts contents.
+ * Pull totals from the public Google Sheets xlsx export and print
+ * data/expectedPoints.ts contents.
  * Usage: npx tsx scripts/sync-expected-points.ts
- * Requires ORIGINAL_SITE_EMAIL and ORIGINAL_SITE_PASSWORD in .env.local
+ * No credentials required — source is XLSX_URL in lib/getScores.ts.
  */
 import { readFileSync } from "fs";
 import { join } from "path";

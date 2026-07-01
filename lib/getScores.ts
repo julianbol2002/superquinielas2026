@@ -1,43 +1,21 @@
+import * as XLSX from "xlsx";
 import { quinielas } from "@/data/quinielas";
 import { ORIGINAL_SITE_POINTS } from "@/data/expectedPoints";
-import { CookieJar, fetchWithJar } from "@/lib/httpCookieJar";
 
 export interface Score {
   quiniela: string;
   points: number;
 }
 
-const ORIGINAL_SITE_BASE = "https://superquinielawc2026.azurewebsites.net";
-const QUINIELAS_PATH = "/MemberPages/Quinielas";
-const LOGIN_PATH = "/Account/Login";
+/** Public Google Sheets export (xlsx) — leaderboard/summary is the first sheet */
+const XLSX_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRDcftczOm0lmTPVwBIM1fr5B7Ycq34Vzvple63Pb5F-BHVKV5i6HT0U-06rfdmh6CZCHGxowwM7kGG/pub?output=xlsx";
 
 let cachedScores: Score[] = [];
 let lastFetched = 0;
-const CACHE_DURATION = 30 * 60 * 1000;
+const CACHE_MS = 30 * 60 * 1000;
 
 let inFlight: Promise<Score[]> | null = null;
-
-function logEnvCredentials(): void {
-  const email = process.env.ORIGINAL_SITE_EMAIL ?? "";
-  const password = process.env.ORIGINAL_SITE_PASSWORD;
-  console.log(
-    `[SCORES] Email: ${email || "(not set)"}, Password: set=${password ? "yes" : "no"}`
-  );
-}
-
-function redirectPath(url: string): string {
-  try {
-    return new URL(url).pathname;
-  } catch {
-    return url;
-  }
-}
-
-function maskToken(token: string | null): string {
-  if (!token) return "(none)";
-  if (token.length <= 8) return token;
-  return `${token.slice(0, 8)}...`;
-}
 
 export function getLastFetched(): number {
   return lastFetched;
@@ -45,6 +23,7 @@ export function getLastFetched(): number {
 
 export function clearScoresCache(): void {
   lastFetched = 0;
+  cachedScores = [];
 }
 
 export function scoresToMap(scores: Score[]): Record<string, number> {
@@ -58,120 +37,12 @@ function fallbackScores(): Score[] {
   }));
 }
 
-/** Reference totals when Azure scrape is unavailable */
+/** Reference totals when the Excel pull is unavailable */
 export function getBundledScores(): Score[] {
   return fallbackScores();
 }
 
-function useFallbackScores(reason: string): Score[] {
-  console.warn(`[SCORES] ${reason} — using bundled reference scores`);
-  const fallback = fallbackScores();
-  cachedScores = fallback;
-  lastFetched = Date.now();
-  return fallback;
-}
-
-function validateScrapedScores(scores: Score[]): Score[] {
-  const byName = new Map(scores.map((s) => [s.quiniela, s.points]));
-  const merged: Score[] = [];
-  const missing: string[] = [];
-
-  for (const q of quinielas) {
-    const scraped = byName.get(q.name);
-    if (scraped === undefined) {
-      missing.push(q.name);
-      merged.push({
-        quiniela: q.name,
-        points: ORIGINAL_SITE_POINTS[q.name] ?? 0,
-      });
-    } else {
-      merged.push({ quiniela: q.name, points: scraped });
-    }
-  }
-
-  if (missing.length > 0) {
-    console.warn(
-      `[SCORES] Scrape missing ${missing.length} quiniela(s), filled from reference: ${missing.join(", ")}`
-    );
-  }
-
-  return merged;
-}
-
-export async function getScores(force = false): Promise<Score[]> {
-  if (!force && Date.now() - lastFetched < CACHE_DURATION && cachedScores.length > 0) {
-    return cachedScores;
-  }
-
-  if (inFlight) return inFlight;
-
-  inFlight = (async () => {
-    try {
-      const fresh = validateScrapedScores(await scrapeAzureSite());
-      if (fresh.length === 0) {
-        throw new Error("Scrape returned zero scores");
-      }
-      cachedScores = fresh;
-      lastFetched = Date.now();
-      return fresh;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error("[SCORES] getScores failed:", message);
-      if (cachedScores.length > 0) {
-        console.warn("[SCORES] Returning last cached scores");
-        return cachedScores;
-      }
-      return useFallbackScores("Azure scrape unavailable");
-    } finally {
-      inFlight = null;
-    }
-  })();
-
-  return inFlight;
-}
-
-function decodeHtml(text: string): string {
-  return text
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    .trim();
-}
-
-function stripTags(html: string): string {
-  return decodeHtml(html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
-}
-
-function extractFormValue(html: string, name: string): string | null {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const patterns = [
-    new RegExp(`<input[^>]*name=["']${escaped}["'][^>]*value=["']([^"']*)["']`, "i"),
-    new RegExp(`<input[^>]*value=["']([^"']*)["'][^>]*name=["']${escaped}["']`, "i"),
-  ];
-  for (const re of patterns) {
-    const m = html.match(re);
-    if (m?.[1] !== undefined) return m[1];
-  }
-  return null;
-}
-
-function extractFormAction(html: string, pageUrl: string, fallback: string): string {
-  const m = html.match(/<form[^>]*action=["']([^"']*)["']/i);
-  if (!m?.[1]) return fallback;
-  return new URL(m[1], pageUrl).href;
-}
-
-function isLoginPage(html: string, finalUrl: string): boolean {
-  if (finalUrl.toLowerCase().includes("/account/login")) return true;
-  return (
-    /name=["']ctl00\$MainContent\$Email["']/i.test(html) &&
-    /name=["']ctl00\$MainContent\$Password["']/i.test(html)
-  );
-}
-
+/** Match an Excel-provided name to the canonical roster name */
 function normalizeQuinielaName(raw: string): string | null {
   const cleaned = raw.replace(/\s+/g, " ").trim();
   if (!cleaned) return null;
@@ -186,169 +57,152 @@ function normalizeQuinielaName(raw: string): string | null {
   return contains?.name ?? null;
 }
 
-function parseQuinielasTable(html: string): Score[] {
-  const scores: Score[] = [];
-  const tables = html.match(/<table[\s\S]*?<\/table>/gi) ?? [];
+/** Ensure every roster quiniela is present; fill gaps from the bundled reference */
+function validateExcelScores(scores: Score[]): Score[] {
+  const byName = new Map(scores.map((s) => [s.quiniela, s.points]));
+  const merged: Score[] = [];
+  const missing: string[] = [];
 
-  const tableFound = tables.length > 0;
-  console.log(`[SCORES] Table found: ${tableFound ? "yes" : "no"}`);
-
-  if (!tableFound) {
-    console.log("[SCORES] Quinielas page HTML preview (first 2000 chars):");
-    console.log(html.slice(0, 2000));
-    throw new Error("[SCORES] No table on quinielas page");
-  }
-
-  let bestTable: string | null = null;
-  let bestCount = 0;
-
-  for (const table of tables) {
-    let count = 0;
-    const rows = table.match(/<tr[\s\S]*?<\/tr>/gi) ?? [];
-    for (const row of rows) {
-      const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi);
-      if (!cells || cells.length < 3) continue;
-      const values = cells.map((cell) => stripTags(cell));
-      const pts = values[values.length - 1];
-      const name = normalizeQuinielaName(values[1] ?? "");
-      if (name && /^\d+$/.test(pts)) count++;
-    }
-    if (count > bestCount) {
-      bestCount = count;
-      bestTable = table;
+  for (const q of quinielas) {
+    const parsed = byName.get(q.name);
+    if (parsed === undefined) {
+      missing.push(q.name);
+      merged.push({ quiniela: q.name, points: ORIGINAL_SITE_POINTS[q.name] ?? 0 });
+    } else {
+      merged.push({ quiniela: q.name, points: parsed });
     }
   }
 
-  if (!bestTable) {
-    console.log("[SCORES] Quinielas page HTML preview (first 2000 chars):");
-    console.log(html.slice(0, 2000));
-    throw new Error("[SCORES] No quiniela rows in table");
-  }
-
-  const rows = bestTable.match(/<tr[\s\S]*?<\/tr>/gi) ?? [];
-  let rowNum = 0;
-
-  for (const row of rows) {
-    const cells = row.match(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi);
-    if (!cells || cells.length < 3) continue;
-
-    const values = cells.map((cell) => stripTags(cell));
-    const pointsStr = values[values.length - 1];
-    if (!/^\d+$/.test(pointsStr)) continue;
-
-    const name = normalizeQuinielaName(values[1] ?? "");
-    if (!name) continue;
-
-    rowNum++;
-    const points = parseInt(pointsStr, 10);
-    scores.push({ quiniela: name, points });
-    console.log(`[SCORES] Row ${rowNum}: "${name}" → ${points}`);
-  }
-
-  console.log(`[SCORES] Rows found: ${rowNum}`);
-
-  const deduped = new Map<string, number>();
-  for (const row of scores) {
-    deduped.set(row.quiniela, row.points);
-  }
-
-  if (deduped.size === 0) {
-    console.log("[SCORES] Quinielas page HTML preview (first 2000 chars):");
-    console.log(html.slice(0, 2000));
-    throw new Error("[SCORES] Parsed zero rows from quinielas table");
-  }
-
-  if (deduped.size < quinielas.length) {
+  if (missing.length > 0) {
     console.warn(
-      `[SCORES] Partial scrape: ${deduped.size}/${quinielas.length} quinielas — reference will fill gaps`
+      `[SCORES] Excel missing ${missing.length} quiniela(s), filled from reference: ${missing.join(", ")}`
     );
   }
 
-  return [...deduped.entries()].map(([quiniela, points]) => ({ quiniela, points }));
+  return merged;
 }
 
-async function scrapeAzureSite(): Promise<Score[]> {
-  console.log("[SCORES] Starting scrape...");
-  logEnvCredentials();
+function isNameHeader(header: string): boolean {
+  const s = header.toLowerCase();
+  return s.includes("quiniela") || s.includes("nombre");
+}
 
-  const email = process.env.ORIGINAL_SITE_EMAIL;
-  const password = process.env.ORIGINAL_SITE_PASSWORD;
+function isPointsHeader(header: string): boolean {
+  const s = header.toLowerCase();
+  return s.includes("puntos") || s.includes("total") || s.includes("pts");
+}
 
-  if (!email || !password) {
-    throw new Error("[SCORES] ORIGINAL_SITE_EMAIL / ORIGINAL_SITE_PASSWORD not set");
-  }
-
-  const jar = new CookieJar();
-  const loginGetUrl = `${ORIGINAL_SITE_BASE}${LOGIN_PATH}`;
-
-  console.log("[SCORES] Fetching login page...");
-  const loginPage = await fetchWithJar(loginGetUrl, jar);
-  console.log(`[SCORES] Login page status: ${loginPage.status}`);
-
-  const viewState = extractFormValue(loginPage.html, "__VIEWSTATE");
-  const viewStateGenerator = extractFormValue(loginPage.html, "__VIEWSTATEGENERATOR");
-  const eventValidation = extractFormValue(loginPage.html, "__EVENTVALIDATION");
-
-  console.log(
-    `[SCORES] CSRF token found: ${viewState ? "yes" : "no"} — value: ${maskToken(viewState)}`
-  );
-  if (!viewState || !eventValidation) {
-    throw new Error("[SCORES] WebForms tokens not found on login page");
-  }
-
-  const postUrl = extractFormAction(loginPage.html, loginPage.url, loginGetUrl);
-
-  const formData = new URLSearchParams();
-  formData.set("__EVENTTARGET", "");
-  formData.set("__EVENTARGUMENT", "");
-  formData.set("__VIEWSTATE", viewState);
-  if (viewStateGenerator) formData.set("__VIEWSTATEGENERATOR", viewStateGenerator);
-  formData.set("__EVENTVALIDATION", eventValidation);
-  formData.set("ctl00$MainContent$Email", email);
-  formData.set("ctl00$MainContent$Password", password);
-  formData.set("ctl00$MainContent$RememberMe", "true");
-  formData.set("ctl00$MainContent$ctl05", "Log in");
-
-  console.log("[SCORES] Posting login...");
-  const loginRes = await fetchWithJar(postUrl, jar, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Origin: ORIGINAL_SITE_BASE,
-      Referer: loginGetUrl,
-    },
-    body: formData.toString(),
-  });
-
-  console.log(`[SCORES] Login response status: ${loginRes.status}`);
-  console.log(`[SCORES] Login redirect URL: ${redirectPath(loginRes.url)}`);
-
-  const loginSuccess =
-    loginRes.status >= 200 &&
-    loginRes.status < 400 &&
-    !isLoginPage(loginRes.html, loginRes.url);
-  console.log(`[SCORES] Login success: ${loginSuccess ? "yes" : "no"}`);
-
-  if (!loginSuccess) {
-    throw new Error("[SCORES] Login failed — check credentials");
-  }
-
-  let quinielasHtml = loginRes.html;
-  if (!loginRes.url.includes(QUINIELAS_PATH)) {
-    const quinielasUrl = `${ORIGINAL_SITE_BASE}${QUINIELAS_PATH}`;
-    console.log("[SCORES] Fetching quinielas page...");
-    const page = await fetchWithJar(quinielasUrl, jar);
-    quinielasHtml = page.html;
-
-    if (isLoginPage(quinielasHtml, page.url)) {
-      console.log("[SCORES] Quinielas page HTML preview (first 2000 chars):");
-      console.log(quinielasHtml.slice(0, 2000));
-      throw new Error("[SCORES] Quinielas page requires login");
+/** Locate the header row and the name/points columns by scanning labels (not hardcoded letters) */
+function locateColumns(
+  rows: unknown[][]
+): { headerRow: number; nameCol: number; pointsCol: number } | null {
+  const scanLimit = Math.min(rows.length, 15);
+  for (let r = 0; r < scanLimit; r++) {
+    const row = rows[r] ?? [];
+    let nameCol = -1;
+    let pointsCol = -1;
+    for (let c = 0; c < row.length; c++) {
+      const cell = row[c];
+      if (typeof cell !== "string") continue;
+      if (nameCol === -1 && isNameHeader(cell)) nameCol = c;
+      if (pointsCol === -1 && isPointsHeader(cell)) pointsCol = c;
+    }
+    if (nameCol !== -1 && pointsCol !== -1 && nameCol !== pointsCol) {
+      return { headerRow: r, nameCol, pointsCol };
     }
   }
+  return null;
+}
 
-  console.log(`[SCORES] Quinielas page length: ${quinielasHtml.length} chars`);
-  const scores = parseQuinielasTable(quinielasHtml);
-  console.log(`[SCORES] Scrape complete. Returning ${scores.length} scores.`);
+function parsePoints(value: unknown): number | null {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "string") {
+    const cleaned = value.replace(/[^0-9-]/g, "");
+    if (cleaned === "" || cleaned === "-") return null;
+    const n = parseInt(cleaned, 10);
+    return Number.isNaN(n) ? null : n;
+  }
+  return null;
+}
+
+async function fetchFromExcel(): Promise<Score[]> {
+  const res = await fetch(XLSX_URL, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error(`Excel fetch failed: HTTP ${res.status}`);
+  }
+
+  const buffer = await res.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: "array" });
+
+  const firstSheetName = workbook.SheetNames[0];
+  if (!firstSheetName) {
+    throw new Error("Workbook contains no sheets");
+  }
+
+  const sheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+    header: 1,
+    blankrows: false,
+    defval: null,
+  });
+
+  const located = locateColumns(rows);
+  if (!located) {
+    throw new Error(
+      "Could not find quiniela name / points columns in the leaderboard sheet"
+    );
+  }
+
+  const { headerRow, nameCol, pointsCol } = located;
+  const scores: Score[] = [];
+
+  for (let r = headerRow + 1; r < rows.length; r++) {
+    const row = rows[r] ?? [];
+    const rawName = row[nameCol];
+    if (rawName == null || String(rawName).trim() === "") continue;
+
+    const points = parsePoints(row[pointsCol]);
+    if (points === null) continue;
+
+    const name = normalizeQuinielaName(String(rawName)) ?? String(rawName).trim();
+    scores.push({ quiniela: name, points });
+  }
+
+  if (scores.length === 0) {
+    throw new Error("Parsed zero rows from leaderboard sheet");
+  }
+
   return scores;
+}
+
+export async function getScores(force = false): Promise<Score[]> {
+  if (!force && Date.now() - lastFetched < CACHE_MS && cachedScores.length > 0) {
+    return cachedScores;
+  }
+
+  if (inFlight) return inFlight;
+
+  inFlight = (async () => {
+    try {
+      const fresh = validateExcelScores(await fetchFromExcel());
+      cachedScores = fresh;
+      lastFetched = Date.now();
+      return fresh;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[SCORES ERROR] Excel pull failed: ${message}`);
+      if (cachedScores.length > 0) {
+        console.warn("[SCORES] Returning last cached scores");
+        return cachedScores;
+      }
+      const fallback = fallbackScores();
+      cachedScores = fallback;
+      lastFetched = Date.now();
+      return fallback;
+    } finally {
+      inFlight = null;
+    }
+  })();
+
+  return inFlight;
 }
