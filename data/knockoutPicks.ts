@@ -33,6 +33,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 0,
       "score2": 2
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 1,
+      "score2": 0
     }
   },
   "the-krusty-krab": {
@@ -61,6 +97,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 0
     },
     "Ecuador|Mexico": {
+      "score1": 1,
+      "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 1,
       "score2": 0
     }
@@ -93,6 +165,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 1,
       "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 1,
+      "score2": 0
     }
   },
   "que-finta": {
@@ -123,6 +231,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 1
     }
   },
   "panoramix": {
@@ -153,6 +297,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 3,
+      "score2": 2
     }
   },
   "lico-bp": {
@@ -181,6 +361,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 1
     },
     "Ecuador|Mexico": {
+      "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 2,
       "score2": 1
     }
@@ -213,6 +429,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 1
     }
   },
   "soquenla": {
@@ -241,6 +493,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 0
     },
     "Ecuador|Mexico": {
+      "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 2,
       "score2": 1
     }
@@ -273,6 +561,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 3,
+      "score2": 0
     }
   },
   "jeb-corliss": {
@@ -301,6 +625,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 0
     },
     "Ecuador|Mexico": {
+      "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Algeria|Switzerland": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 2,
       "score2": 1
     }
@@ -333,6 +693,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 1
     }
   },
   "abuela": {
@@ -362,6 +758,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     },
     "Ecuador|Mexico": {
       "score1": 2,
+      "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Australia|Egypt": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Colombia|Ghana": {
+      "score1": 1,
       "score2": 0
     }
   },
@@ -393,6 +825,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 1,
       "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 1
     }
   },
   "corre-como-el-viento-tiro-al-blanco": {
@@ -423,6 +891,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 1,
       "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 0,
+      "score2": 2
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 1
     }
   },
   "it-s-coming-home": {
@@ -453,6 +957,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 1,
       "score2": 2
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 3,
+      "score2": 1
     }
   },
   "mister-shit": {
@@ -481,6 +1021,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 1
     },
     "Ecuador|Mexico": {
+      "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 3
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 2,
       "score2": 1
     }
@@ -513,6 +1089,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 0
     }
   },
   "juliquini": {
@@ -543,6 +1155,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 1,
       "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 0
     }
   },
   "ana-x": {
@@ -571,6 +1219,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 1
     },
     "Ecuador|Mexico": {
+      "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 2,
       "score2": 1
     }
@@ -603,6 +1287,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 3,
+      "score2": 1
     }
   },
   "quiniela-pupusera": {
@@ -632,6 +1352,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     },
     "Ecuador|Mexico": {
       "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Australia|Egypt": {
+      "score1": 0,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 1
+    },
+    "Colombia|Ghana": {
+      "score1": 3,
       "score2": 1
     }
   },
@@ -663,6 +1419,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 0,
       "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 1
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 0
     }
   },
   "tessa": {
@@ -693,6 +1485,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 0,
       "score2": 0
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 4,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Algeria|Switzerland": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Australia|Egypt": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 3,
+      "score2": 1
     }
   },
   "mosquito-letal": {
@@ -723,6 +1551,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 3,
       "score2": 2
+    },
+    "DR Congo|England": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 3
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Australia|Egypt": {
+      "score1": 0,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 3,
+      "score2": 1
     }
   },
   "estrella-psiquica": {
@@ -751,6 +1615,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 1
     },
     "Ecuador|Mexico": {
+      "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Belgium|Senegal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 5,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 2,
       "score2": 1
     }
@@ -783,6 +1683,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
     "Ecuador|Mexico": {
       "score1": 2,
       "score2": 3
+    },
+    "DR Congo|England": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Croatia|Portugal": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 4,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
+      "score1": 2,
+      "score2": 1
     }
   },
   "dani-bolanos": {
@@ -811,6 +1747,42 @@ export const KNOCKOUT_PICKS: Record<string, Record<string, KnockoutPick>> = {
       "score2": 1
     },
     "Ecuador|Mexico": {
+      "score1": 2,
+      "score2": 1
+    },
+    "DR Congo|England": {
+      "score1": 2,
+      "score2": 0
+    },
+    "Belgium|Senegal": {
+      "score1": 1,
+      "score2": 2
+    },
+    "Bosnia and Herzegovina|United States": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Austria|Spain": {
+      "score1": 3,
+      "score2": 1
+    },
+    "Croatia|Portugal": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Algeria|Switzerland": {
+      "score1": 2,
+      "score2": 1
+    },
+    "Australia|Egypt": {
+      "score1": 1,
+      "score2": 1
+    },
+    "Argentina|Cabo Verde": {
+      "score1": 3,
+      "score2": 0
+    },
+    "Colombia|Ghana": {
       "score1": 2,
       "score2": 1
     }

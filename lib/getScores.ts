@@ -8,7 +8,7 @@ export interface Score {
 }
 
 const SHEET_XLSX_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vS0oWM6xXDb0mIqf2VuL-LVwYVMIWN-N58J9Bq6Z-PQybJzFUu6VXAKn7JSjMTfdC1lIfV5BiauO5nv/pub?output=xlsx";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTsPKdTcdhXbjmGSlaoLKAlrV-3H6KL_gKPqHl4mkH5eSA8g7OWmIfxhAj5uK_pJl3eWmhb2R4bIWr7/pub?output=xlsx";
 
 let cachedScores: Score[] = [];
 let lastFetched = 0;
