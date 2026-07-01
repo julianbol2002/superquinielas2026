@@ -15,6 +15,9 @@ import { cn } from "@/lib/utils";
 
 type RoundKey = "group" | "r32" | "r16" | "qf" | "sf" | "final";
 
+/** Sentinel dropdown value: show the full matrix instead of one quiniela. */
+const VIEW_ALL = "__all__";
+
 const ROUNDS: { key: RoundKey; labelKey: string }[] = [
   { key: "r32", labelKey: "round_r32" },
   { key: "r16", labelKey: "round_r16" },
@@ -188,10 +191,105 @@ export default function AllPicksGrid() {
   const selectedColumn =
     columns.find((c) => c.slug === selectedSlug) ?? columns[0];
 
+  const viewingAll = selectedSlug === VIEW_ALL;
+
+  // Shared full matrix (rows = quinielas, columns = matches). Rendered on
+  // desktop always, and on mobile when "View all" is picked in the dropdown.
+  const matrixTable = (
+    <div className="overflow-auto rounded-sm border border-border bg-surface shadow-md">
+      <table className="w-full border-collapse text-xs">
+        <thead>
+          <tr className="espn-table-head">
+            <th className="sticky left-0 top-0 z-20 bg-black px-3 py-2 text-left">
+              {t("quiniela_name")}
+            </th>
+            {perFixture.map(({ fx, result }) => (
+              <th
+                key={`${fx.team1}-${fx.team2}`}
+                className="sticky top-0 z-10 whitespace-nowrap bg-black px-1 py-2 text-center align-bottom"
+              >
+                <div className="text-[9px] font-normal text-white/50">
+                  {fx.matchNumber}
+                </div>
+                <div>
+                  {getCountryAbbrev(fx.team1)}
+                  <span className="text-white/40"> v </span>
+                  {getCountryAbbrev(fx.team2)}
+                </div>
+                <div className="mt-0.5 text-[10px] font-bold text-espn-red">
+                  {result ? `${result.score1}-${result.score2}` : "—"}
+                </div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {columns.map((col) => (
+            <tr key={col.slug} className="border-b border-border">
+              <td
+                className="sticky left-0 z-10 whitespace-nowrap bg-surface px-3 py-1.5 font-medium"
+                title={`${col.name} (${col.captain})`}
+              >
+                <Link
+                  href={`/quiniela/${col.slug}`}
+                  className="text-primary-theme transition-colors hover:text-espn-red"
+                >
+                  {col.name}
+                </Link>
+              </td>
+              {col.cells.map((cell, i) => {
+                const pf = perFixture[i];
+                const pick = cell?.predicted
+                  ? `${cell.predicted.score1}-${cell.predicted.score2}`
+                  : "";
+                const isSole =
+                  pf?.correctCount === 1 &&
+                  cell?.played &&
+                  (cell.accuracy === "exact" || cell.accuracy === "result");
+                return (
+                  <td
+                    key={`${pf.fx.team1}-${pf.fx.team2}`}
+                    className="relative border-l border-border px-1 py-1.5 text-center font-medium"
+                    style={cellStyle(cell?.accuracy ?? "pending", cell?.played ?? false)}
+                  >
+                    {pick}
+                    {isSole && (
+                      <span
+                        className="absolute right-0 top-0 text-[8px] leading-none"
+                        title={t("sole_correct")}
+                      >
+                        ⭐
+                      </span>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+          {/* Consensus row */}
+          <tr className="border-t-2 border-espn-red bg-surface-alt">
+            <td className="sticky left-0 z-10 whitespace-nowrap bg-surface-alt px-3 py-1.5 font-display text-[10px] font-semibold uppercase tracking-wider">
+              {t("consensus")}
+            </td>
+            {perFixture.map(({ fx, consensus, consensusPct }) => (
+              <td
+                key={`${fx.team1}-${fx.team2}`}
+                className="border-l border-border px-1 py-1.5 text-center"
+              >
+                <div className="font-semibold text-primary-theme">{consensus}</div>
+                <div className="text-[10px] text-muted">{consensusPct}%</div>
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <div>
-      <h1 className="mb-1 font-display text-3xl font-bold">{t("all_picks")}</h1>
-      <p className="mb-4 text-sm text-muted">{t("picks_subtitle")}</p>
+      <h1 className="mb-1 font-display text-2xl font-bold sm:text-3xl">{t("all_picks")}</h1>
+      <p className="mb-5 text-sm text-muted">{t("picks_subtitle")}</p>
 
       {/* Round selector */}
       <div className="mb-4 flex flex-wrap gap-2">
@@ -222,105 +320,19 @@ export default function AllPicksGrid() {
               Full-bleed out of the centered max-w container so the grid
               fills the whole screen (and keeps filling as you zoom out). */}
           <div className="hidden w-screen lg:ml-[calc(50%-50vw)] lg:block lg:px-2 xl:px-6">
-            <div className="overflow-auto rounded-sm border border-border bg-surface shadow-md">
-            <table className="w-full border-collapse text-xs">
-              <thead>
-                <tr className="espn-table-head">
-                  <th className="sticky left-0 top-0 z-20 bg-black px-3 py-2 text-left">
-                    {t("quiniela_name")}
-                  </th>
-                  {perFixture.map(({ fx, result }) => (
-                    <th
-                      key={`${fx.team1}-${fx.team2}`}
-                      className="sticky top-0 z-10 whitespace-nowrap bg-black px-1 py-2 text-center align-bottom"
-                    >
-                      <div className="text-[9px] font-normal text-white/50">
-                        {fx.matchNumber}
-                      </div>
-                      <div>
-                        {getCountryAbbrev(fx.team1)}
-                        <span className="text-white/40"> v </span>
-                        {getCountryAbbrev(fx.team2)}
-                      </div>
-                      <div className="mt-0.5 text-[10px] font-bold text-espn-red">
-                        {result ? `${result.score1}-${result.score2}` : "—"}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {columns.map((col) => (
-                  <tr key={col.slug} className="border-b border-border">
-                    <td
-                      className="sticky left-0 z-10 whitespace-nowrap bg-surface px-3 py-1.5 font-medium"
-                      title={`${col.name} (${col.captain})`}
-                    >
-                      <Link
-                        href={`/quiniela/${col.slug}`}
-                        className="text-primary-theme transition-colors hover:text-espn-red"
-                      >
-                        {col.name}
-                      </Link>
-                    </td>
-                    {col.cells.map((cell, i) => {
-                      const pf = perFixture[i];
-                      const pick = cell?.predicted
-                        ? `${cell.predicted.score1}-${cell.predicted.score2}`
-                        : "";
-                      const isSole =
-                        pf?.correctCount === 1 &&
-                        cell?.played &&
-                        (cell.accuracy === "exact" || cell.accuracy === "result");
-                      return (
-                        <td
-                          key={`${pf.fx.team1}-${pf.fx.team2}`}
-                          className="relative border-l border-border px-1 py-1.5 text-center font-medium"
-                          style={cellStyle(cell?.accuracy ?? "pending", cell?.played ?? false)}
-                        >
-                          {pick}
-                          {isSole && (
-                            <span
-                              className="absolute right-0 top-0 text-[8px] leading-none"
-                              title={t("sole_correct")}
-                            >
-                              ⭐
-                            </span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-                {/* Consensus row */}
-                <tr className="border-t-2 border-espn-red bg-surface-alt">
-                  <td className="sticky left-0 z-10 whitespace-nowrap bg-surface-alt px-3 py-1.5 font-display text-[10px] font-semibold uppercase tracking-wider">
-                    {t("consensus")}
-                  </td>
-                  {perFixture.map(({ fx, consensus, consensusPct }) => (
-                    <td
-                      key={`${fx.team1}-${fx.team2}`}
-                      className="border-l border-border px-1 py-1.5 text-center"
-                    >
-                      <div className="font-semibold text-primary-theme">{consensus}</div>
-                      <div className="text-[10px] text-muted">{consensusPct}%</div>
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-            </div>
+            {matrixTable}
           </div>
 
-          {/* Mobile: pick a quiniela, show its picks for this round */}
+          {/* Mobile: pick a quiniela (or "View all"), show its picks for this round */}
           <div className="lg:hidden">
-            <label className="mb-2 block">
-              <span className="label-caps mb-1 block">{t("select_quiniela")}</span>
+            <label className="mb-3 block">
+              <span className="label-caps mb-1.5 block">{t("select_quiniela")}</span>
               <select
                 value={selectedSlug}
                 onChange={(e) => setSelectedSlug(e.target.value)}
-                className="w-full rounded-sm border border-border bg-surface px-3 py-2 text-base"
+                className="w-full rounded-sm border border-border bg-surface px-3 py-2.5 text-base"
               >
+                <option value={VIEW_ALL}>{t("view_all")}</option>
                 {columns.map((col) => (
                   <option key={col.slug} value={col.slug}>
                     {col.name} ({col.captain})
@@ -329,7 +341,10 @@ export default function AllPicksGrid() {
               </select>
             </label>
 
-            {selectedColumn && (
+            {viewingAll ? (
+              matrixTable
+            ) : (
+              selectedColumn && (
               <div className="mt-3 overflow-hidden rounded-sm border border-border bg-surface shadow-md">
                 <div className="flex items-center justify-between border-b border-border px-3 py-2">
                   <Link
@@ -347,7 +362,7 @@ export default function AllPicksGrid() {
                     return (
                       <li
                         key={`${fx.team1}-${fx.team2}`}
-                        className="flex items-center justify-between border-b border-border px-3 py-1.5 text-sm"
+                        className="flex items-center justify-between border-b border-border px-3 py-2.5 text-sm"
                         style={cellStyle(cell?.accuracy ?? "pending", cell?.played ?? false)}
                       >
                         <span className="text-muted">{fx.matchNumber}.</span>
@@ -371,6 +386,7 @@ export default function AllPicksGrid() {
                   })}
                 </ul>
               </div>
+              )
             )}
           </div>
         </>
