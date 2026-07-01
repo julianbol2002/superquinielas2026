@@ -101,10 +101,10 @@ function cellStyle(accuracy: RowAccuracy, played: boolean): React.CSSProperties 
   return {};
 }
 
-function abbrevName(name: string, captain: string): string {
-  const lastWord = captain.trim().split(/\s+/).pop() ?? "";
-  const base = lastWord.length >= 3 ? lastWord : name;
-  return base.length > 8 ? base.slice(0, 8) : base;
+/** Short label for a quiniela — its bracket name (captains often share a surname) */
+function abbrevName(name: string): string {
+  const base = name.trim();
+  return base.length > 12 ? base.slice(0, 12) : base;
 }
 
 export default function AllPicksGrid() {
@@ -147,7 +147,7 @@ export default function AllPicksGrid() {
         name: q.name,
         captain: q.captain,
         slug,
-        abbrev: abbrevName(q.name, q.captain),
+        abbrev: abbrevName(q.name),
         cells,
       };
     });
