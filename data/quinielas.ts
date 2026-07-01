@@ -13,36 +13,36 @@ export interface Quiniela {
 
 export const quinielas: Quiniela[] = [
   { captain: "Isabella Bolanos", name: "Barquito de papel", bet: 25, finalist1: "Spain", finalist2: "France", winner: "Spain" },
-  { captain: "Oly", name: "Oly54", bet: 25, finalist1: "France", finalist2: "Netherlands", winner: "France" },
-  { captain: "Camilo", name: "Camb", bet: 100, finalist1: "France", finalist2: "Portugal", winner: "France" },
+  { captain: "Oly", name: "Oly con Todo", bet: 25, finalist1: "France", finalist2: "Argentina", winner: "France" },
+  { captain: "Camilo", name: "Camb", bet: 100, finalist1: "France", finalist2: "Argentina", winner: "France" },
   { captain: "Spongebob Squarepants", name: "The Krusty Krab", bet: 50, finalist1: "France", finalist2: "England", winner: "France" },
-  { captain: "Alex Bolanos", name: "Panoramix", bet: 25, finalist1: "Spain", finalist2: "France", winner: "Spain" },
-  { captain: "Andres Martino", name: "Martino", bet: 50, finalist1: "Spain", finalist2: "Germany", winner: "Spain" },
-  { captain: "Jeb Corliss", name: "Jeb Corliss", bet: 50, finalist1: "Argentina", finalist2: "Spain", winner: "Spain" },
-  { captain: "Juanillo", name: "Que Finta", bet: 50, finalist1: "France", finalist2: "Spain", winner: "France" },
-  { captain: "Mario Van Severen", name: "Panzer", bet: 100, finalist1: "Netherlands", finalist2: "Portugal", winner: "Netherlands" },
-  { captain: "Mauricio 1", name: "It's coming Home", bet: 100, finalist1: "Portugal", finalist2: "England", winner: "England" },
-  { captain: "Anita", name: "Ana X", bet: 25, finalist1: "Argentina", finalist2: "Australia", winner: "Argentina" },
-  { captain: "Federico Bolanos Jr", name: "Fede", bet: 25, finalist1: "France", finalist2: "Spain", winner: "Spain" },
-  { captain: "Gerardo", name: "G1", bet: 100, finalist1: "Argentina", finalist2: "Spain", winner: "Spain" },
-  { captain: "Gloria Panamá", name: "Gloria Gana", bet: 25, finalist1: "Spain", finalist2: "Portugal", winner: "Spain" },
+  { captain: "Alex Bolanos", name: "Panoramix", bet: 25, finalist1: "France", finalist2: "Argentina", winner: "France" },
+  { captain: "Andres Martino", name: "Martino", bet: 50, finalist1: "France", finalist2: "Argentina", winner: "France" },
+  { captain: "Jeb Corliss", name: "Jeb Corliss", bet: 50, finalist1: "France", finalist2: "Argentina", winner: "Argentina" },
+  { captain: "Juanillo", name: "Que Finta", bet: 50, finalist1: "France", finalist2: "Argentina", winner: "Argentina" },
+  { captain: "Mario Van Severen", name: "Panzer", bet: 100, finalist1: "Netherlands", finalist2: "Argentina", winner: "Netherlands" },
+  { captain: "Mauricio 1", name: "It's coming Home", bet: 100, finalist1: "France", finalist2: "England", winner: "England" },
+  { captain: "Anita", name: "Ana X", bet: 25, finalist1: "Spain", finalist2: "Argentina", winner: "Spain" },
+  { captain: "Federico Bolanos Jr", name: "Corre Como El Viento Tiro Al Blanco!", bet: 25, finalist1: "France", finalist2: "Argentina", winner: "Argentina" },
+  { captain: "Gerardo", name: "Sóquenla", bet: 100, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
+  { captain: "Gloria Panamá", name: "MOSQUITO LETAL", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
   { captain: "Rodrigo Bolanos", name: "Quiniela Pupusera", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
-  { captain: "Spongebob Squarepants", name: "Marco Bolanos", bet: 50, finalist1: "France", finalist2: "Portugal", winner: "Portugal" },
+  { captain: "Spongebob Squarepants", name: "Marco Bolanos", bet: 50, finalist1: "France", finalist2: "Argentina", winner: "Argentina" },
   { captain: "Adriano", name: "MARADRIANO", bet: 100, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
-  { captain: "Ana Luz", name: "Abuela", bet: 25, finalist1: "Brazil", finalist2: "France", winner: "Brazil" },
-  { captain: "Cam Bolanos", name: "Cam Bolanos", bet: 100, finalist1: "France", finalist2: "Portugal", winner: "France" },
-  { captain: "Federico Bolanos", name: "Lico BP", bet: 100, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina" },
-  { captain: "Francesca Panko", name: "Francesca Panko", bet: 50, finalist1: "Spain", finalist2: "Argentina", winner: "Spain" },
-  { captain: "Alex", name: "MISTER SHIT", bet: 25, finalist1: "Spain", finalist2: "Portugal", winner: "Portugal" },
-  { captain: "Cam Bolanos", name: "C2", bet: 25, finalist1: "Brazil", finalist2: "Spain", winner: "Brazil" },
+  { captain: "Ana Luz", name: "Abuela", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
+  { captain: "Cam Bolanos", name: "Cam Bolanos", bet: 100, finalist1: "France", finalist2: "Brazil", winner: "France" },
+  { captain: "Federico Bolanos", name: "Lico BP", bet: 100, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
+  { captain: "Francesca Panko", name: "Estrella psiquica", bet: 50, finalist1: "Spain", finalist2: "Argentina", winner: "Argentina" },
+  { captain: "Alex", name: "MISTER SHIT", bet: 25, finalist1: "France", finalist2: "Argentina", winner: "Argentina" },
+  { captain: "Cam Bolanos", name: "C2", bet: 25, finalist1: "England", finalist2: "France", winner: "France" },
   { captain: "Carlos Panama Diaz", name: "Duo Dinamico Iron Beagle", bet: 100, finalist1: "England", finalist2: "France", winner: "England" },
   { captain: "Daniella Bolanos", name: "Dani Bolanos", bet: 25, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina" },
   { captain: "Federico Bolanos", name: "Tessa", bet: 50, finalist1: "Argentina", finalist2: "Spain", winner: "Argentina" },
   { captain: "Julian Bolanos", name: "juliquini", bet: 25, finalist1: "Argentina", finalist2: "France", winner: "Argentina" },
 ];
 
-/** Actual tournament winner for accuracy checks (update as tournament progresses) */
-export const ACTUAL_WINNER = "Spain";
+/** Actual tournament winner for accuracy checks (undecided — WC is mid-knockout) */
+export const ACTUAL_WINNER = "";
 
 export interface RankedQuiniela extends Quiniela {
   slug: string;

@@ -62,16 +62,19 @@ export type MatchStage = "group" | "knockout";
  * Group stage (matches 1-72):
  *   - correct winner or draw: 1 pt
  *   - exact score: +2 (stacks)
- *   - predicted 0-0 and result goes to pens (0-0 after ET): +2 (stacks)
- *   - correct winner with predicted margin >= 4 (goleada): +3 (stacks)
+ *   - goleada — correct winner where BOTH predicted and actual margin >= 4: +3 (stacks)
  *   - max 6 pts
  *
  * Knockout stage (Round of 32 onward):
  *   - correct winner or draw after ET: 2 pts
  *   - exact score: +4 (stacks)
- *   - predicted 0-0 and game goes to pens: +4 (stacks)
- *   - correct winner with predicted margin >= 4: +3 (stacks)
+ *   - predicted 0-0 and game goes to pens (0-0 after ET): +4 (stacks)
+ *   - goleada — correct winner where BOTH predicted and actual margin >= 4: +3 (stacks)
  *   - max 9 pts
+ *
+ * Verified against the official site's per-match breakdown: the goleada bonus
+ * requires the actual result to be a rout too (e.g. predicted 0-4, actual 0-3
+ * scores 1, not 4). Penalty goals never count.
  */
 export function scoreMatch(
   pred: { score1: number | null; score2: number | null },
@@ -87,7 +90,6 @@ export function scoreMatch(
 
   const basePoints = stage === "group" ? 1 : 2;
   const exactBonus = stage === "group" ? 2 : 4;
-  const pensBonus = stage === "group" ? 2 : 4;
   const goleadaBonus = 3;
 
   const predResult = resultOf(p1, p2);
@@ -102,11 +104,19 @@ export function scoreMatch(
   // Exact score
   if (p1 === a1 && p2 === a2) points += exactBonus;
 
-  // Predicted 0-0 and the game ends 0-0 (goes to penalties)
-  if (p1 === 0 && p2 === 0 && a1 === 0 && a2 === 0) points += pensBonus;
+  // Knockout only: predicted 0-0 and the game ends 0-0 (goes to penalties).
+  // Group matches never go to pens, so no such bonus there.
+  if (stage === "knockout" && p1 === 0 && p2 === 0 && a1 === 0 && a2 === 0) {
+    points += 4;
+  }
 
-  // Goleada: predicted a win by a >= 4 goal margin and got the winner right
-  if (correctResult && predResult !== "draw" && Math.abs(p1 - p2) >= 4) {
+  // Goleada: correct winner where both the predicted and actual margin are >= 4
+  if (
+    correctResult &&
+    predResult !== "draw" &&
+    Math.abs(p1 - p2) >= 4 &&
+    Math.abs(a1 - a2) >= 4
+  ) {
     points += goleadaBonus;
   }
 
@@ -140,7 +150,9 @@ export function scoreMatchPrediction(
   const actualResult = resultOf(actualScore1, actualScore2);
   const correctResult = predResult === actualResult;
   const predMargin = Math.abs(predicted.score1 - predicted.score2);
-  const goleadaBonus = correctResult && predResult !== "draw" && predMargin >= 4;
+  const actualMargin = Math.abs(actualScore1 - actualScore2);
+  const goleadaBonus =
+    correctResult && predResult !== "draw" && predMargin >= 4 && actualMargin >= 4;
 
   const points = scoreMatch(
     predicted,

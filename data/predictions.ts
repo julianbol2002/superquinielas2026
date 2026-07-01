@@ -596,7 +596,7 @@ export const predictionsBySlug: Record<string, QuinielaPredictionMap> = {
     "L-England-Panama": { score1: 0, score2: 4 },
     "L-Ghana-Panama": { score1: 2, score2: 1 },
   },
-  "fede": {
+  "corre-como-el-viento-tiro-al-blanco": {
     "A-Mexico-Czechia": { score1: 1, score2: 2 },
     "A-Mexico-South Africa": { score1: 3, score2: 1 },
     "A-Mexico-South Korea": { score1: 2, score2: 2 },
@@ -670,7 +670,7 @@ export const predictionsBySlug: Record<string, QuinielaPredictionMap> = {
     "L-England-Panama": { score1: 1, score2: 2 },
     "L-Ghana-Panama": { score1: 1, score2: 2 },
   },
-  "francesca-panko": {
+  "estrella-psiquica": {
     "A-Mexico-Czechia": { score1: 1, score2: 2 },
     "A-Mexico-South Africa": { score1: 2, score2: 1 },
     "A-Mexico-South Korea": { score1: 1, score2: 2 },
@@ -744,7 +744,7 @@ export const predictionsBySlug: Record<string, QuinielaPredictionMap> = {
     "L-England-Panama": { score1: 0, score2: 2 },
     "L-Ghana-Panama": { score1: 0, score2: 0 },
   },
-  "g1": {
+  "soquenla": {
     "A-Mexico-Czechia": { score1: 1, score2: 2 },
     "A-Mexico-South Africa": { score1: 2, score2: 0 },
     "A-Mexico-South Korea": { score1: 1, score2: 1 },
@@ -818,7 +818,7 @@ export const predictionsBySlug: Record<string, QuinielaPredictionMap> = {
     "L-England-Panama": { score1: 0, score2: 3 },
     "L-Ghana-Panama": { score1: 2, score2: 1 },
   },
-  "gloria-gana": {
+  "mosquito-letal": {
     "A-Mexico-Czechia": { score1: 1, score2: 1 },
     "A-Mexico-South Africa": { score1: 2, score2: 0 },
     "A-Mexico-South Korea": { score1: 2, score2: 1 },
@@ -1484,7 +1484,7 @@ export const predictionsBySlug: Record<string, QuinielaPredictionMap> = {
     "L-England-Panama": { score1: 0, score2: 4 },
     "L-Ghana-Panama": { score1: 1, score2: 2 },
   },
-  "oly54": {
+  "oly-con-todo": {
     "A-Mexico-Czechia": { score1: 0, score2: 1 },
     "A-Mexico-South Africa": { score1: 2, score2: 0 },
     "A-Mexico-South Korea": { score1: 1, score2: 1 },
