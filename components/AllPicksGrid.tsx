@@ -218,54 +218,60 @@ export default function AllPicksGrid() {
         </p>
       ) : (
         <>
-          {/* Desktop matrix */}
+          {/* Desktop matrix — rows = quinielas, columns = matches */}
           <div className="hidden overflow-auto rounded-sm border border-border bg-surface shadow-md lg:block">
             <table className="border-collapse text-xs">
               <thead>
                 <tr className="espn-table-head">
                   <th className="sticky left-0 top-0 z-20 bg-black px-3 py-2 text-left">
-                    {t("match_teams")}
+                    {t("quiniela_name")}
                   </th>
-                  {columns.map((col) => (
+                  {perFixture.map(({ fx, result }) => (
                     <th
-                      key={col.slug}
-                      className="sticky top-0 z-10 bg-black px-1 py-2 text-center"
-                      title={`${col.name} (${col.captain})`}
+                      key={`${fx.team1}-${fx.team2}`}
+                      className="sticky top-0 z-10 whitespace-nowrap bg-black px-1 py-2 text-center align-bottom"
                     >
-                      {col.abbrev}
+                      <div className="text-[9px] font-normal text-white/50">
+                        {fx.matchNumber}
+                      </div>
+                      <div>
+                        {getCountryAbbrev(fx.team1)}
+                        <span className="text-white/40"> v </span>
+                        {getCountryAbbrev(fx.team2)}
+                      </div>
+                      <div className="mt-0.5 text-[10px] font-bold text-espn-red">
+                        {result ? `${result.score1}-${result.score2}` : "—"}
+                      </div>
                     </th>
                   ))}
-                  <th className="sticky top-0 z-10 bg-black px-2 py-2 text-center">
-                    {t("consensus")}
-                  </th>
                 </tr>
               </thead>
               <tbody>
-                {perFixture.map(({ fx, result, correctCount, consensus, consensusPct }, i) => (
-                  <tr key={`${fx.team1}-${fx.team2}`} className="border-b border-border">
-                    <td className="sticky left-0 z-10 whitespace-nowrap bg-surface px-3 py-1.5 font-medium">
-                      <span className="text-muted">{fx.matchNumber}.</span>{" "}
-                      {getCountryAbbrev(fx.team1)}
-                      <span className="text-muted"> v </span>
-                      {getCountryAbbrev(fx.team2)}
-                      {result && (
-                        <span className="ml-2 font-display font-bold text-espn-red">
-                          {result.score1}-{result.score2}
-                        </span>
-                      )}
+                {columns.map((col) => (
+                  <tr key={col.slug} className="border-b border-border">
+                    <td
+                      className="sticky left-0 z-10 whitespace-nowrap bg-surface px-3 py-1.5 font-medium"
+                      title={`${col.name} (${col.captain})`}
+                    >
+                      <Link
+                        href={`/quiniela/${col.slug}`}
+                        className="text-primary-theme transition-colors hover:text-espn-red"
+                      >
+                        {col.name}
+                      </Link>
                     </td>
-                    {columns.map((col) => {
-                      const cell = col.cells[i];
+                    {col.cells.map((cell, i) => {
+                      const pf = perFixture[i];
                       const pick = cell?.predicted
                         ? `${cell.predicted.score1}-${cell.predicted.score2}`
                         : "";
                       const isSole =
-                        correctCount === 1 &&
+                        pf?.correctCount === 1 &&
                         cell?.played &&
                         (cell.accuracy === "exact" || cell.accuracy === "result");
                       return (
                         <td
-                          key={col.slug}
+                          key={`${pf.fx.team1}-${pf.fx.team2}`}
                           className="relative border-l border-border px-1 py-1.5 text-center font-medium"
                           style={cellStyle(cell?.accuracy ?? "pending", cell?.played ?? false)}
                         >
@@ -281,12 +287,23 @@ export default function AllPicksGrid() {
                         </td>
                       );
                     })}
-                    <td className="whitespace-nowrap border-l border-border bg-surface-alt px-2 py-1.5 text-center text-muted">
-                      <span className="font-semibold text-primary-theme">{consensus}</span>{" "}
-                      <span className="text-[10px]">({consensusPct}%)</span>
-                    </td>
                   </tr>
                 ))}
+                {/* Consensus row */}
+                <tr className="border-t-2 border-espn-red bg-surface-alt">
+                  <td className="sticky left-0 z-10 whitespace-nowrap bg-surface-alt px-3 py-1.5 font-display text-[10px] font-semibold uppercase tracking-wider">
+                    {t("consensus")}
+                  </td>
+                  {perFixture.map(({ fx, consensus, consensusPct }) => (
+                    <td
+                      key={`${fx.team1}-${fx.team2}`}
+                      className="border-l border-border px-1 py-1.5 text-center"
+                    >
+                      <div className="font-semibold text-primary-theme">{consensus}</div>
+                      <div className="text-[10px] text-muted">{consensusPct}%</div>
+                    </td>
+                  ))}
+                </tr>
               </tbody>
             </table>
           </div>

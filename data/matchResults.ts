@@ -86,4 +86,5 @@ export const PLAYED_RESULTS: LiveMatch[] = [
   { espnId: "R32-05", team1: "Ivory Coast", team2: "Norway", score1: 1, score2: 2, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
   { espnId: "R32-06", team1: "France", team2: "Sweden", score1: 3, score2: 0, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
   { espnId: "R32-07", team1: "Mexico", team2: "Ecuador", score1: 2, score2: 0, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
+  { espnId: "R32-08", team1: "England", team2: "DR Congo", score1: 2, score2: 1, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
 ];
