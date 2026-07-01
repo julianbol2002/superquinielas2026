@@ -1,50 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useLiveScores } from "@/hooks/useLiveScores";
+import { useRankedQuinielas } from "@/hooks/useRankedQuinielas";
+import { getScoredPredictions } from "@/lib/predictionScoring";
+import { formatLastUpdated } from "@/lib/liveScores";
 
 export default function Hero() {
   const t = useTranslations();
   const locale = useLocale();
-  const [time, setTime] = useState("");
+  const { data: liveData } = useLiveScores();
+  const entries = useRankedQuinielas(liveData?.matches ?? []);
+  const leader = entries[0] ?? null;
 
-  useEffect(() => {
-    const update = () => {
-      setTime(
-        new Date().toLocaleString(locale === "es" ? "es-ES" : "en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      );
+  const games = useMemo(() => {
+    if (!leader) return { played: 0, total: 0 };
+    const rows = getScoredPredictions(leader.slug, liveData?.matches ?? []).filter(
+      (r) => r.phase === "group"
+    );
+    return {
+      played: rows.filter((r) => r.played).length,
+      total: rows.length,
     };
-    update();
-    const id = setInterval(update, 60000);
-    return () => clearInterval(id);
-  }, [locale]);
+  }, [leader, liveData?.matches]);
+
+  const lastUpdated = liveData?.lastUpdated
+    ? formatLastUpdated(liveData.lastUpdated, locale)
+    : "—";
 
   return (
-    <section className="hero-radial mb-4 border-b border-border px-4 pb-4 md:px-0">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 text-left">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="game-chip">
-              <span aria-hidden>🏆</span>
-              WC 2026
-            </span>
-            <span className="game-chip-live">
-              <span className="live-dot" aria-hidden />
-              {t("live_badge")}
-            </span>
-          </div>
-          <h1 className="font-display text-3xl leading-none tracking-wide text-heading md:text-4xl">
-            {t("site_name")}
-          </h1>
-          <p className="mt-1.5 label-caps">{t("tagline")}</p>
+    <section className="mb-4 border-b border-espn-red/20 bg-espn-red/10">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="label-caps">{t("leader")}</span>
+          <span className="font-semibold text-primary-theme">
+            {leader ? `${leader.name} · ${leader.points} ${t("points_abbr")}` : "—"}
+          </span>
         </div>
-        <p className="shrink-0 text-right text-label text-muted">{time}</p>
+        <div className="flex items-center gap-2">
+          <span className="label-caps">{t("matches")}</span>
+          <span className="font-semibold text-primary-theme">
+            {games.played}/{games.total}
+          </span>
+        </div>
+        <div className="ml-auto flex items-center gap-2 text-muted">
+          <span className="label-caps">{t("last_updated")}</span>
+          <span>{lastUpdated}</span>
+        </div>
       </div>
     </section>
   );

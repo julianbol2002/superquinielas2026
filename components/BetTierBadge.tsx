@@ -1,8 +1,6 @@
 "use client";
 
-import { getBetTierAbbrev } from "@/lib/predictionScoring";
 import type { RankedQuiniela } from "@/data/quinielas";
-import { betBadgeClass } from "@/lib/betBadgeStyles";
 import { cn } from "@/lib/utils";
 
 export function BetTierBadge({
@@ -13,14 +11,8 @@ export function BetTierBadge({
   className?: string;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none shadow-sm",
-        betBadgeClass(bet),
-        className
-      )}
-    >
-      {getBetTierAbbrev(bet)}
+    <span className={cn("text-xs font-medium text-secondary", className)}>
+      ${bet}
     </span>
   );
 }

@@ -6,17 +6,21 @@ import {
   Trophy,
   CircleDot,
   LayoutGrid,
-  BarChart3,
+  Table2,
   Settings,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const tabs: { href: string; icon: LucideIcon; labelKey: "nav_home" | "nav_matches" | "nav_quinielas" | "nav_stats" | "nav_settings" }[] = [
+const tabs: {
+  href: string;
+  icon: LucideIcon;
+  labelKey: "nav_home" | "nav_matches" | "nav_quinielas" | "nav_picks" | "nav_settings";
+}[] = [
   { href: "/", icon: Trophy, labelKey: "nav_home" },
   { href: "/partidos", icon: CircleDot, labelKey: "nav_matches" },
   { href: "/quinielas", icon: LayoutGrid, labelKey: "nav_quinielas" },
-  { href: "/estadisticas", icon: BarChart3, labelKey: "nav_stats" },
+  { href: "/picks", icon: Table2, labelKey: "nav_picks" },
   { href: "/ajustes", icon: Settings, labelKey: "nav_settings" },
 ];
 
@@ -30,7 +34,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border bg-surface/75 backdrop-blur-md safe-bottom md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-14 border-t border-border bg-surface safe-bottom md:hidden">
       <div className="flex h-14 items-stretch">
         {tabs.map((tab) => {
           const active = isNavActive(pathname, tab.href);
@@ -44,12 +48,12 @@ export default function BottomNav() {
               <Icon
                 size={18}
                 strokeWidth={1.75}
-                className={cn(active ? "text-accent" : "text-muted")}
+                className={cn(active ? "text-espn-red" : "text-muted")}
               />
               <span
                 className={cn(
-                  "relative text-[11px]",
-                  active ? "nav-link-active" : "text-muted"
+                  "text-[11px] font-medium",
+                  active ? "text-espn-red" : "text-muted"
                 )}
               >
                 {t(tab.labelKey)}

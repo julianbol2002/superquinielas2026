@@ -1,21 +1,34 @@
 "use client";
 
-import { useRef } from "react";
-import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { RankedQuiniela } from "@/data/quinielas";
 import { Link, useRouter } from "@/i18n/routing";
 import { useAppStore } from "@/lib/store";
-import { rankNumberClass, rankMedalEmoji, leaderboardRowClass } from "@/lib/rankStyles";
+import { useLiveScores } from "@/hooks/useLiveScores";
+import { getScoredPredictions } from "@/lib/predictionScoring";
 import { cn } from "@/lib/utils";
-import BetTierBadge from "./BetTierBadge";
 import RankChange from "./RankChange";
-import PlayerAvatar from "./PlayerAvatar";
-import ScoreBreakdownTooltip from "./ScoreBreakdownTooltip";
+import BetTierBadge from "./BetTierBadge";
+
 interface LeaderboardProps {
   entries: RankedQuiniela[];
   highlightSlug?: string;
   hotStreakSlug?: string;
+}
+
+/** Color a per-match square by points earned */
+function squareColor(points: number): string {
+  if (points >= 3) return "#16a34a"; // green
+  if (points >= 1) return "#ca8a04"; // amber
+  return "#dc2626"; // red (0 pts)
+}
+
+function rankBadgeClass(rank: number): string | null {
+  if (rank === 1) return "rank-badge-1";
+  if (rank === 2) return "rank-badge-2";
+  if (rank === 3) return "rank-badge-3";
+  return null;
 }
 
 function getRowNavHandlers(slug: string, router: ReturnType<typeof useRouter>) {
@@ -38,172 +51,146 @@ export default function Leaderboard({
   const t = useTranslations();
   const router = useRouter();
   const activePlayer = useAppStore((s) => s.activePlayer);
-  const rowRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const { data: liveData } = useLiveScores();
 
-  const rowClass = (rank: number, isHighlighted: boolean) =>
-    cn(
-      "min-h-[44px] cursor-pointer border-b border-border transition-colors hover:bg-hover",
-      rank === 1 && "rank-accent-bar",
-      leaderboardRowClass(rank),
-      isHighlighted && "ring-1 ring-inset ring-accent/30"
-    );
+  const playedBySlug = useMemo(() => {
+    const map = new Map<string, { points: number }[]>();
+    for (const entry of entries) {
+      const rows = getScoredPredictions(entry.slug, liveData?.matches ?? [])
+        .filter((r) => r.played)
+        .map((r) => ({ points: r.pointsEarned }));
+      map.set(entry.slug, rows);
+    }
+    return map;
+  }, [entries, liveData?.matches]);
+
+  const totalGames = useMemo(() => {
+    if (entries.length === 0) return 0;
+    return getScoredPredictions(entries[0].slug, liveData?.matches ?? []).filter(
+      (r) => r.phase === "group"
+    ).length;
+  }, [entries, liveData?.matches]);
 
   return (
-    <div className="overflow-hidden border border-border md:rounded-lg md:shadow-[0_4px_24px_color-mix(in_srgb,var(--accent)_8%,transparent)]">
-      {/* Mobile */}
-      <div className="sm:hidden">
-        {entries.map((entry, i) => {
-          const isHighlighted =
-            highlightSlug === entry.slug ||
-            (activePlayer === entry.captain && !highlightSlug);
-          const nav = getRowNavHandlers(entry.slug, router);
-          return (
-            <motion.div
-              key={entry.slug}
-              ref={(el) => {
-                if (el) rowRefs.current.set(entry.slug, el);
-              }}
-              id={`quiniela-${entry.slug}`}
-              data-captain={entry.captain}
-              role="link"
-              tabIndex={0}
-              {...nav}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03, duration: 0.15 }}
-              className={cn("px-4 py-2.5", rowClass(entry.rank, isHighlighted))}
-            >
-              <div className="flex min-h-[44px] items-center gap-2">
-                <div className="flex w-5 flex-shrink-0 justify-center">
-                  <RankChange change={entry.rankChange} />
-                </div>
-                <span
-                  className={cn(
-                    "flex w-6 flex-shrink-0 items-center justify-center font-display text-lg",
-                    !rankMedalEmoji(entry.rank) && rankNumberClass(entry.rank)
-                  )}
-                  aria-label={`${t("rank")} ${entry.rank}`}
-                >
-                  {rankMedalEmoji(entry.rank) ?? entry.rank}
-                </span>
-                <PlayerAvatar captain={entry.captain} size={32} className="flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-medium text-name transition-colors hover:text-accent">
-                    {entry.name}
-                    {hotStreakSlug === entry.slug && (
-                      <span className="ml-1" aria-hidden>
-                        🔥
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <div
-                  className="flex flex-shrink-0 items-center gap-1"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ScoreBreakdownTooltip
-                    breakdown={entry.scoreBreakdown}
-                    officialPoints={entry.points}
-                    size="sm"
-                  />
-                </div>
-              </div>
+    <div className="overflow-x-auto overflow-hidden rounded-sm border border-border bg-surface shadow-md">
+      <table className="w-full text-left">
+        <thead className="espn-table-head">
+          <tr>
+            <th className="text-center">{t("rank")}</th>
+            <th className="text-center">{t("col_move")}</th>
+            <th>{t("quiniela_name")}</th>
+            <th className="hidden md:table-cell">{t("captain")}</th>
+            <th className="hidden sm:table-cell">{t("bet")}</th>
+            <th className="hidden md:table-cell">{t("col_games")}</th>
+            <th className="text-right">{t("points")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map((entry) => {
+            const isHighlighted =
+              highlightSlug === entry.slug ||
+              (activePlayer === entry.captain && !highlightSlug);
+            const nav = getRowNavHandlers(entry.slug, router);
+            const badge = rankBadgeClass(entry.rank);
+            const played = playedBySlug.get(entry.slug) ?? [];
 
-              <div className="mt-1 flex items-center gap-2 pl-[4.5rem]">
-                <span className="truncate text-label text-captain">{entry.captain}</span>
-                <BetTierBadge bet={entry.bet} />
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Desktop */}
-      <div className="hidden sm:block">
-        <table className="w-full text-left text-body">
-          <thead>
-            <tr className="border-b border-border label-caps">
-              <th className="px-3 py-2.5 font-normal">{t("rank")}</th>
-              <th className="px-3 py-2.5 font-normal">{t("quiniela_name")}</th>
-              <th className="px-3 py-2.5 font-normal">{t("captain")}</th>
-              <th className="px-3 py-2.5 font-normal">{t("bet")}</th>
-              <th className="px-3 py-2.5 text-right font-normal">{t("points")}</th>
-              <th className="w-6 px-1 py-2.5" aria-hidden />
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, i) => {
-              const isHighlighted =
-                highlightSlug === entry.slug ||
-                (activePlayer === entry.captain && !highlightSlug);
-              const nav = getRowNavHandlers(entry.slug, router);
-              return (
-                <motion.tr
-                  key={entry.slug}
-                  ref={(el) => {
-                    if (el) rowRefs.current.set(entry.slug, el);
-                  }}
-                  id={`quiniela-${entry.slug}-desktop`}
-                  data-captain={entry.captain}
-                  role="link"
-                  tabIndex={0}
-                  {...nav}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03, duration: 0.15 }}
-                  className={rowClass(entry.rank, isHighlighted)}
-                >
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-1.5">
-                      <RankChange change={entry.rankChange} />
+            return (
+              <tr
+                key={entry.slug}
+                id={`quiniela-${entry.slug}`}
+                data-captain={entry.captain}
+                role="link"
+                tabIndex={0}
+                {...nav}
+                className={cn(
+                  "cursor-pointer border-b border-border transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+                  isHighlighted && "bg-espn-red/5"
+                )}
+              >
+                <td className="px-4 py-2.5">
+                  <div className="flex justify-center">
+                    {badge ? (
                       <span
                         className={cn(
-                          "font-display text-xl",
-                          !rankMedalEmoji(entry.rank) && rankNumberClass(entry.rank)
+                          "flex h-6 w-6 items-center justify-center font-display text-sm font-bold leading-none",
+                          badge
                         )}
                       >
-                        {rankMedalEmoji(entry.rank) ?? entry.rank}
+                        {entry.rank}
                       </span>
-                    </div>
-                  </td>
-                  <td className="max-w-[200px] px-3 py-2.5">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <PlayerAvatar captain={entry.captain} size={28} className="flex-shrink-0" />
-                      <Link
-                        href={`/quiniela/${entry.slug}`}
-                        className="min-w-0 text-name transition-colors hover:text-accent"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <p className="truncate font-medium">
-                          {entry.name}
-                          {hotStreakSlug === entry.slug && (
-                            <span className="ml-1" aria-hidden>
-                              🔥
-                            </span>
-                          )}
-                        </p>
-                      </Link>
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5 text-captain">{entry.captain}</td>
-                  <td className="px-3 py-2.5">
-                    <BetTierBadge bet={entry.bet} />
-                  </td>
-                  <td className="px-3 py-2.5 text-right align-middle">
-                    <ScoreBreakdownTooltip
-                      breakdown={entry.scoreBreakdown}
-                      officialPoints={entry.points}
-                    />
-                  </td>
-                  <td className="px-1 py-2.5 text-right text-muted">
-                    <span aria-hidden>›</span>
-                  </td>
-                </motion.tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                    ) : (
+                      <span className="font-display text-sm font-bold text-primary-theme">
+                        {entry.rank}
+                      </span>
+                    )}
+                  </div>
+                </td>
+
+                <td className="px-2 py-2.5 text-center">
+                  <RankChange change={entry.rankChange} />
+                </td>
+
+                <td className="px-4 py-2.5">
+                  <Link
+                    href={`/quiniela/${entry.slug}`}
+                    className="font-semibold text-primary-theme transition-colors hover:text-espn-red"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span className="truncate">
+                      {entry.name}
+                      {hotStreakSlug === entry.slug && (
+                        <span className="ml-1" aria-hidden>
+                          🔥
+                        </span>
+                      )}
+                    </span>
+                  </Link>
+                  <span className="block truncate text-xs text-captain md:hidden">
+                    {entry.captain}
+                  </span>
+                </td>
+
+                <td className="hidden px-4 py-2.5 text-secondary md:table-cell">
+                  {entry.captain}
+                </td>
+
+                <td className="hidden px-4 py-2.5 sm:table-cell">
+                  <BetTierBadge bet={entry.bet} />
+                </td>
+
+                <td className="hidden px-4 py-2.5 md:table-cell">
+                  <div className="flex max-w-[220px] flex-wrap gap-0.5">
+                    {played.length === 0 ? (
+                      <span className="text-xs text-muted">—</span>
+                    ) : (
+                      played.map((sq, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-block h-4 w-4 rounded-[2px]"
+                          style={{ backgroundColor: squareColor(sq.points) }}
+                          title={`+${sq.points}`}
+                        />
+                      ))
+                    )}
+                  </div>
+                </td>
+
+                <td className="px-4 py-2.5 text-right">
+                  <span className="font-display text-lg font-bold text-espn-red">
+                    {entry.points}
+                  </span>
+                  <span
+                    className="ml-1 text-xs text-muted"
+                    title={`${played.length}/${totalGames} ${t("col_games")}`}
+                  >
+                    {played.length}/{totalGames}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }

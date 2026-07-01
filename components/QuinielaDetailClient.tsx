@@ -4,11 +4,9 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/routing";
-import {
-  quinielas,
-  slugToQuiniela,
-} from "@/data/quinielas";
-import { worldCupGroups, formatScoreWithAbbrevs, getCountryAbbrev } from "@/data/countries";
+import { quinielas, slugToQuiniela } from "@/data/quinielas";
+import { getCountryAbbrev } from "@/data/countries";
+import { ACTUAL_CHAMPION, ACTUAL_FINALISTS } from "@/data/tournamentResults";
 import {
   computePredictionStats,
   getBetTierLabel,
@@ -22,217 +20,148 @@ import PlayerAvatar from "@/components/PlayerAvatar";
 import ShareCard from "@/components/ShareCard";
 import AvatarUpload from "@/components/AvatarUpload";
 import CountUp from "@/components/CountUp";
-import MatchTeamsRow from "@/components/MatchTeamsRow";
 import FlagChip from "@/components/FlagChip";
 import { cn } from "@/lib/utils";
 
-function rowClass(accuracy: RowAccuracy, played: boolean): string {
-  if (accuracy === "missing") {
-    return "opacity-50 bg-white/[0.02] light:bg-slate-50";
-  }
-  if (!played || accuracy === "pending") {
-    return "bg-white/[0.03] light:bg-slate-50";
-  }
-  if (accuracy === "exact") {
-    return "bg-emerald-900/50 light:bg-emerald-100";
-  }
-  if (accuracy === "result") {
-    return "bg-emerald-900/25 light:bg-emerald-50";
-  }
-  return "bg-red-900/30 light:bg-red-50";
+/** Running-total color: red (low efficiency) → green (high efficiency) */
+function cumulativeGradient(progress: number): string {
+  const p = Math.max(0, Math.min(1, progress));
+  const hue = Math.round(p * 120);
+  return `hsl(${hue}, 65%, 42%)`;
 }
 
-function betBadgeClass(bet: number) {
-  if (bet >= 100) return "bg-gold/20 text-gold border-gold/30";
-  if (bet >= 50) return "bg-pitch/20 text-pitch border-pitch/30";
-  return "bg-blue-500/20 text-blue-300 light:text-blue-700 border-blue-500/30";
+function maxForPhase(phase: ScoredPredictionRow["phase"]): number {
+  return phase === "group" ? 6 : 9;
 }
 
-function PredictionsTable({ rows }: { rows: ScoredPredictionRow[] }) {
+function rowTint(accuracy: RowAccuracy, played: boolean): string {
+  if (!played) return "bg-surface";
+  if (accuracy === "exact") return "bg-yellow-900/15";
+  if (accuracy === "result") return "bg-green-600/10";
+  if (accuracy === "wrong") return "bg-red-600/10";
+  return "bg-surface";
+}
+
+function ResultBadge({ row }: { row: ScoredPredictionRow }) {
   const t = useTranslations();
-  const groupRows = rows.filter((r) => r.phase === "group");
-  const knockoutRows = rows.filter((r) => r.phase !== "group");
-
-  const byGroup = useMemo(() => {
-    const map = new Map<string, ScoredPredictionRow[]>();
-    for (const g of worldCupGroups) {
-      map.set(
-        g.name,
-        groupRows.filter((r) => r.group === g.name)
-      );
-    }
-    return map;
-  }, [groupRows]);
-
-  const phaseLabels: Record<string, string> = {
-    quarter: t("phase_quarters"),
-    semi: t("phase_semis"),
-    final: t("phase_final"),
+  if (!row.played || row.accuracy === "pending" || row.accuracy === "missing") {
+    return <span className="text-xs text-muted">{t("result_pending")}</span>;
+  }
+  const map: Record<"exact" | "result" | "wrong", { label: string; color: string }> = {
+    exact: { label: t("result_exact"), color: "var(--gold)" },
+    result: { label: t("result_correct"), color: "var(--green)" },
+    wrong: { label: t("result_wrong"), color: "var(--accent)" },
   };
-
+  const info = map[row.accuracy as "exact" | "result" | "wrong"];
   return (
-    <div className="space-y-8">
-      <section>
-        <h2 className="mb-4 font-display text-2xl tracking-wide text-pitch">
-          {t("stage_group")}
-        </h2>
-        {worldCupGroups.map((g) => {
-          const matches = byGroup.get(g.name) ?? [];
-          if (matches.length === 0) return null;
-          return (
-            <div key={g.name} className="mb-6">
-              <h3 className="mb-2 font-accent text-sm uppercase tracking-wider text-gold">
-                {t("group")} {g.name}
-              </h3>
-              <div className="overflow-hidden rounded-xl border border-white/10 light:border-slate-200">
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[720px] text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase text-slate-400 light:border-slate-200 light:bg-slate-50">
-                        <th className="px-3 py-2 text-left">{t("match_teams")}</th>
-                        <th className="px-3 py-2 text-center">{t("prediction")}</th>
-                        <th className="px-3 py-2 text-center">{t("actual_score")}</th>
-                        <th className="px-3 py-2 text-right">{t("match_points")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {matches.map((row) => (
-                        <MatchRow key={row.id} row={row} />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </section>
-
-      {knockoutRows.length > 0 && (
-        <section>
-          {(["quarter", "semi", "final"] as const).map((phase) => {
-            const phaseMatches = knockoutRows.filter((r) => r.phase === phase);
-            if (phaseMatches.length === 0) return null;
-            return (
-              <div key={phase} className="mb-6">
-                <h2 className="mb-4 font-display text-2xl tracking-wide text-pitch">
-                  {phaseLabels[phase]}
-                </h2>
-                <div className="overflow-hidden rounded-xl border border-white/10 light:border-slate-200">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[720px] text-sm">
-                      <thead>
-                        <tr className="border-b border-white/10 bg-stadium-navy/50 text-xs uppercase text-slate-400 light:border-slate-200 light:bg-slate-50">
-                          <th className="px-3 py-2 text-left">{t("match_teams")}</th>
-                          <th className="px-3 py-2 text-center">{t("prediction")}</th>
-                          <th className="px-3 py-2 text-center">{t("actual_score")}</th>
-                          <th className="px-3 py-2 text-right">{t("match_points")}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {phaseMatches.map((row) => (
-                          <MatchRow key={row.id} row={row} />
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </section>
-      )}
-    </div>
-  );
-}
-
-function PredictionLabel({
-  team1,
-  team2,
-  score1,
-  score2,
-}: {
-  team1: string;
-  team2: string;
-  score1: number;
-  score2: number;
-}) {
-  const abbrev1 = getCountryAbbrev(team1);
-  const abbrev2 = getCountryAbbrev(team2);
-  const team1Wins = score1 > score2;
-  const team2Wins = score2 > score1;
-
-  return (
-    <span className="font-accent text-base tracking-wide sm:text-lg">
-      <span className={cn(team1Wins && "font-bold text-pitch")}>{abbrev1}</span>{" "}
-      {score1} - {score2}{" "}
-      <span className={cn(team2Wins && "font-bold text-pitch")}>{abbrev2}</span>
+    <span className="text-xs font-semibold" style={{ color: info.color }}>
+      {info.label}
     </span>
   );
 }
 
-function MatchRow({ row }: { row: ScoredPredictionRow }) {
+function BracketTable({ rows }: { rows: ScoredPredictionRow[] }) {
   const t = useTranslations();
 
-  const predictedLabel =
-    row.predicted === null ? null : (
-      <PredictionLabel
-        team1={row.team1}
-        team2={row.team2}
-        score1={row.predicted.score1}
-        score2={row.predicted.score2}
-      />
-    );
-
-  const actualLabel =
-    row.played && row.actualScore1 !== null && row.actualScore2 !== null
-      ? formatScoreWithAbbrevs(row.team1, row.team2, row.actualScore1, row.actualScore2)
-      : "—";
-
-  const pointsLabel =
-    row.accuracy === "missing"
-      ? "—"
-      : !row.played
-        ? "—"
-        : String(row.pointsEarned);
+  let cumulative = 0;
+  let cumulativeMax = 0;
+  const withTotals = rows.map((row) => {
+    cumulative += row.played ? row.pointsEarned : 0;
+    cumulativeMax += maxForPhase(row.phase);
+    const progress = cumulativeMax > 0 ? cumulative / cumulativeMax : 0;
+    return { row, cumulative, progress };
+  });
 
   return (
-    <tr
-      className={cn(
-        "border-b border-white/5 transition light:border-slate-100",
-        rowClass(row.accuracy, row.played)
-      )}
-    >
-      <td className="px-3 py-3">
-        <MatchTeamsRow
-          team1={row.team1}
-          team2={row.team2}
-          compactNames
-        />
-      </td>
-      <td className="px-3 py-2 text-center">
-        <div className="flex items-center justify-center gap-2">
-          {predictedLabel ?? (
-            <span className="font-accent text-lg tracking-wide">—</span>
-          )}
-          {row.goleadaBonus && (
-            <span
-              className="inline-flex items-center gap-0.5 rounded-full bg-orange-500/20 px-2 py-0.5 text-xs font-bold text-orange-400"
-              title={t("goleada_short")}
-            >
-              🔥
-              <span className="sr-only sm:not-sr-only">{t("goleada_short")}</span>
-            </span>
-          )}
-        </div>
-      </td>
-      <td className="px-3 py-2 text-center font-medium text-secondary light:text-slate-700">
-        {actualLabel}
-      </td>
-      <td className="px-3 py-2 text-right font-display text-xl text-pitch">
-        {pointsLabel}
-      </td>
-    </tr>
+    <div className="overflow-x-auto rounded-sm border border-border bg-surface shadow-md">
+      <table className="w-full min-w-[720px] text-sm">
+        <thead className="espn-table-head">
+          <tr>
+            <th className="text-center">#</th>
+            <th>{t("match_teams")}</th>
+            <th className="text-center">{t("their_pick")}</th>
+            <th className="text-center">{t("actual_score")}</th>
+            <th className="text-center">{t("match_points")}</th>
+            <th className="text-center">{t("col_result")}</th>
+            <th className="text-right">{t("running_total")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {withTotals.map(({ row, cumulative: total, progress }) => {
+            const pick = row.predicted
+              ? `${row.predicted.score1}-${row.predicted.score2}`
+              : "—";
+            const actual =
+              row.played && row.actualScore1 !== null && row.actualScore2 !== null
+                ? `${row.actualScore1}-${row.actualScore2}`
+                : "—";
+            const pts = row.played && row.predicted ? String(row.pointsEarned) : "—";
+
+            return (
+              <tr
+                key={row.id}
+                className={cn(
+                  "border-b border-border",
+                  rowTint(row.accuracy, row.played)
+                )}
+              >
+                <td className="px-3 py-2 text-center text-muted">{row.matchNumber}</td>
+                <td className="px-3 py-2 font-medium text-primary-theme">
+                  {getCountryAbbrev(row.team1)}{" "}
+                  <span className="text-muted">v</span>{" "}
+                  {getCountryAbbrev(row.team2)}
+                  {row.phase !== "group" && (
+                    <span className="ml-2 text-[10px] uppercase text-muted">
+                      {row.group}
+                    </span>
+                  )}
+                </td>
+                <td className="px-3 py-2 text-center font-semibold text-primary-theme">
+                  {pick}
+                </td>
+                <td className="px-3 py-2 text-center text-secondary">{actual}</td>
+                <td className="px-3 py-2 text-center font-display font-bold text-espn-red">
+                  {pts}
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <ResultBadge row={row} />
+                </td>
+                <td className="px-3 py-2 text-right font-display text-base font-bold">
+                  <span style={{ color: cumulativeGradient(progress) }}>{total}</span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function BonusPick({
+  label,
+  country,
+  earned,
+}: {
+  label: string;
+  country: string;
+  earned: boolean | null;
+}) {
+  const t = useTranslations();
+  const state =
+    earned === null
+      ? { text: t("bonus_undecided"), color: "var(--text-muted)" }
+      : earned
+        ? { text: t("bonus_earned"), color: "var(--green)" }
+        : { text: t("bonus_not_earned"), color: "var(--accent)" };
+  return (
+    <div className="glass-card flex flex-col gap-1 rounded-sm border-t-2 border-espn-red/40 p-3">
+      <span className="label-caps">{label}</span>
+      <FlagChip country={country} showLabel size={20} />
+      <span className="text-xs font-semibold" style={{ color: state.color }}>
+        {state.text}
+      </span>
+    </div>
   );
 }
 
@@ -246,12 +175,10 @@ function StatMiniCard({
   detail?: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-stadium-card p-4 light:border-slate-200 light:bg-white">
-      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-1 font-display text-3xl text-pitch">{value}</p>
-      {detail && (
-        <p className="mt-1 text-xs text-muted line-clamp-2">{detail}</p>
-      )}
+    <div className="glass-card rounded-sm p-4">
+      <p className="label-caps">{label}</p>
+      <p className="mt-1 font-display text-3xl font-bold text-espn-red">{value}</p>
+      {detail && <p className="mt-1 line-clamp-2 text-xs text-muted">{detail}</p>}
     </div>
   );
 }
@@ -281,61 +208,46 @@ export default function QuinielaDetailClient({ slug }: { slug: string }) {
   const tier = getBetTierLabel(entry.bet);
   const totalQuinielas = quinielas.length;
 
+  // The 2026 knockout results are not decided yet — bonus picks stay undecided.
+  const finalists = ACTUAL_FINALISTS as readonly string[];
+  const tournamentDecided = false;
+  const finalist1Earned = tournamentDecided ? finalists.includes(entry.finalist1) : null;
+  const finalist2Earned = tournamentDecided ? finalists.includes(entry.finalist2) : null;
+  const championEarned = tournamentDecided
+    ? entry.winner === ACTUAL_CHAMPION
+    : null;
+
   return (
     <div className="pb-10">
-      <Link
-        href="/"
-        className="mb-4 inline-block text-sm text-muted hover:text-pitch"
-      >
+      <Link href="/" className="mb-4 inline-block text-sm text-muted hover:text-espn-red">
         ← {t("back")}
       </Link>
 
-      <header className="mb-8 rounded-2xl border border-white/10 bg-stadium-card p-6 light:border-slate-200 light:bg-white">
+      <header className="glass-card mb-8 rounded-sm p-6">
         <div className="flex flex-col items-center text-center">
           <PlayerAvatar captain={entry.captain} size={96} />
-          <h1 className="mt-4 font-display text-4xl tracking-wide md:text-5xl">
+          <h1 className="mt-4 font-display text-4xl font-bold md:text-5xl">
             {entry.name}
           </h1>
           <p className="mt-1 text-muted">{entry.captain}</p>
 
-          <span
-            className={cn(
-              "mt-3 inline-block rounded-full border px-4 py-1 font-accent text-sm font-bold tracking-wider",
-              betBadgeClass(entry.bet)
-            )}
-          >
-            {tier}
+          <span className="mt-3 inline-block text-sm font-semibold text-secondary">
+            {tier} · ${entry.bet}
           </span>
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-6">
             <div>
-              <p className="font-display text-4xl text-pitch">
+              <p className="font-display text-4xl font-bold text-espn-red">
                 <CountUp value={entry.points} />
               </p>
-              <p className="text-xs text-muted">{t("points")}</p>
+              <p className="label-caps">{t("points")}</p>
             </div>
             <div>
-              <p className="font-accent text-2xl text-gold">
+              <p className="font-display text-2xl font-bold">
                 #{entry.rank}
-                <span className="text-sm text-muted">
-                  {" "}
-                  / {totalQuinielas}
-                </span>
+                <span className="text-sm text-muted"> / {totalQuinielas}</span>
               </p>
-              <p className="text-xs text-muted">{t("rank")}</p>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-end justify-center gap-4">
-            <div className="flex items-center gap-2">
-              <FlagChip country={entry.finalist1} showLabel size={22} />
-              <FlagChip country={entry.finalist2} showLabel size={22} />
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="mb-1 text-lg" aria-hidden>
-                👑
-              </span>
-              <FlagChip country={entry.winner} showLabel size={28} />
+              <p className="label-caps">{t("rank")}</p>
             </div>
           </div>
 
@@ -349,39 +261,51 @@ export default function QuinielaDetailClient({ slug }: { slug: string }) {
         <ShareCard entry={entry} />
       </div>
 
-      <PredictionsTable rows={rows} />
+      <section className="mb-6">
+        <h2 className="mb-3 font-display text-xl font-bold text-section">
+          {t("bonus_picks")}
+        </h2>
+        <div className="grid grid-cols-3 gap-3">
+          <BonusPick
+            label={`${t("finalist")} 1`}
+            country={entry.finalist1}
+            earned={finalist1Earned}
+          />
+          <BonusPick
+            label={`${t("finalist")} 2`}
+            country={entry.finalist2}
+            earned={finalist2Earned}
+          />
+          <BonusPick
+            label={t("champion")}
+            country={entry.winner}
+            earned={championEarned}
+          />
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="mb-3 font-display text-xl font-bold text-section">
+          {t("bracket_title")}
+        </h2>
+        <BracketTable rows={rows} />
+      </section>
 
       <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         <StatMiniCard label={t("stat_exact_scores")} value={stats.exactScores} />
-        <StatMiniCard
-          label={t("stat_correct_results")}
-          value={stats.correctResults}
-        />
-        <StatMiniCard
-          label={t("stat_wrong_predictions")}
-          value={stats.wrongPredictions}
-        />
-        <StatMiniCard
-          label={t("stat_accuracy_pct")}
-          value={`${stats.accuracyPct}%`}
-        />
+        <StatMiniCard label={t("stat_correct_results")} value={stats.correctResults} />
+        <StatMiniCard label={t("stat_wrong_predictions")} value={stats.wrongPredictions} />
+        <StatMiniCard label={t("stat_accuracy_pct")} value={`${stats.accuracyPct}%`} />
         <StatMiniCard
           label={t("stat_best_match")}
-          value={
-            stats.bestMatch
-              ? `+${stats.bestMatch.pointsEarned}`
-              : "—"
-          }
+          value={stats.bestMatch ? `+${stats.bestMatch.pointsEarned}` : "—"}
           detail={
             stats.bestMatch
               ? `${stats.bestMatch.team1} vs ${stats.bestMatch.team2}`
               : undefined
           }
         />
-        <StatMiniCard
-          label={t("stat_hot_streak")}
-          value={stats.currentHotStreak}
-        />
+        <StatMiniCard label={t("stat_hot_streak")} value={stats.currentHotStreak} />
       </section>
     </div>
   );
