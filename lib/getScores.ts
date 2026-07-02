@@ -7,7 +7,7 @@ export interface Score {
   points: number;
 }
 
-const SHEET_XLSX_URL =
+export const SHEET_XLSX_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTsPKdTcdhXbjmGSlaoLKAlrV-3H6KL_gKPqHl4mkH5eSA8g7OWmIfxhAj5uK_pJl3eWmhb2R4bIWr7/pub?output=xlsx";
 
 let cachedScores: Score[] = [];

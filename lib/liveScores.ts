@@ -478,8 +478,12 @@ export async function syncLiveMatchesToSupabase(
 }
 
 export async function getScoresWithSync(): Promise<ScoresResponse> {
-  const { PLAYED_RESULTS } = await import("@/data/matchResults");
-  const matches = PLAYED_RESULTS;
+  // Group stage is sealed and static; knockout results come live from the
+  // sheet's "Eliminatorias" tab (with a bundled fallback if the fetch fails).
+  const { GROUP_RESULTS } = await import("@/data/matchResults");
+  const { getKnockoutResults } = await import("@/lib/knockoutResults");
+  const knockout = await getKnockoutResults();
+  const matches = [...GROUP_RESULTS, ...knockout];
   const syncedCount = await syncLiveMatchesToSupabase(matches);
 
   return {

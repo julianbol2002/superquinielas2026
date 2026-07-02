@@ -1,12 +1,13 @@
 import type { LiveMatch } from "@/lib/liveScores";
 
 /**
- * Authoritative played results, maintained by hand (no external API).
- * Add knockout games here as they finish. Penalty-shootout goals do NOT count;
- * enter the score after extra time. `group` is the letter for group games, null for knockouts.
- * `stage` is one of: "group" | "r32" | "r16" | "qf" | "sf" | "final".
+ * Group-stage results. The group phase is sealed ("fase terminada") and is NOT
+ * carried per-game in the Google Sheet, so these stay static here.
+ * Knockout results, by contrast, are read live from the sheet's "Eliminatorias"
+ * tab at runtime — see lib/knockoutResults.ts. The array below is only the
+ * offline fallback used when the sheet can't be reached.
  */
-export const PLAYED_RESULTS: LiveMatch[] = [
+export const GROUP_RESULTS: LiveMatch[] = [
   { espnId: "G01", team1: "Mexico", team2: "South Africa", score1: 2, score2: 0, group: "A", stage: "group", status: "final", isLive: false, matchDate: "" },
   { espnId: "G02", team1: "South Korea", team2: "Czechia", score1: 2, score2: 1, group: "A", stage: "group", status: "final", isLive: false, matchDate: "" },
   { espnId: "G03", team1: "Canada", team2: "Bosnia and Herzegovina", score1: 1, score2: 1, group: "B", stage: "group", status: "final", isLive: false, matchDate: "" },
@@ -79,6 +80,14 @@ export const PLAYED_RESULTS: LiveMatch[] = [
   { espnId: "G70", team1: "DR Congo", team2: "Uzbekistan", score1: 3, score2: 1, group: "K", stage: "group", status: "final", isLive: false, matchDate: "" },
   { espnId: "G71", team1: "Algeria", team2: "Austria", score1: 3, score2: 3, group: "J", stage: "group", status: "final", isLive: false, matchDate: "" },
   { espnId: "G72", team1: "Jordan", team2: "Argentina", score1: 1, score2: 3, group: "J", stage: "group", status: "final", isLive: false, matchDate: "" },
+];
+
+/**
+ * Offline fallback for knockout results. The live source is the sheet's
+ * "Eliminatorias" tab (lib/knockoutResults.ts); this is only used when that
+ * fetch fails. Kept roughly in sync so the site degrades gracefully.
+ */
+export const KNOCKOUT_RESULTS_FALLBACK: LiveMatch[] = [
   { espnId: "R32-01", team1: "South Africa", team2: "Canada", score1: 0, score2: 1, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
   { espnId: "R32-02", team1: "Brazil", team2: "Japan", score1: 2, score2: 1, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
   { espnId: "R32-03", team1: "Germany", team2: "Paraguay", score1: 1, score2: 1, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
@@ -89,4 +98,10 @@ export const PLAYED_RESULTS: LiveMatch[] = [
   { espnId: "R32-08", team1: "England", team2: "DR Congo", score1: 2, score2: 1, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
   { espnId: "R32-09", team1: "Belgium", team2: "Senegal", score1: 3, score2: 2, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
   { espnId: "R32-10", team1: "United States", team2: "Bosnia and Herzegovina", score1: 2, score2: 0, group: null, stage: "r32", status: "final", isLive: false, matchDate: "" },
+];
+
+/** Bundled snapshot of everything (group + fallback knockout) — offline fallback. */
+export const PLAYED_RESULTS: LiveMatch[] = [
+  ...GROUP_RESULTS,
+  ...KNOCKOUT_RESULTS_FALLBACK,
 ];
