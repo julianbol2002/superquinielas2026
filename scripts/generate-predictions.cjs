@@ -83,13 +83,26 @@ const quinielas = [
   { captain: "Julian Bolanos", name: "juliquini" },
 ];
 
+// Some quinielas were renamed after this PDF was exported. The PDF still uses
+// the old names (left column), but the app slugs come from the current names
+// (right column). Map old export slug \u2192 current app slug so the output matches
+// data/quinielas.ts.
+const SLUG_OVERRIDES = {
+  oly54: "oly-con-todo",
+  fede: "corre-como-el-viento-tiro-al-blanco",
+  g1: "soquenla",
+  "gloria-gana": "mosquito-letal",
+  "francesca-panko": "estrella-psiquica",
+};
+
 function toSlug(value) {
-  return value
+  const raw = value
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+  return SLUG_OVERRIDES[raw] ?? raw;
 }
 
 const nameToSlug = new Map(quinielas.map((q) => [q.name, toSlug(q.name)]));
@@ -107,7 +120,8 @@ function parseSections(text) {
   const bySlug = {};
   let currentSlug = null;
 
-  const headerRe = /^(.+?)\s*-\s*(.+?)$/;
+  // Captain may be empty when it wrapped onto a previous line/page (e.g. "-Panzer").
+  const headerRe = /^(.*?)\s*-\s*(.+?)$/;
   const matchRe = /^1\s+(.+?)\s+vs\s+(.+?)(?:\s+(\d+)\s*-\s*(\d+))?\s*$/;
 
   for (let i = 0; i < lines.length; i++) {

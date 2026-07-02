@@ -3,6 +3,8 @@ import {
   getPredictionsForSlug,
   type PredictionScore,
 } from "@/data/predictions";
+import { KNOCKOUT_PICKS } from "@/data/knockoutPicks";
+import { R32_FIXTURES, KNOCKOUT_ROUND_SIZES } from "@/data/knockoutFixtures";
 import {
   mergeLiveResults,
   resultKeyFromTeams,
@@ -19,7 +21,7 @@ export interface ScoredPredictionRow {
   team1: string;
   team2: string;
   group: string;
-  phase: "group" | "quarter" | "semi" | "final";
+  phase: "group" | "r32" | "r16" | "quarter" | "semi" | "final";
   predicted: PredictionScore;
   actualScore1: number | null;
   actualScore2: number | null;
@@ -121,15 +123,39 @@ export function getScoredPredictions(
     };
   });
 
-  const knockoutPhases: Array<{ phase: "quarter" | "semi" | "final"; count: number }> = [
-    { phase: "quarter", count: 4 },
-    { phase: "semi", count: 2 },
-    { phase: "final", count: 1 },
-  ];
-
+  const knockoutPicks = KNOCKOUT_PICKS[slug] ?? {};
   let n = groupRows.length;
   const knockoutRows: ScoredPredictionRow[] = [];
-  for (const { phase, count } of knockoutPhases) {
+
+  // Round of 32 — real fixtures, with each quiniela's picks and live results.
+  // Scored with the group rule (the sheet uses "misma regla" for knockouts).
+  for (const [team1, team2] of R32_FIXTURES) {
+    n += 1;
+    const key = resultKeyFromTeams(team1, team2);
+    const predicted = knockoutPicks[key] ?? null;
+    const result = results.get(key);
+    const actualScore1 = result?.score1 ?? null;
+    const actualScore2 = result?.score2 ?? null;
+    const played = actualScore1 !== null && actualScore2 !== null;
+    const scored = scoreRow(predicted, actualScore1, actualScore2);
+
+    knockoutRows.push({
+      id: `r32-${team1}-${team2}`,
+      matchNumber: n,
+      team1,
+      team2,
+      group: "R32",
+      phase: "r32",
+      predicted,
+      actualScore1,
+      actualScore2,
+      played,
+      ...scored,
+    });
+  }
+
+  // Later rounds — teams aren't known until the bracket resolves; show as pending.
+  for (const { phase, label, count } of KNOCKOUT_ROUND_SIZES) {
     for (let k = 0; k < count; k++) {
       n += 1;
       knockoutRows.push({
@@ -137,7 +163,7 @@ export function getScoredPredictions(
         matchNumber: n,
         team1: "TBD",
         team2: "TBD",
-        group: phase,
+        group: label,
         phase,
         predicted: null,
         actualScore1: null,
@@ -154,7 +180,9 @@ export function getScoredPredictions(
 }
 
 export function computePredictionStats(rows: ScoredPredictionRow[]): QuinielaPredictionStats {
-  const playedRows = rows.filter((r) => r.phase === "group" && r.played);
+  // Count every real fixture the quiniela had a pick for — group and knockout.
+  // Unplayed later-round placeholders carry no pick, so they never count.
+  const playedRows = rows.filter((r) => r.played);
   let exactScores = 0;
   let correctResults = 0;
   let wrongPredictions = 0;
@@ -162,7 +190,6 @@ export function computePredictionStats(rows: ScoredPredictionRow[]): QuinielaPre
   let bestMatch: ScoredPredictionRow | null = null;
 
   for (const row of rows) {
-    if (row.phase !== "group") continue;
     if (row.predicted) predictedCount += 1;
     if (!row.played || row.accuracy === "missing") continue;
 

@@ -6,6 +6,7 @@ import { quinielas, quinielaToSlug } from "@/data/quinielas";
 import { getCountryAbbrev, getAllGroupFixtures } from "@/data/countries";
 import { getPredictionsForSlug, type PredictionScore } from "@/data/predictions";
 import { KNOCKOUT_PICKS } from "@/data/knockoutPicks";
+import { R32_FIXTURES } from "@/data/knockoutFixtures";
 import { resultKeyFromTeams } from "@/data/tournamentResults";
 import { scoreMatchPrediction } from "@/lib/quinielaScoring";
 import type { RowAccuracy } from "@/lib/predictionScoring";
@@ -24,26 +25,6 @@ const ROUNDS: { key: RoundKey; labelKey: string }[] = [
   { key: "qf", labelKey: "round_qf" },
   { key: "sf", labelKey: "round_sf" },
   { key: "final", labelKey: "round_final" },
-];
-
-/** Round of 32 pairings, in bracket order (results live in data/matchResults.ts) */
-const R32_FIXTURES: [string, string][] = [
-  ["South Africa", "Canada"],
-  ["Brazil", "Japan"],
-  ["Germany", "Paraguay"],
-  ["Netherlands", "Morocco"],
-  ["Ivory Coast", "Norway"],
-  ["France", "Sweden"],
-  ["Mexico", "Ecuador"],
-  ["England", "DR Congo"],
-  ["Belgium", "Senegal"],
-  ["United States", "Bosnia and Herzegovina"],
-  ["Spain", "Austria"],
-  ["Portugal", "Croatia"],
-  ["Switzerland", "Algeria"],
-  ["Egypt", "Australia"],
-  ["Argentina", "Cabo Verde"],
-  ["Colombia", "Ghana"],
 ];
 
 interface Fixture {

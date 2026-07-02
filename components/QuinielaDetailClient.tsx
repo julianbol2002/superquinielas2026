@@ -30,8 +30,10 @@ function cumulativeGradient(progress: number): string {
   return `hsl(${hue}, 65%, 42%)`;
 }
 
-function maxForPhase(phase: ScoredPredictionRow["phase"]): number {
-  return phase === "group" ? 6 : 9;
+function maxForPhase(_phase: ScoredPredictionRow["phase"]): number {
+  // Same scoring rule for groups and knockouts (sheet: "misma regla"): max 6
+  // per match (exact 3 + goleada 3).
+  return 6;
 }
 
 function rowTint(accuracy: RowAccuracy, played: boolean): string {
@@ -67,7 +69,9 @@ function BracketTable({ rows }: { rows: ScoredPredictionRow[] }) {
   let cumulativeMax = 0;
   const withTotals = rows.map((row) => {
     cumulative += row.played ? row.pointsEarned : 0;
-    cumulativeMax += maxForPhase(row.phase);
+    // Only played matches count toward the max, so the gradient reflects
+    // efficiency-so-far and isn't dragged down by pending future rounds.
+    cumulativeMax += row.played ? maxForPhase(row.phase) : 0;
     const progress = cumulativeMax > 0 ? cumulative / cumulativeMax : 0;
     return { row, cumulative, progress };
   });
